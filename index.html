@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0b0d10">
+<title>ScriptForge AI — AI 视频脚本生成器</title>
+<style>
+:root{
+  --bg:#f5f6f8;
+  --surface:#ffffff;
+  --surface2:#f0f2f5;
+  --text:#16181d;
+  --muted:#6b7280;
+  --border:#e3e6eb;
+  --primary:#111827;
+  --primaryText:#ffffff;
+  --accent:#6366f1;
+  --accent2:#818cf8;
+  --danger:#dc2626;
+  --success:#16a34a;
+  --shadow:0 12px 35px rgba(0,0,0,.07);
+  --radius:16px;
+  --sidebar:260px;
+}
+html.dark{
+  --bg:#0b0d10;
+  --surface:#111418;
+  --surface2:#181c21;
+  --text:#f4f5f7;
+  --muted:#9ca3af;
+  --border:#292e36;
+  --primary:#f4f5f7;
+  --primaryText:#0b0d10;
+  --accent:#818cf8;
+  --accent2:#a5b4fc;
+  --shadow:0 12px 35px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+button,input,textarea,select{font:inherit;}
+button{cursor:pointer;}
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:var(--sidebar);position:fixed;left:0;top:0;bottom:0;
+  border-right:1px solid var(--border);background:var(--surface);
+  display:flex;flex-direction:column;z-index:50;
+}
+.logo{padding:25px 22px;display:flex;align-items:center;gap:11px;font-weight:800;font-size:20px;}
+.logo-mark{
+  width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#a855f7);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;
+}
+.nav{padding:10px 12px;}
+.nav button{
+  width:100%;border:0;background:transparent;color:var(--muted);padding:12px 14px;
+  border-radius:12px;text-align:left;margin-bottom:4px;display:flex;align-items:center;gap:11px;transition:.2s;
+}
+.nav button:hover{background:var(--surface2);color:var(--text);}
+.nav button.active{background:var(--surface2);color:var(--text);font-weight:700;}
+.nav-icon{width:20px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:15px;border-top:1px solid var(--border);}
+.language-mini{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);}
+.main{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));}
+.topbar{
+  height:72px;border-bottom:1px solid var(--border);background:var(--surface);
+  display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:30;
+}
+.topbar-title{font-size:18px;font-weight:750;}
+.top-actions{display:flex;align-items:center;gap:9px;}
+.icon-btn{width:40px;height:40px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;}
+.content{padding:30px;max-width:1500px;margin:auto;}
+.page{display:none;}
+.page.active{display:block;}
+.hero{padding:12px 0 28px;}
+.hero h1{margin:0 0 9px;font-size:34px;letter-spacing:-1px;}
+.hero p{margin:0;color:var(--muted);max-width:760px;line-height:1.7;}
+.grid{display:grid;gap:18px;}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.card-header{padding:20px 21px;border-bottom:1px solid var(--border);}
+.card-header h3{margin:0 0 5px;font-size:16px;}
+.card-header p{margin:0;color:var(--muted);font-size:13px;line-height:1.5;}
+.card-body{padding:21px;}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
+.field{margin-bottom:17px;}
+input,textarea,select{
+  width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:11px;padding:12px 13px;outline:none;transition:.2s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+textarea{resize:vertical;min-height:120px;line-height:1.6;}
+.row{display:flex;gap:12px;}
+.row>*{flex:1;}
+.btn{
+  border:1px solid var(--border);background:var(--surface);color:var(--text);padding:11px 15px;
+  border-radius:11px;font-weight:700;transition:.2s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08);}
+.btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+.btn-dark{background:var(--primary);color:var(--primaryText);border-color:var(--primary);}
+.btn-danger{color:#fff;background:var(--danger);border-color:var(--danger);}
+.btn-success{color:#fff;background:var(--success);border-color:var(--success);}
+.btn-small{padding:8px 11px;font-size:12px;}
+.full{width:100%;}
+.muted{color:var(--muted);}
+.small{font-size:12px;}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+.dot{width:8px;height:8px;border-radius:50%;background:#9ca3af;}
+.dot.ok{background:#22c55e;}
+.dot.error{background:#ef4444;}
+.generator-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;}
+.big-input{min-height:260px;}
+.range-wrap{display:flex;align-items:center;gap:12px;}
+.range-wrap input[type=range]{padding:0;}
+.range-value{min-width:65px;text-align:center;padding:8px;border-radius:9px;background:var(--surface2);font-weight:800;}
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.preset{padding:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:11px;text-align:left;}
+.preset strong{display:block;margin-bottom:4px;font-size:13px;}
+.preset span{font-size:11px;color:var(--muted);}
+.preset.selected{border-color:var(--accent);background:rgba(99,102,241,.08);}
+.characters{display:flex;flex-direction:column;gap:10px;}
+.character{display:grid;grid-template-columns:1fr 1fr 40px;gap:8px;align-items:center;}
+.character button{height:42px;}
+.generate-box{position:sticky;top:100px;}
+.summary{padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:16px;}
+.summary-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;}
+.summary-row span:last-child{font-weight:800;}
+.editor-layout{display:grid;grid-template-columns:1fr 310px;gap:18px;}
+.editor-card{min-height:650px;}
+.editor-toolbar{padding:12px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:7px;}
+.editor-toolbar .btn{font-size:12px;padding:8px 10px;}
+.script-editor{width:100%;min-height:570px;border:0;border-radius:0;padding:25px;font-size:16px;line-height:1.8;resize:vertical;background:var(--surface);color:var(--text);outline:none;}
+.editor-sidebar{display:flex;flex-direction:column;gap:16px;}
+.word-count{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.stat{background:var(--surface2);padding:13px;border-radius:11px;}
+.stat strong{display:block;font-size:18px;}
+.stat span{color:var(--muted);font-size:11px;}
+.library-list{display:grid;gap:12px;}
+.script-item{padding:17px;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;justify-content:space-between;align-items:center;gap:15px;}
+.script-item h4{margin:0 0 6px;}
+.script-item p{margin:0;color:var(--muted);font-size:12px;}
+.script-actions{display:flex;gap:7px;}
+.settings{max-width:900px;}
+.setting-section{margin-bottom:18px;}
+.provider-card{border:1px solid var(--border);border-radius:13px;padding:15px;margin-bottom:12px;}
+.provider-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.provider-name{font-weight:800;}
+.api-hidden{-webkit-text-security:disc;}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);}
+.switch{position:relative;width:45px;height:25px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:#9ca3af;border-radius:30px;transition:.2s;}
+.slider:before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;}
+.switch input:checked + .slider{background:var(--accent);}
+.switch input:checked + .slider:before{transform:translateX(20px);}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:20px;z-index:100;}
+.modal.show{display:flex;}
+.modal-box{width:min(850px,100%);max-height:90vh;overflow:auto;background:var(--surface);color:var(--text);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.3);}
+.modal-head{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-head h2{margin:0;}
+.modal-body{padding:22px;}
+.reader{width:min(1000px,100%);max-height:94vh;}
+.reader-content{padding:40px;font-size:18px;line-height:1.9;white-space:pre-wrap;overflow:auto;max-height:75vh;}
+.reader-title{font-size:30px;font-weight:800;margin-bottom:25px;}
+.toast{position:fixed;right:25px;bottom:25px;z-index:200;background:var(--primary);color:var(--primaryText);padding:13px 17px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;}
+.toast.show{opacity:1;transform:translateY(0);}
+.loading{display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.42);align-items:center;justify-content:center;}
+.loading.show{display:flex;}
+.loading-box{background:var(--surface);padding:25px 30px;border-radius:15px;text-align:center;}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 13px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mobile-menu{display:none;}
+@media(max-width:1050px){
+  .generator-layout,.editor-layout{grid-template-columns:1fr;}
+  .generate-box{position:static;}
+  .grid-3{grid-template-columns:1fr;}
+}
+@media(max-width:760px){
+  :root{--sidebar:0px;}
+  .sidebar{transform:translateX(-100%);transition:.25s;width:260px;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;width:100%;}
+  .topbar{padding:0 15px;}
+  .mobile-menu{display:block;}
+  .content{padding:18px;}
+  .hero h1{font-size:27px;}
+  .grid-2{grid-template-columns:1fr;}
+  .preset-grid{grid-template-columns:1fr 1fr;}
+  .row{flex-direction:column;}
+  .character{grid-template-columns:1fr 1fr 40px;}
+  .reader-content{padding:22px;font-size:16px;}
+}
+@media print{
+  @page{size:A4;margin:18mm 17mm;}
+  body{background:white !important;color:#111 !important;}
+  .sidebar,.topbar,.no-print,.modal-head,.reader-actions{display:none !important;}
+  .main{margin:0 !important;width:100% !important;}
+  .content{padding:0 !important;max-width:none !important;}
+  #readerModal{position:static !important;display:block !important;background:white !important;padding:0 !important;}
+  #readerModal .modal-box{box-shadow:none !important;max-height:none !important;width:100% !important;border:0 !important;}
+  .reader-content{max-height:none !important;overflow:visible !important;padding:0 !important;color:#111 !important;font-size:11.5pt !important;line-height:1.65 !important;}
+  .reader-title{font-size:23pt !important;color:#111 !important;page-break-after:avoid;}
+  .pdf-header{display:block !important;}
+}
+.pdf-header{display:none;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:25px;}
+.pdf-header h1{margin:0 0 4px;}
+.pdf-header p{margin:0;font-size:10pt;color:#555;}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="logo"><div class="logo-mark">S</div><span>ScriptForge AI</span></div>
+  <nav class="nav">
+    <button class="active" data-page="generator"><span class="nav-icon">✦</span><span data-i18n="navGenerator">脚本生成</span></button>
+    <button data-page="editor"><span class="nav-icon">✎</span><span data-i18n="navEditor">脚本编辑器</span></button>
+    <button data-page="library"><span class="nav-icon">▤</span><span data-i18n="navLibrary">我的脚本</span></button>
+    <button data-page="settings"><span class="nav-icon">⚙</span><span data-i18n="navSettings">设置</span></button>
+  </nav>
+  <div class="sidebar-bottom">
+    <select id="languageSelect" class="language-mini">
+      <option value="zh">中文</option>
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+    </select>
+    <div style="height:10px"></div>
+    <div class="status"><span class="dot" id="firebaseDot"></span><span id="firebaseStatus">本地模式</span></div>
+  </div>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="icon-btn mobile-menu" id="mobileMenu">☰</button>
+      <div class="topbar-title" id="pageTitle">脚本生成</div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" title="主题">☾</button>
+      <button class="btn btn-primary btn-small" id="quickSettingsBtn">⚙ <span data-i18n="quickSettings">AI 配置</span></button>
+    </div>
+  </header>
+  <div class="content">
+<!-- GENERATOR PAGE -->
+<section class="page active" id="page-generator">
+  <div class="hero">
+    <h1 data-i18n="heroTitle">把你的想法变成自然、有温度的视频脚本。</h1>
+    <p data-i18n="heroDescription">告诉 AI 你的视频想表达什么，选择视频形式和时长。ScriptForge 会按照正常说话速度生成适合口播的视频脚本，让内容听起来更像真人，而不是 AI。</p>
+  </div>
+  <div class="generator-layout">
+    <div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-header"><h3 data-i18n="ideaTitle">你的视频想法</h3><p data-i18n="ideaDescription">自然地写就可以，几句话也足够。</p></div>
+        <div class="card-body">
+          <div class="field">
+            <label data-i18n="topicLabel">主题 / 想法</label>
+            <textarea id="ideaInput" class="big-input" data-i18n-placeholder="ideaPlaceholder" placeholder="例如：我想做一个关于人生变化的视频，讲讲别人如何评价我们，以及为什么即使生活很困难，我们依然应该继续向前。"></textarea>
+          </div>
+          <div class="field">
+            <label data-i18n="durationLabel">视频时长</label>
+            <div class="range-wrap">
+              <input type="range" id="durationRange" min="1" max="60" value="5">
+              <div class="range-value"><span id="durationValue">5</span><span> 分钟</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label data-i18n="formatLabel">视频形式</label>
+              <select id="formatSelect">
+                <option value="monologue" data-i18n="formatMonologue">单人独白</option>
+                <option value="podcast2" data-i18n="formatPodcast2">双人播客</option>
+                <option value="podcast3" data-i18n="formatPodcast3">三人播客</option>
+                <option value="documentary" data-i18n="formatDocumentary">纪录片</option>
+                <option value="storytelling" data-i18n="formatStorytelling">故事叙述</option>
+                <option value="educational" data-i18n="formatEducational">教育科普</option>
+                <option value="motivational" data-i18n="formatMotivational">励志激励</option>
+                <option value="commentary" data-i18n="formatCommentary">新闻评论</option>
+                <option value="shortform" data-i18n="formatShortform">短视频</option>
+              </select>
+            </div>
+            <div class="field">
+              <label data-i18n="languageLabel">脚本语言</label>
+              <select id="scriptLanguage">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-header"><h3 data-i18n="styleTitle">选择写作风格</h3><p data-i18n="styleDescription">不同风格会改变 AI 的表达方式。</p></div>
+        <div class="card-body">
+          <div class="preset-grid">
+            <button class="preset selected" data-style="natural"><strong data-i18n="styleNaturalName">自然真实</strong><span data-i18n="styleNaturalDesc">像真人说话一样</span></button>
+            <button class="preset" data-style="emotional"><strong data-i18n="styleEmotionalName">情感充沛</strong><span data-i18n="styleEmotionalDesc">个人化、有脆弱感</span></button>
+            <button class="preset" data-style="cinematic"><strong data-i18n="styleCinematicName">电影感</strong><span data-i18n="styleCinematicDesc">视觉化、有氛围</span></button>
+            <button class="preset" data-style="professional"><strong data-i18n="styleProfessionalName">专业清晰</strong><span data-i18n="styleProfessionalDesc">条理分明、打磨精细</span></button>
+            <button class="preset" data-style="casual"><strong data-i18n="styleCasualName">轻松随意</strong><span data-i18n="styleCasualDesc">放松的对话感</span></button>
+            <button class="preset" data-style="deep"><strong data-i18n="styleDeepName">深度思考</strong><span data-i18n="styleDeepDesc">有哲思、引人反思</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 data-i18n="charactersTitle">角色 / 主播</h3><p data-i18n="charactersDescription">如果使用播客或对话形式，可以添加不同的说话角色。</p></div>
+        <div class="card-body">
+          <div class="characters" id="characters"></div>
+          <button class="btn btn-small" id="addCharacter" style="margin-top:12px" data-i18n="addSpeaker">+ 添加主播</button>
+        </div>
+      </div>
+    </div>
+    <div class="generate-box">
+      <div class="card">
+        <div class="card-header"><h3 data-i18n="readyTitle">准备开始</h3><p data-i18n="readyDescription">脚本长度会根据你选择的视频时长自动计算。</p></div>
+        <div class="card-body">
+          <div class="summary">
+            <div class="summary-row"><span data-i18n="estimatedWords">预计字数</span><span id="estimatedWords">650</span></div>
+            <div class="summary-row"><span data-i18n="speakingSpeed">语速</span><span>130 WPM</span></div>
+            <div class="summary-row"><span data-i18n="formatSummary">形式</span><span id="formatSummary">单人</span></div>
+            <div class="summary-row"><span data-i18n="selectedStyle">风格</span><span id="styleSummary">自然</span></div>
+          </div>
+          <button class="btn btn-primary full" id="generateBtn" style="padding:14px">✦ <span data-i18n="generate">生成脚本</span></button>
+          <div style="height:9px"></div>
+          <button class="btn full" id="openEditorAfter" data-i18n="openEditor">打开编辑器</button>
+          <div style="height:13px"></div>
+          <div class="small muted"><span data-i18n="aiNote">提示：如果你告诉 AI 更具体的经历、情绪和你真正想表达的信息，生成的内容通常会更加真实。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- EDITOR PAGE -->
+<section class="page" id="page-editor">
+  <div class="hero"><h1 data-i18n="editorTitle">脚本编辑器</h1><p data-i18n="editorDescription">可以自己修改脚本，也可以让 AI 帮你重新表达。</p></div>
+  <div class="editor-layout">
+    <div class="card editor-card">
+      <div class="editor-toolbar">
+        <button class="btn" data-ai-action="natural">✨ <span data-i18n="toolbarNatural">更自然</span></button>
+        <button class="btn" data-ai-action="rewrite">↻ <span data-i18n="toolbarRewrite">重写</span></button>
+        <button class="btn" data-ai-action="shorten">↓ <span data-i18n="toolbarShorten">精简</span></button>
+        <button class="btn" data-ai-action="expand">↑ <span data-i18n="toolbarExpand">扩展</span></button>
+        <button class="btn" data-ai-action="hook">⚡ <span data-i18n="toolbarHook">优化开头</span></button>
+        <button class="btn" data-ai-action="grammar">✓ <span data-i18n="toolbarGrammar">修正语法</span></button>
+        <button class="btn" id="saveScriptBtn">💾 <span data-i18n="toolbarSave">保存</span></button>
+        <button class="btn" id="readerBtn">⛶ <span data-i18n="toolbarFullscreen">全屏</span></button>
+        <button class="btn" id="copyBtn">⧉ <span data-i18n="toolbarCopy">复制</span></button>
+      </div>
+      <textarea id="scriptEditor" class="script-editor" placeholder="生成的脚本会显示在这里..."></textarea>
+    </div>
+    <aside class="editor-sidebar">
+      <div class="card">
+        <div class="card-header"><h3 data-i18n="scriptStats">脚本统计</h3></div>
+        <div class="card-body">
+          <div class="word-count">
+            <div class="stat"><strong id="wordCount">0</strong><span data-i18n="words">字数</span></div>
+            <div class="stat"><strong id="charCount">0</strong><span data-i18n="characters">字符</span></div>
+            <div class="stat"><strong id="estimatedTime">0:00</strong><span data-i18n="readTime">口播时间</span></div>
+            <div class="stat"><strong id="paragraphCount">0</strong><span data-i18n="paragraphs">段落</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 data-i18n="exportTitle">导出</h3></div>
+        <div class="card-body">
+          <button class="btn full" id="exportTxt">TXT</button>
+          <div style="height:8px"></div>
+          <button class="btn full" id="exportMarkdown">Markdown</button>
+          <div style="height:8px"></div>
+          <button class="btn btn-dark full" id="exportPdf"><span data-i18n="exportPdf">PDF / 打印</span></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 data-i18n="aiEditorTitle">AI 编辑器</h3><p data-i18n="aiEditorDesc">使用 AI 功能前先在编辑器中选中文本。如果没有选中，将处理整个脚本。</p></div>
+      </div>
+    </aside>
+  </div>
+</section>
+<!-- LIBRARY PAGE -->
+<section class="page" id="page-library">
+  <div class="hero"><h1 data-i18n="libraryTitle">我的脚本</h1><p data-i18n="libraryDescription">保存的脚本会保存在本地；连接 Firebase 后也会同步到云端。</p></div>
+  <div class="library-list" id="libraryList"></div>
+</section>
+<!-- SETTINGS PAGE -->
+<section class="page" id="page-settings">
+  <div class="hero"><h1 data-i18n="settingsTitle">设置</h1><p data-i18n="settingsDescription">尽量保持简单：选择一个 AI 服务商，填写 API Key，然后测试连接。</p></div>
+  <div class="settings">
+    <div class="card setting-section">
+      <div class="card-header"><h3 data-i18n="aiProviderTitle">AI 服务商</h3><p data-i18n="aiProviderDescription">选择你想用于生成脚本的 AI。支持国内外主流服务商。</p></div>
+      <div class="card-body">
+        <div class="field">
+          <label data-i18n="providerLabel">服务商</label>
+          <select id="providerSelect">
+            <option value="openai">OpenAI</option>
+            <option value="deepseek">DeepSeek（深度求索）</option>
+            <option value="zhipu">智谱 GLM</option>
+            <option value="qwen">通义千问（阿里云）</option>
+            <option value="kimi">Kimi（月之暗面）</option>
+            <option value="ernie">百度文心</option>
+            <option value="gemini">Google Gemini</option>
+            <option value="anthropic">Anthropic Claude</option>
+          </select>
+        </div>
+        <div class="provider-card">
+          <div class="provider-head">
+            <div class="provider-name" id="providerLabel">OpenAI</div>
+            <div class="status"><span class="dot" id="aiDot"></span><span id="aiStatus">未测试</span></div>
+          </div>
+          <div class="field"><label data-i18n="apiKeyLabel">API Key</label><input type="password" id="apiKey" placeholder="粘贴你的 API Key" class="api-hidden"></div>
+          <div class="field" id="endpointField"><label data-i18n="endpointLabel">API Endpoint</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions"></div>
+          <div class="field"><label data-i18n="modelLabel">模型</label><input type="text" id="modelName" placeholder="gpt-4.1-mini"></div>
+          <div class="row">
+            <button class="btn btn-success" id="testAiBtn" data-i18n="testConnection">测试连接</button>
+            <button class="btn btn-primary" id="saveAiBtn" data-i18n="saveAiSetup">保存 AI 配置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card setting-section">
+      <div class="card-header"><h3 data-i18n="languageSettings">语言</h3></div>
+      <div class="card-body">
+        <div class="field"><label data-i18n="interfaceLanguage">界面语言</label><select id="settingsLanguage"><option value="zh">中文</option><option value="en">English</option><option value="hi">हिन्दी</option></select></div>
+      </div>
+    </div>
+    <div class="card setting-section">
+      <div class="card-header"><h3 data-i18n="appearance">外观</h3></div>
+      <div class="card-body">
+        <div class="toggle">
+          <div><strong data-i18n="darkMode">深色模式</strong><div class="small muted"><span data-i18n="darkModeDescription">使用深色界面。</span></div></div>
+          <label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="card setting-section">
+      <div class="card-header"><h3 data-i18n="cloudStorage">云存储</h3><p data-i18n="cloudStorageDesc">Firebase 用于保存你的 AI 配置和脚本。</p></div>
+      <div class="card-body">
+        <div class="status"><span class="dot" id="firebaseDot2"></span><span id="firebaseStatus2">连接中...</span></div>
+        <p class="small muted" style="margin-top:12px" data-i18n="firebaseNote">本应用使用 Firebase 匿名认证，无需注册登录。</p>
+      </div>
+    </div>
+  </div>
+</section>
+  </div>
+</main>
+</div>
+<!-- READER MODAL -->
+<div class="modal" id="readerModal">
+  <div class="modal-box reader">
+    <div class="modal-head">
+      <div><h2 id="readerTitle">脚本</h2></div>
+      <div class="reader-actions" style="display:flex;gap:7px">
+        <button class="btn btn-small" id="readerCopy" data-i18n="toolbarCopy">复制</button>
+        <button class="btn btn-dark btn-small" id="readerPrint" data-i18n="exportPdf">PDF</button>
+        <button class="icon-btn" id="readerClose">×</button>
+      </div>
+    </div>
+    <div class="reader-content">
+      <div class="pdf-header"><h1 id="pdfTitle">ScriptForge AI</h1><p id="pdfMeta"></p></div>
+      <div id="readerText"></div>
+    </div>
+  </div>
+</div>
+<!-- QUICK AI SETUP MODAL -->
+<div class="modal" id="quickModal">
+  <div class="modal-box">
+    <div class="modal-head"><h2 data-i18n="quickSettings">AI 配置</h2><button class="icon-btn" id="quickClose">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label data-i18n="providerLabel">服务商</label>
+        <select id="quickProvider">
+          <option value="openai">OpenAI</option>
+          <option value="deepseek">DeepSeek（深度求索）</option>
+          <option value="zhipu">智谱 GLM</option>
+          <option value="qwen">通义千问（阿里云）</option>
+          <option value="kimi">Kimi（月之暗面）</option>
+          <option value="ernie">百度文心</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="anthropic">Anthropic Claude</option>
+        </select>
+      </div>
+      <div class="field"><label data-i18n="apiKeyLabel">API Key</label><input type="password" id="quickApiKey" placeholder="粘贴 API Key"></div>
+      <div class="field"><label data-i18n="modelLabel">模型</label><input type="text" id="quickModel" placeholder="gpt-4.1-mini"></div>
+      <div class="field"><label data-i18n="endpointLabel">Endpoint</label><input type="text" id="quickEndpoint" placeholder="仅 OpenAI 兼容 API 需要"></div>
+      <div class="row"><button class="btn btn-success" id="quickTest" data-i18n="testConnection">测试连接</button><button class="btn btn-primary" id="quickSave" data-i18n="saveBtn">保存</button></div>
+    </div>
+  </div>
+</div>
+<!-- LOADING -->
+<div class="loading" id="loading"><div class="loading-box"><div class="spinner"></div><strong id="loadingText">正在生成脚本...</strong></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import{getAuth,signInAnonymously,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,setDoc,doc,getDoc,getDocs,deleteDoc,query,orderBy,limit}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyD765DnPTLqSMnziFIsyatKqJ9yS_7ayog",authDomain:"page-99350.firebaseapp.com",projectId:"page-99350",storageBucket:"page-99350.firebasestorage.app",messagingSenderId:"1017475806028",appId:"1:1017475806028:web:5618c25e716b44f694d5e9"};
+
+let firebaseApp=null,auth=null,db=null,currentUser=null;
+try{
+  firebaseApp=initializeApp(firebaseConfig);
+  auth=getAuth(firebaseApp);
+  db=getFirestore(firebaseApp);
+  signInAnonymously(auth).catch(e=>{console.warn("Anonymous auth unavailable:",e);setFirebaseStatus(false,"本地模式");});
+  onAuthStateChanged(auth,user=>{
+    currentUser=user||null;
+    if(user){setFirebaseStatus(true,"云端已连接");loadCloudSettings();}
+    else{setFirebaseStatus(false,"本地模式");}
+  });
+}catch(e){console.error(e);setFirebaseStatus(false,"本地模式");}
+
+const state={
+  language:localStorage.getItem("sf_language")||"zh",
+  theme:localStorage.getItem("sf_theme")||"light",
+  style:localStorage.getItem("sf_style")||"natural",
+  duration:Number(localStorage.getItem("sf_duration"))||5,
+  currentScript:localStorage.getItem("sf_current_script")||"",
+  provider:localStorage.getItem("sf_provider")||"openai",
+  apiKey:localStorage.getItem("sf_api_key")||"",
+  endpoint:localStorage.getItem("sf_endpoint")||"",
+  model:localStorage.getItem("sf_model")||"",
+  scriptLanguage:localStorage.getItem("sf_script_language")||"zh"
+};
+
+const translations={
+zh:{
+navGenerator:"脚本生成",navEditor:"脚本编辑器",navLibrary:"我的脚本",navSettings:"设置",quickSettings:"AI 配置",
+heroTitle:"把你的想法变成自然、有温度的视频脚本。",
+heroDescription:"告诉 AI 你的视频想表达什么，选择视频形式和时长。ScriptForge 会按照正常说话速度生成适合口播的视频脚本，让内容听起来更像真人，而不是 AI。",
+ideaTitle:"你的视频想法",ideaDescription:"自然地写就可以，几句话也足够。",topicLabel:"主题 / 想法",
+ideaPlaceholder:"例如：我想做一个关于人生变化的视频，讲讲别人如何评价我们，以及为什么即使生活很困难，我们依然应该继续向前。",
+durationLabel:"视频时长",formatLabel:"视频形式",languageLabel:"脚本语言",
+styleTitle:"选择写作风格",styleDescription:"不同风格会改变 AI 的表达方式。",
+charactersTitle:"角色 / 主播",charactersDescription:"如果使用播客或对话形式，可以添加不同的说话角色。",
+readyTitle:"准备开始",readyDescription:"脚本长度会根据你选择的视频时长自动计算。",
+estimatedWords:"预计字数",speakingSpeed:"语速",formatSummary:"形式",selectedStyle:"风格",
+generate:"生成脚本",openEditor:"打开编辑器",
+aiNote:"提示：如果你告诉 AI 更具体的经历、情绪和你真正想表达的信息，生成的内容通常会更加真实。",
+editorTitle:"脚本编辑器",editorDescription:"可以自己修改脚本，也可以让 AI 帮你重新表达。",
+scriptStats:"脚本统计",words:"字数",characters:"字符",readTime:"口播时间",paragraphs:"段落",exportTitle:"导出",
+libraryTitle:"我的脚本",libraryDescription:"保存的脚本会保存在本地；连接 Firebase 后也会同步到云端。",
+settingsTitle:"设置",settingsDescription:"尽量保持简单：选择一个 AI 服务商，填写 API Key，然后测试连接。",
+aiProviderTitle:"AI 服务商",aiProviderDescription:"选择你想用于生成脚本的 AI。支持国内外主流服务商。",
+languageSettings:"语言",interfaceLanguage:"界面语言",appearance:"外观",darkMode:"深色模式",darkModeDescription:"使用深色界面。",
+providerLabel:"服务商",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"模型",
+testConnection:"测试连接",saveAiSetup:"保存 AI 配置",saveBtn:"保存",
+cloudStorage:"云存储",cloudStorageDesc:"Firebase 用于保存你的 AI 配置和脚本。",
+firebaseNote:"本应用使用 Firebase 匿名认证，无需注册登录。",
+addSpeaker:"+ 添加主播",
+formatMonologue:"单人独白",formatPodcast2:"双人播客",formatPodcast3:"三人播客",formatDocumentary:"纪录片",
+formatStorytelling:"故事叙述",formatEducational:"教育科普",formatMotivational:"励志激励",formatCommentary:"新闻评论",formatShortform:"短视频",
+styleNaturalName:"自然真实",styleNaturalDesc:"像真人说话一样",styleEmotionalName:"情感充沛",styleEmotionalDesc:"个人化、有脆弱感",
+styleCinematicName:"电影感",styleCinematicDesc:"视觉化、有氛围",styleProfessionalName:"专业清晰",styleProfessionalDesc:"条理分明、打磨精细",
+styleCasualName:"轻松随意",styleCasualDesc:"放松的对话感",styleDeepName:"深度思考",styleDeepDesc:"有哲思、引人反思",
+toolbarNatural:"更自然",toolbarRewrite:"重写",toolbarShorten:"精简",toolbarExpand:"扩展",toolbarHook:"优化开头",toolbarGrammar:"修正语法",
+toolbarSave:"保存",toolbarFullscreen:"全屏",toolbarCopy:"复制",exportPdf:"PDF / 打印",
+aiEditorTitle:"AI 编辑器",aiEditorDesc:"使用 AI 功能前先在编辑器中选中文本。如果没有选中，将处理整个脚本。",
+noScriptsYet:"还没有保存的脚本。",
+untitledScript:"未命名脚本",
+localMode:"本地模式",cloudConnected:"云端已连接",notTested:"未测试",testing:"测试中...",connected:"已连接",connectionFailed:"连接失败",
+generatingScript:"AI 正在创作你的脚本...",editingScript:"AI 正在优化你的脚本...",
+enterIdeaFirst:"请先输入你的视频想法。",addApiKeyFirst:"请先添加你的 AI API Key。",
+scriptGenerated:"脚本生成完成",aiEditComplete:"AI 编辑完成",scriptSaved:"脚本已保存。",copiedClipboard:"已复制到剪贴板。",copied:"已复制。",
+scriptDeleted:"脚本已删除。",nothingToExport:"没有可导出的内容。",noScriptToRead:"没有可读取的脚本。",
+aiConnectionSuccess:"AI 连接成功。",aiConnectionFailed:"AI 连接失败。",aiReturnedEmpty:"AI 返回了空响应。",aiRequestFailed:"AI 请求失败。",
+emptyResponse:"空响应。",unsupportedProvider:"不支持的 AI 服务商。",pleaseEnterApiKey:"请输入 API Key。",
+scriptForgeTitle:"ScriptForge AI",
+formatMapSolo:"单人",formatMapPodcast2:"双人播客",formatMapPodcast3:"三人播客",formatMapDocumentary:"纪录片",
+formatMapStorytelling:"故事",formatMapEducational:"教育",formatMapMotivational:"励志",formatMapCommentary:"评论",formatMapShortform:"短视频",
+styleMapNatural:"自然",styleMapEmotional:"情感",styleMapCinematic:"电影感",styleMapProfessional:"专业",styleMapCasual:"轻松",styleMapDeep:"深度",
+defaultHostName:"主持人",defaultHostRole:"主持人",defaultGuestName:"嘉宾",defaultGuestRole:"嘉宾",
+defaultGuest2Name:"嘉宾二",defaultGuest2Role:"嘉宾",
+minutesUnit:"分钟",
+savingToCloud:"AI 配置已保存到 Firebase。",savingLocal:"AI 配置已保存在本地。",
+testingAi:"正在测试 AI 连接...",aiReturnedNoResponse:"AI 没有返回响应。"
+},
+en:{
+navGenerator:"Script Generator",navEditor:"Script Editor",navLibrary:"My Scripts",navSettings:"Settings",quickSettings:"AI Setup",
+heroTitle:"Turn your idea into a natural video script.",
+heroDescription:"Tell the AI what your video is about. Choose the format and duration. ScriptForge will create a spoken script designed to sound human, conversational and emotionally real.",
+ideaTitle:"Your video idea",ideaDescription:"Write naturally. A few sentences are enough.",topicLabel:"Topic / idea",
+ideaPlaceholder:"Example: I want to make a personal video about how life changes, how people judge us, and why we should keep moving forward even when things become difficult.",
+durationLabel:"Video duration",formatLabel:"Video format",languageLabel:"Script language",
+styleTitle:"Choose a style",styleDescription:"These presets influence the writing voice.",
+charactersTitle:"Characters / speakers",charactersDescription:"Add voices when using podcast or dialogue formats.",
+readyTitle:"Ready to create",readyDescription:"Your script length will automatically match the selected duration.",
+estimatedWords:"Estimated words",speakingSpeed:"Speaking speed",formatSummary:"Format",selectedStyle:"Style",
+generate:"Generate Script",openEditor:"Open Editor",
+aiNote:"Tip: Natural scripts often work better when your idea is specific about the emotion, experience or message you want to share.",
+editorTitle:"Script Editor",editorDescription:"Edit your script manually or ask AI to improve selected writing.",
+scriptStats:"Script stats",words:"Words",characters:"Characters",readTime:"Speaking time",paragraphs:"Paragraphs",exportTitle:"Export",
+libraryTitle:"My Scripts",libraryDescription:"Your saved scripts are stored locally and in Firebase when available.",
+settingsTitle:"Settings",settingsDescription:"Keep setup simple. Choose one AI provider, add your key and test it.",
+aiProviderTitle:"AI Provider",aiProviderDescription:"Choose the provider you want to use for script generation.",
+languageSettings:"Language",interfaceLanguage:"Interface language",appearance:"Appearance",darkMode:"Dark mode",darkModeDescription:"Use a darker interface.",
+providerLabel:"Provider",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"Model",
+testConnection:"Test Connection",saveAiSetup:"Save AI Setup",saveBtn:"Save",
+cloudStorage:"Cloud Storage",cloudStorageDesc:"Firebase is used to keep your AI configuration and saved scripts.",
+firebaseNote:"This app uses Firebase Anonymous Authentication, so no visible account or login is required.",
+addSpeaker:"+ Add speaker",
+formatMonologue:"Solo Monologue",formatPodcast2:"Two-Person Podcast",formatPodcast3:"Three-Person Podcast",formatDocumentary:"Documentary",
+formatStorytelling:"Storytelling",formatEducational:"Educational",formatMotivational:"Motivational",formatCommentary:"News/Commentary",formatShortform:"Short-form/Reel",
+styleNaturalName:"Natural & Real",styleNaturalDesc:"Like a real person talking",styleEmotionalName:"Emotional",styleEmotionalDesc:"Personal and vulnerable",
+styleCinematicName:"Cinematic",styleCinematicDesc:"Visual and atmospheric",styleProfessionalName:"Professional",styleProfessionalDesc:"Clear and polished",
+styleCasualName:"Casual",styleCasualDesc:"Relaxed conversation",styleDeepName:"Deep & Reflective",styleDeepDesc:"Thoughtful and philosophical",
+toolbarNatural:"Make Natural",toolbarRewrite:"Rewrite",toolbarShorten:"Shorten",toolbarExpand:"Expand",toolbarHook:"Improve Hook",toolbarGrammar:"Fix Grammar",
+toolbarSave:"Save",toolbarFullscreen:"Fullscreen",toolbarCopy:"Copy",exportPdf:"PDF / Print",
+aiEditorTitle:"AI Editor",aiEditorDesc:"Select text in the editor before using an AI action. If nothing is selected, the whole script will be processed.",
+noScriptsYet:"No saved scripts yet.",
+untitledScript:"Untitled Script",
+localMode:"Local mode",cloudConnected:"Cloud connected",notTested:"Not tested",testing:"Testing...",connected:"Connected",connectionFailed:"Connection failed",
+generatingScript:"Creating your script...",editingScript:"AI is improving your script...",
+enterIdeaFirst:"Please enter your video idea first.",addApiKeyFirst:"Add your AI API key first.",
+scriptGenerated:"Script generated successfully",aiEditComplete:"AI editing complete.",scriptSaved:"Script saved.",copiedClipboard:"Copied to clipboard.",copied:"Copied.",
+scriptDeleted:"Script deleted.",nothingToExport:"Nothing to export.",noScriptToRead:"There is no script to read.",
+aiConnectionSuccess:"AI connection successful.",aiConnectionFailed:"AI connection failed.",aiReturnedEmpty:"The AI returned an empty response.",aiRequestFailed:"AI request failed.",
+emptyResponse:"Empty response.",unsupportedProvider:"Unsupported AI provider.",pleaseEnterApiKey:"Please enter an API key.",
+scriptForgeTitle:"ScriptForge AI",
+formatMapSolo:"Solo",formatMapPodcast2:"2-Person Podcast",formatMapPodcast3:"3-Person Podcast",formatMapDocumentary:"Documentary",
+formatMapStorytelling:"Storytelling",formatMapEducational:"Educational",formatMapMotivational:"Motivational",formatMapCommentary:"Commentary",formatMapShortform:"Short-form",
+styleMapNatural:"Natural",styleMapEmotional:"Emotional",styleMapCinematic:"Cinematic",styleMapProfessional:"Professional",styleMapCasual:"Casual",styleMapDeep:"Deep",
+defaultHostName:"Alex",defaultHostRole:"Host",defaultGuestName:"Sam",defaultGuestRole:"Guest",
+defaultGuest2Name:"Jordan",defaultGuest2Role:"Guest",
+minutesUnit:"min",
+savingToCloud:"AI setup saved to Firebase.",savingLocal:"AI setup saved locally.",
+testingAi:"Testing AI connection...",aiReturnedNoResponse:"AI returned no response."
+},
+hi:{
+navGenerator:"स्क्रिप्ट जनरेटर",navEditor:"स्क्रिप्ट एडिटर",navLibrary:"मेरी स्क्रिप्ट",navSettings:"सेटिंग्स",quickSettings:"AI सेटअप",
+heroTitle:"अपने आइडिया को एक प्राकृतिक वीडियो स्क्रिप्ट में बदलें।",
+heroDescription:"AI को बताएं कि आपका वीडियो किस बारे में है। फॉर्मेट और अवधि चुनें। ScriptForge एक ऐसा बोलने वाला स्क्रिप्ट बनाएगा जो इंसान की बातचीत जैसा स्वाभाविक लगे।",
+ideaTitle:"आपका वीडियो आइडिया",ideaDescription:"स्वाभाविक रूप से लिखें। कुछ वाक्य भी पर्याप्त हैं।",topicLabel:"विषय / आइडिया",
+ideaPlaceholder:"उदाहरण: मैं जीवन में बदलाव, लोगों की राय और मुश्किल समय में भी आगे बढ़ते रहने पर एक व्यक्तिगत वीडियो बनाना चाहता हूँ।",
+durationLabel:"वीडियो अवधि",formatLabel:"वीडियो फॉर्मेट",languageLabel:"स्क्रिप्ट भाषा",
+styleTitle:"स्टाइल चुनें",styleDescription:"यह विकल्प AI की लेखन शैली को बदलता है।",
+charactersTitle:"किरदार / स्पीकर",charactersDescription:"पॉडकास्ट या बातचीत वाले फॉर्मेट के लिए अलग-अलग स्पीकर जोड़ें।",
+readyTitle:"बनाने के लिए तैयार",readyDescription:"स्क्रिप्ट की लंबाई आपके चुने हुए वीडियो समय के अनुसार होगी।",
+estimatedWords:"अनुमानित शब्द",speakingSpeed:"बोलने की गति",formatSummary:"फॉर्मेट",selectedStyle:"स्टाइल",
+generate:"स्क्रिप्ट बनाएं",openEditor:"एडिटर खोलें",
+aiNote:"टिप: अपने अनुभव, भावना और असली संदेश के बारे में जितना स्पष्ट लिखेंगे, स्क्रिप्ट उतनी ही प्राकृतिक बनेगी।",
+editorTitle:"स्क्रिप्ट एडिटर",editorDescription:"स्क्रिप्ट को खुद बदलें या AI से चुने हुए हिस्से को बेहतर करवाएं।",
+scriptStats:"स्क्रिप्ट आंकड़े",words:"शब्द",characters:"कैरेक्टर",readTime:"बोलने का समय",paragraphs:"पैराग्राफ",exportTitle:"एक्सपोर्ट",
+libraryTitle:"मेरी स्क्रिप्ट",libraryDescription:"सेव की गई स्क्रिप्ट स्थानीय रूप से और Firebase उपलब्ध होने पर क्लाउड में रखी जाती हैं।",
+settingsTitle:"सेटिंग्स",settingsDescription:"सेटअप को आसान रखें: एक AI provider चुनें, API key डालें और कनेक्शन टेस्ट करें।",
+aiProviderTitle:"AI Provider",aiProviderDescription:"स्क्रिप्ट बनाने के लिए अपना AI provider चुनें।",
+languageSettings:"भाषा",interfaceLanguage:"इंटरफेस भाषा",appearance:"दिखावट",darkMode:"डार्क मोड",darkModeDescription:"डार्क इंटरफेस इस्तेमाल करें।",
+providerLabel:"Provider",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"मॉडल",
+testConnection:"कनेक्शन टेस्ट",saveAiSetup:"AI सेटअप सेव करें",saveBtn:"सेव करें",
+cloudStorage:"क्लाउड स्टोरेज",cloudStorageDesc:"Firebase आपकी AI सेटिंग्स और स्क्रिप्ट रखने के लिए है।",
+firebaseNote:"यह ऐप Firebase Anonymous Authentication का उपयोग करता है, कोई लॉगिन आवश्यक नहीं।",
+addSpeaker:"+ स्पीकर जोड़ें",
+formatMonologue:"एकल मोनोलॉग",formatPodcast2:"दो-व्यक्ति पॉडकास्ट",formatPodcast3:"तीन-व्यक्ति पॉडकास्ट",formatDocumentary:"डॉक्यूमेंट्री",
+formatStorytelling:"कहानी",formatEducational:"शैक्षिक",formatMotivational:"प्रेरक",formatCommentary:"समाचार/टिप्पणी",formatShortform:"शॉर्ट-फॉर्म",
+styleNaturalName:"प्राकृतिक और वास्तविक",styleNaturalDesc:"असली व्यक्ति की तरह",styleEmotionalName:"भावनात्मक",styleEmotionalDesc:"व्यक्तिगत और संवेदनशील",
+styleCinematicName:"सिनेमाई",styleCinematicDesc:"दृश्य और वातावरण",styleProfessionalName:"पेशेवर",styleProfessionalDesc:"स्पष्ट और परिष्कृत",
+styleCasualName:"आकस्मिक",styleCasualDesc:"आरामदायक बातचीत",styleDeepName:"गहन और चिंतनशील",styleDeepDesc:"विचारशील और दार्शनिक",
+toolbarNatural:"प्राकृतिक बनाएं",toolbarRewrite:"फिर से लिखें",toolbarShorten:"छोटा करें",toolbarExpand:"विस्तार करें",toolbarHook:"हुक सुधारें",toolbarGrammar:"व्याकरण ठीक करें",
+toolbarSave:"सेव करें",toolbarFullscreen:"फुलस्क्रीन",toolbarCopy:"कॉपी",exportPdf:"PDF / प्रिंट",
+aiEditorTitle:"AI एडिटर",aiEditorDesc:"AI एक्शन से पहले एडिटर में टेक्स्ट चुनें। कुछ न चुनने पर पूरी स्क्रिप्ट प्रोसेस होगी।",
+noScriptsYet:"अभी कोई स्क्रिप्ट सेव नहीं है।",
+untitledScript:"अनाम स्क्रिप्ट",
+localMode:"लोकल मोड",cloudConnected:"क्लाउड कनेक्टेड",notTested:"टेस्ट नहीं हुआ",testing:"टेस्टिंग...",connected:"कनेक्टेड",connectionFailed:"कनेक्शन विफल",
+generatingScript:"AI आपकी स्क्रिप्ट बना रहा है...",editingScript:"AI स्क्रिप्ट सुधार रहा है...",
+enterIdeaFirst:"कृपया पहले अपना वीडियो आइडिया लिखें।",addApiKeyFirst:"पहले अपनी AI API key जोड़ें।",
+scriptGenerated:"स्क्रिप्ट तैयार है",aiEditComplete:"AI एडिटिंग पूरी हुई।",scriptSaved:"स्क्रिप्ट सेव हो गई।",copiedClipboard:"क्लिपबोर्ड पर कॉपी हुआ।",copied:"कॉपी हुआ।",
+scriptDeleted:"स्क्रिप्ट हटाई गई।",nothingToExport:"एक्सपोर्ट करने के लिए कुछ नहीं।",noScriptToRead:"पढ़ने के लिए कोई स्क्रिप्ट नहीं।",
+aiConnectionSuccess:"AI कनेक्शन सफल।",aiConnectionFailed:"AI कनेक्शन विफल।",aiReturnedEmpty:"AI ने खाली रिस्पॉन्स दिया।",aiRequestFailed:"AI अनुरोध विफल।",
+emptyResponse:"खाली रिस्पॉन्स।",unsupportedProvider:"असमर्थित AI प्रदाता।",pleaseEnterApiKey:"कृपया API key डालें।",
+scriptForgeTitle:"ScriptForge AI",
+formatMapSolo:"एकल",formatMapPodcast2:"2-व्यक्ति पॉडकास्ट",formatMapPodcast3:"3-व्यक्ति पॉडकास्ट",formatMapDocumentary:"डॉक्यूमेंट्री",
+formatMapStorytelling:"कहानी",formatMapEducational:"शैक्षिक",formatMapMotivational:"प्रेरक",formatMapCommentary:"टिप्पणी",formatMapShortform:"शॉर्ट-फॉर्म",
+styleMapNatural:"प्राकृतिक",styleMapEmotional:"भावनात्मक",styleMapCinematic:"सिनेमाई",styleMapProfessional:"पेशेवर",styleMapCasual:"आकस्मिक",styleMapDeep:"गहन",
+defaultHostName:"अमन",defaultHostRole:"होस्ट",defaultGuestName:"प्रिया",defaultGuestRole:"अतिथि",
+defaultGuest2Name:"राहुल",defaultGuest2Role:"अतिथि",
+minutesUnit:"मिनट",
+savingToCloud:"AI सेटअप Firebase में सेव हुआ।",savingLocal:"AI सेटअप लोकल सेव हुआ।",
+testingAi:"AI कनेक्शन टेस्ट हो रहा है...",aiReturnedNoResponse:"AI ने कोई रिस्पॉन्स नहीं दिया।"
+}
+};
+
+const $=id=>document.getElementById(id);
+function t(key){const lang=translations[state.language]||translations.zh;return lang[key]||translations.zh[key]||key;}
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+function loading(show,text){$("loadingText").textContent=text||t('generatingScript');$("loading").classList.toggle("show",show);}
+function setFirebaseStatus(ok,text){
+  ["firebaseDot","firebaseDot2"].forEach(id=>{const el=$(id);if(el)el.className="dot "+(ok?"ok":"");});
+  ["firebaseStatus","firebaseStatus2"].forEach(id=>{const el=$(id);if(el)el.textContent=text;});
+}
+
+function applyLanguage(){
+  const lang=translations[state.language]?state.language:"zh";
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key=el.dataset.i18n;
+    if(translations[lang][key])el.textContent=translations[lang][key];
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key=el.dataset.i18nPlaceholder;
+    if(translations[lang][key])el.placeholder=translations[lang][key];
+  });
+  $("languageSelect").value=lang;
+  $("settingsLanguage").value=lang;
+  // Update format select options
+  document.querySelectorAll("#formatSelect option").forEach(opt=>{
+    const key="format"+opt.value.charAt(0).toUpperCase()+opt.value.slice(1);
+    if(translations[lang][key])opt.textContent=translations[lang][key];
+  });
+  // Update script language select
+  document.querySelectorAll("#scriptLanguage option").forEach(opt=>{
+    if(opt.value==="zh")opt.textContent="中文";
+    else if(opt.value==="en")opt.textContent="English";
+    else if(opt.value==="hi")opt.textContent="हिन्दी";
+  });
+  localStorage.setItem("sf_language",lang);
+  // Update page title
+  const page=document.querySelector(".page.active");
+  if(page){
+    const pid=page.id.replace("page-","");
+    const keys={generator:"navGenerator",editor:"navEditor",library:"navLibrary",settings:"navSettings"};
+    $("pageTitle").textContent=t(keys[pid]||"navGenerator");
+  }
+  // Update default characters if empty
+  const chars=getCharactersRaw();
+  if(chars.length===0||(chars.length===1&&!chars[0].name&&!chars[0].role)){
+    defaultCharacters();
+  }
+  // Update duration unit
+  updateDuration();
+  // Update format summary
+  updateFormatSummary();
+  // Update style summary
+  updateStyleSummaryLabel();
+}
+
+function applyTheme(){
+  const dark=state.theme==="dark";
+  document.documentElement.classList.toggle("dark",dark);
+  $("darkModeToggle").checked=dark;
+  $("themeBtn").textContent=dark?"☀":"☾";
+}
+
+function showPage(page){
+  document.querySelectorAll(".page").forEach(el=>el.classList.remove("active"));
+  $("page-"+page).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===page));
+  const keys={generator:"navGenerator",editor:"navEditor",library:"navLibrary",settings:"navSettings"};
+  $("pageTitle").textContent=t(keys[page]||"navGenerator");
+  if(page==="library")loadLibrary();
+  $("sidebar").classList.remove("open");
+}
+
+function updateDuration(){
+  state.duration=Number($("durationRange").value);
+  $("durationValue").textContent=state.duration;
+  const wpm=130;
+  const words=Math.round(state.duration*wpm);
+  $("estimatedWords").textContent=words.toLocaleString();
+  localStorage.setItem("sf_duration",state.duration);
+}
+
+function updateFormatSummary(){
+  const value=$("formatSelect").value;
+  const mapKey="formatMap"+value.charAt(0).toUpperCase()+value.slice(1);
+  $("formatSummary").textContent=t(mapKey)||value;
+}
+
+function updateStyle(style){
+  state.style=style;
+  document.querySelectorAll(".preset").forEach(el=>el.classList.toggle("selected",el.dataset.style===style));
+  updateStyleSummaryLabel();
+  localStorage.setItem("sf_style",style);
+}
+
+function updateStyleSummaryLabel(){
+  const mapKey="styleMap"+state.style.charAt(0).toUpperCase()+state.style.slice(1);
+  $("styleSummary").textContent=t(mapKey)||state.style;
+}
+
+function getCharactersRaw(){
+  return [...document.querySelectorAll(".character")].map(row=>({
+    name:row.querySelector("[data-character-name]")?.value.trim()||"",
+    role:row.querySelector("[data-character-role]")?.value.trim()||""
+  }));
+}
+function getCharacters(){return getCharactersRaw();}
+
+function defaultCharacters(){
+  const format=$("formatSelect").value;
+  const hostName=t("defaultHostName"),hostRole=t("defaultHostRole");
+  const guestName=t("defaultGuestName"),guestRole=t("defaultGuestRole");
+  const guest2Name=t("defaultGuest2Name"),guest2Role=t("defaultGuest2Role");
+  let list=[{name:hostName,role:hostRole}];
+  if(format==="podcast2")list=[{name:hostName,role:hostRole},{name:guestName,role:guestRole}];
+  if(format==="podcast3")list=[{name:hostName,role:hostRole},{name:guestName,role:guestRole},{name:guest2Name,role:guest2Role}];
+  renderCharacters(list);
+}
+
+function renderCharacters(list){
+  const box=$("characters");
+  box.innerHTML="";
+  list.forEach((ch,index)=>{
+    const row=document.createElement("div");
+    row.className="character";
+    row.innerHTML=`<input value="${escapeHtml(ch.name)}" placeholder="${t('defaultHostName')}" data-character-name><input value="${escapeHtml(ch.role)}" placeholder="${t('defaultHostRole')}" data-character-role><button class="btn btn-small" data-remove-character="${index}">×</button>`;
+    box.appendChild(row);
+  });
+}
+
+function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+
+const providerEndpoints={
+  openai:"https://api.openai.com/v1/chat/completions",
+  deepseek:"https://api.deepseek.com/v1/chat/completions",
+  zhipu:"https://open.bigmodel.cn/api/paas/v4/chat/completions",
+  qwen:"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+  kimi:"https://api.moonshot.cn/v1/chat/completions",
+  ernie:"https://qianfan.baidubce.com/v2/chat/completions"
+};
+const providerDefaultModels={
+  openai:"gpt-4.1-mini",
+  deepseek:"deepseek-chat",
+  zhipu:"glm-4-flash",
+  qwen:"qwen-turbo",
+  kimi:"moonshot-v1-8k",
+  ernie:"ernie-4.0-turbo-8k",
+  gemini:"gemini-2.5-flash",
+  anthropic:"claude-sonnet-4-20250514"
+};
+const openAICompatibleProviders=["openai","deepseek","zhipu","qwen","kimi","ernie"];
+
+function saveAiLocal(){
+  state.provider=$("providerSelect").value;
+  state.apiKey=$("apiKey").value.trim();
+  state.endpoint=$("apiEndpoint").value.trim();
+  state.model=$("modelName").value.trim();
+  localStorage.setItem("sf_provider",state.provider);
+  localStorage.setItem("sf_api_key",state.apiKey);
+  localStorage.setItem("sf_endpoint",state.endpoint);
+  localStorage.setItem("sf_model",state.model);
+}
+
+function loadAiUI(){
+  $("providerSelect").value=state.provider;
+  $("apiKey").value=state.apiKey;
+  $("apiEndpoint").value=state.endpoint||providerEndpoints[state.provider]||"";
+  $("modelName").value=state.model||providerDefaultModels[state.provider]||"";
+  updateProviderUI();
+}
+
+function updateProviderUI(){
+  const provider=$("providerSelect").value;
+  const labels={openai:"OpenAI",deepseek:"DeepSeek（深度求索）",zhipu:"智谱 GLM",qwen:"通义千问（阿里云）",kimi:"Kimi（月之暗面）",ernie:"百度文心",gemini:"Google Gemini",anthropic:"Anthropic Claude"};
+  $("providerLabel").textContent=labels[provider]||provider;
+  if(openAICompatibleProviders.includes(provider)){
+    $("endpointField").style.display="block";
+    if(!$("apiEndpoint").value)$("apiEndpoint").value=providerEndpoints[provider]||"";
+    if(!$("modelName").value)$("modelName").value=providerDefaultModels[provider]||"";
+  }else{
+    $("endpointField").style.display="none";
+    if(!$("modelName").value)$("modelName").value=providerDefaultModels[provider]||"";
+  }
+}
+
+function userRef(){return db&&currentUser?doc(db,"users",currentUser.uid):null;}
+
+async function saveCloudSettings(){
+  if(!db||!currentUser)return false;
+  try{
+    await setDoc(doc(db,"users",currentUser.uid,"settings","ai"),{
+      provider:state.provider,apiKey:state.apiKey,endpoint:state.endpoint,model:state.model,
+      language:state.language,scriptLanguage:state.scriptLanguage,updatedAt:Date.now()
+    });
+    return true;
+  }catch(e){console.error(e);return false;}
+}
+
+async function loadCloudSettings(){
+  if(!db||!currentUser)return;
+  try{
+    const ref=doc(db,"users",currentUser.uid,"settings","ai");
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      const d=snap.data();
+      state.provider=d.provider||state.provider;
+      state.apiKey=d.apiKey||state.apiKey;
+      state.endpoint=d.endpoint||state.endpoint;
+      state.model=d.model||state.model;
+      state.language=d.language||state.language;
+      state.scriptLanguage=d.scriptLanguage||state.scriptLanguage;
+      saveAiLocal();
+      loadAiUI();
+      applyLanguage();
+      $("scriptLanguage").value=state.scriptLanguage;
+    }
+    await loadLibrary();
+  }catch(e){console.warn("Cloud settings load failed:",e);}
+}
+
+async function callAI(messages){
+  if(!state.apiKey)throw new Error(t("addApiKeyFirst"));
+  const provider=state.provider;
+  if(openAICompatibleProviders.includes(provider)){
+    const endpoint=state.endpoint||providerEndpoints[provider]||providerEndpoints.openai;
+    const model=state.model||providerDefaultModels[provider]||"gpt-4.1-mini";
+    const response=await fetch(endpoint,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+state.apiKey},
+      body:JSON.stringify({model:model,messages:messages,temperature:.82})
+    });
+    const data=await response.json();
+    if(!response.ok)throw new Error(data?.error?.message||data?.message||t("aiRequestFailed"));
+    return data?.choices?.[0]?.message?.content||"";
+  }
+  if(provider==="gemini"){
+    const model=state.model||"gemini-2.5-flash";
+    const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(state.apiKey);
+    const system=messages.filter(m=>m.role==="system").map(m=>m.content).join("\n\n");
+    const user=messages.filter(m=>m.role!=="system").map(m=>m.content).join("\n\n");
+    const response=await fetch(url,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        systemInstruction:{parts:[{text:system}]},
+        contents:[{role:"user",parts:[{text:user}]}],
+        generationConfig:{temperature:.82}
+      })
+    });
+    const data=await response.json();
+    if(!response.ok)throw new Error(data?.error?.message||t("aiRequestFailed"));
+    return data?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("")||"";
+  }
+  if(provider==="anthropic"){
+    const response=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":state.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({
+        model:state.model||"claude-sonnet-4-20250514",
+        max_tokens:12000,
+        system:messages.filter(m=>m.role==="system").map(m=>m.content).join("\n\n"),
+        messages:messages.filter(m=>m.role!=="system").map(m=>({role:m.role==="assistant"?"assistant":"user",content:m.content}))
+      })
+    });
+    const data=await response.json();
+    if(!response.ok)throw new Error(data?.error?.message||t("aiRequestFailed"));
+    return data?.content?.map(x=>x.text||"").join("")||"";
+  }
+  throw new Error(t("unsupportedProvider"));
+}
+
+function buildScriptPrompt(){
+  const idea=$("ideaInput").value.trim();
+  const minutes=Number($("durationRange").value);
+  const format=$("formatSelect").value;
+  const language=$("scriptLanguage").value;
+  const characters=getCharacters();
+  const style=state.style;
+  const targetWords=Math.round(minutes*130);
+  const languageName={zh:"Chinese",en:"English",hi:"Hindi"}[language]||"English";
+  const formatName={
+    monologue:"single-person monologue",podcast2:"two-person podcast",podcast3:"three-person podcast",
+    documentary:"documentary narration",storytelling:"storytelling",educational:"educational explanation",
+    motivational:"motivational personal talk",commentary:"news/commentary",shortform:"short-form social video"
+  }[format];
+  return `You are an experienced human video writer.
+Create a ${minutes}-minute ${formatName} in ${languageName}.
+USER'S IDEA:
+${idea}
+WRITING STYLE:
+${style}
+TARGET LENGTH:
+Approximately ${targetWords} spoken words.
+SPEAKERS:
+${JSON.stringify(characters)}
+IMPORTANT:
+This must NOT sound like generic AI writing.
+Write like a real person who has actually thought about this subject.
+Avoid: generic phrases, clichés, corporate language, artificial inspirational quotes, perfectly symmetrical sentences, unnecessary summaries, over-explaining.
+Instead: use natural spoken language, vary sentence length, use contractions, include emotional tension, make observations that feel specific, create a strong opening, use understated emotion.
+STRUCTURE: strong hook → situation → development with examples → tension → meaningful realization → memorable closing.
+For podcast formats, make each speaker distinct. Do NOT force mechanical turn-taking.
+Return ONLY the finished script. No explanations.`;
+}
+
+async function generateScript(){
+  const idea=$("ideaInput").value.trim();
+  if(!idea){toast(t("enterIdeaFirst"));$("ideaInput").focus();return;}
+  try{
+    saveAiLocal();
+    if(!state.apiKey){$("quickModal").classList.add("show");toast(t("addApiKeyFirst"));return;}
+    loading(true,t("generatingScript"));
+    const result=await callAI([{role:"system",content:"You are a professional human video scriptwriter."},{role:"user",content:buildScriptPrompt()}]);
+    if(!result)throw new Error(t("aiReturnedEmpty"));
+    state.currentScript=result.trim();
+    localStorage.setItem("sf_current_script",state.currentScript);
+    $("scriptEditor").value=state.currentScript;
+    updateEditorStats();
+    showPage("editor");
+    await saveScriptToCloud();
+    toast(t("scriptGenerated"));
+  }catch(e){console.error(e);toast(e.message||t("aiRequestFailed"));}
+  finally{loading(false);}
+}
+
+async function aiEdit(action){
+  const editor=$("scriptEditor");
+  const full=editor.value.trim();
+  if(!full){toast(t("noScriptToRead"));return;}
+  let selected="";
+  const start=editor.selectionStart,end=editor.selectionEnd;
+  if(start!==end)selected=editor.value.substring(start,end);else selected=full;
+  const instructions={
+    natural:"Rewrite this so it sounds more like a real person speaking naturally. Remove AI-like phrasing and clichés.",
+    rewrite:"Rewrite this section with stronger wording, better rhythm and clearer storytelling.",
+    shorten:"Make this shorter and tighter. Remove repetition and filler.",
+    expand:"Expand this naturally with useful detail or emotional context.",
+    hook:"Rewrite this as a much stronger opening hook.",
+    grammar:"Fix grammar and awkward phrasing while preserving natural voice."
+  };
+  try{
+    loading(true,t("editingScript"));
+    const result=await callAI([{role:"system",content:"You are a professional human editor. Preserve personality and natural spoken rhythm."},{role:"user",content:instructions[action]+"\n\nTEXT:\n"+selected+"\n\nReturn only the improved text."}]);
+    if(!result)throw new Error(t("emptyResponse"));
+    if(start!==end)editor.value=editor.value.substring(0,start)+result.trim()+editor.value.substring(end);
+    else editor.value=result.trim();
+    state.currentScript=editor.value;
+    localStorage.setItem("sf_current_script",state.currentScript);
+    updateEditorStats();
+    toast(t("aiEditComplete"));
+  }catch(e){console.error(e);toast(e.message||t("aiRequestFailed"));}
+  finally{loading(false);}
+}
+
+function updateEditorStats(){
+  const text=$("scriptEditor").value;
+  const words=text.trim()?text.trim().split(/\s+/).length:0;
+  const chars=text.length;
+  const paragraphs=text.trim()?text.split(/\n\s*\n/).filter(Boolean).length:0;
+  const seconds=words/130*60;
+  const minutes=Math.floor(seconds/60);
+  const secs=Math.round(seconds%60);
+  $("wordCount").textContent=words.toLocaleString();
+  $("charCount").textContent=chars.toLocaleString();
+  $("paragraphCount").textContent=paragraphs;
+  $("estimatedTime").textContent=`${minutes}:${String(secs).padStart(2,"0")}`;
+}
+
+function getTitleFromScript(text){
+  const first=text.split("\n").map(x=>x.trim()).find(Boolean);
+  if(!first)return t("untitledScript");
+  return first.length>70?first.slice(0,70)+"...":first;
+}
+
+async function saveScriptToCloud(){
+  const text=$("scriptEditor").value.trim();
+  if(!text)return;
+  const title=getTitleFromScript(text);
+  const scriptData={title,content:text,language:$("scriptLanguage").value,format:$("formatSelect").value,duration:Number($("durationRange").value),style:state.style,createdAt:Date.now()};
+  const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
+  local.unshift({id:"local-"+Date.now(),...scriptData});
+  localStorage.setItem("sf_scripts",JSON.stringify(local.slice(0,50)));
+  if(db&&currentUser){
+    try{await addDoc(collection(db,"users",currentUser.uid,"scripts"),scriptData);}catch(e){console.warn("Cloud save failed:",e);}
+  }
+}
+
+async function loadLibrary(){
+  const box=$("libraryList");
+  box.innerHTML="";
+  let items=[];
+  const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
+  items.push(...local);
+  if(db&&currentUser){
+    try{
+      const q=query(collection(db,"users",currentUser.uid,"scripts"),orderBy("createdAt","desc"),limit(50));
+      const snap=await getDocs(q);
+      snap.forEach(docSnap=>items.push({id:docSnap.id,cloud:true,...docSnap.data()}));
+    }catch(e){console.warn("Library cloud load failed:",e);}
+  }
+  const map=new Map();
+  items.forEach(item=>{const key=item.content||item.id;if(!map.has(key))map.set(key,item);});
+  items=[...map.values()].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!items.length){
+    box.innerHTML=`<div class="card"><div class="card-body muted">${t("noScriptsYet")}</div></div>`;
+    return;
+  }
+  items.forEach(item=>{
+    const el=document.createElement("div");
+    el.className="script-item";
+    const date=item.createdAt?new Date(item.createdAt).toLocaleString():"";
+    el.innerHTML=`<div><h4>${escapeHtml(item.title||t("untitledScript"))}</h4><p>${escapeHtml(date)} · ${escapeHtml(item.language||"zh")} · ${escapeHtml(String(item.duration||""))} ${t("minutesUnit")}</p></div><div class="script-actions"><button class="btn btn-small" data-open-script>${t("openEditor")}</button><button class="btn btn-small" data-delete-script>${t("toolbarShorten")}</button></div>`;
+    el.querySelector("[data-open-script]").onclick=()=>{
+      state.currentScript=item.content;
+      $("scriptEditor").value=item.content;
+      localStorage.setItem("sf_current_script",item.content);
+      updateEditorStats();
+      showPage("editor");
+    };
+    el.querySelector("[data-delete-script]").onclick=async()=>{
+      if(item.cloud&&db&&currentUser){try{await deleteDoc(doc(db,"users",currentUser.uid,"scripts",item.id));}catch(e){console.warn(e);}}
+      const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
+      localStorage.setItem("sf_scripts",JSON.stringify(local.filter(x=>x.content!==item.content)));
+      await loadLibrary();
+      toast(t("scriptDeleted"));
+    };
+    box.appendChild(el);
+  });
+}
+
+async function testAI(){
+  saveAiLocal();
+  if(!state.apiKey){toast(t("pleaseEnterApiKey"));return;}
+  $("aiStatus").textContent=t("testing");
+  $("aiDot").className="dot";
+  try{
+    const result=await callAI([{role:"system",content:"Reply with exactly: Connection successful."},{role:"user",content:"Test connection."}]);
+    if(!result)throw new Error(t("emptyResponse"));
+    $("aiStatus").textContent=t("connected");
+    $("aiDot").className="dot ok";
+    toast(t("aiConnectionSuccess"));
+  }catch(e){
+    $("aiStatus").textContent=t("connectionFailed");
+    $("aiDot").className="dot error";
+    toast(e.message||t("aiConnectionFailed"));
+  }
+}
+
+async function saveAiSetup(){
+  saveAiLocal();
+  const cloud=await saveCloudSettings();
+  toast(cloud?t("savingToCloud"):t("savingLocal"));
+}
+
+function syncQuickUI(){
+  $("quickProvider").value=state.provider;
+  $("quickApiKey").value=state.apiKey;
+  $("quickModel").value=state.model||providerDefaultModels[state.provider]||"";
+  $("quickEndpoint").value=state.endpoint||providerEndpoints[state.provider]||"";
+}
+
+async function quickSave(){
+  state.provider=$("quickProvider").value;
+  state.apiKey=$("quickApiKey").value.trim();
+  state.model=$("quickModel").value.trim();
+  state.endpoint=$("quickEndpoint").value.trim();
+  loadAiUI();
+  await saveAiSetup();
+  $("quickModal").classList.remove("show");
+}
+
+function downloadFile(content,filename,type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+}
+function exportTxt(){
+  const text=$("scriptEditor").value;
+  if(!text.trim()){toast(t("nothingToExport"));return;}
+  downloadFile(text,"scriptforge-script.txt","text/plain;charset=utf-8");
+}
+function exportMarkdown(){
+  const text=$("scriptEditor").value;
+  if(!text.trim()){toast(t("nothingToExport"));return;}
+  const title=getTitleFromScript(text);
+  const md=`# ${title}\n\nGenerated with ScriptForge AI\n\n---\n\n${text}\n`;
+  downloadFile(md,"scriptforge-script.md","text/markdown;charset=utf-8");
+}
+function openReader(){
+  const text=$("scriptEditor").value.trim();
+  if(!text){toast(t("noScriptToRead"));return;}
+  const title=getTitleFromScript(text);
+  $("readerTitle").textContent=title;
+  $("pdfTitle").textContent=title;
+  $("pdfMeta").textContent=`ScriptForge AI · ${$("scriptLanguage").value} · ${$("durationRange").value} ${t("minutesUnit")}`;
+  $("readerText").textContent=text;
+  $("readerModal").classList.add("show");
+}
+function printReader(){openReader();setTimeout(()=>window.print(),250);}
+
+// Events
+document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
+$("mobileMenu").onclick=()=>$("sidebar").classList.toggle("open");
+$("themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";localStorage.setItem("sf_theme",state.theme);applyTheme();};
+$("darkModeToggle").onchange=()=>{state.theme=$("darkModeToggle").checked?"dark":"light";localStorage.setItem("sf_theme",state.theme);applyTheme();};
+$("languageSelect").onchange=()=>{state.language=$("languageSelect").value;applyLanguage();};
+$("settingsLanguage").onchange=()=>{state.language=$("settingsLanguage").value;applyLanguage();};
+$("scriptLanguage").onchange=()=>{state.scriptLanguage=$("scriptLanguage").value;localStorage.setItem("sf_script_language",state.scriptLanguage);};
+$("durationRange").oninput=updateDuration;
+$("formatSelect").onchange=()=>{updateFormatSummary();defaultCharacters();};
+document.querySelectorAll(".preset").forEach(btn=>{btn.onclick=()=>updateStyle(btn.dataset.style);});
+$("addCharacter").onclick=()=>{
+  const current=getCharacters();
+  current.push({name:t("defaultGuestName"),role:t("defaultGuestRole")});
+  renderCharacters(current);
+};
+$("characters").addEventListener("click",event=>{
+  const btn=event.target.closest("[data-remove-character]");
+  if(!btn)return;
+  const index=Number(btn.dataset.removeCharacter);
+  const current=getCharacters();
+  current.splice(index,1);
+  renderCharacters(current);
+});
+$("generateBtn").onclick=generateScript;
+$("openEditorAfter").onclick=()=>showPage("editor");
+$("scriptEditor").addEventListener("input",()=>{state.currentScript=$("scriptEditor").value;localStorage.setItem("sf_current_script",state.currentScript);updateEditorStats();});
+document.querySelectorAll("[data-ai-action]").forEach(btn=>{btn.onclick=()=>aiEdit(btn.dataset.aiAction);});
+$("saveScriptBtn").onclick=async()=>{await saveScriptToCloud();toast(t("scriptSaved"));};
+$("copyBtn").onclick=async()=>{await navigator.clipboard.writeText($("scriptEditor").value);toast(t("copiedClipboard"));};
+$("readerBtn").onclick=openReader;
+$("readerClose").onclick=()=>$("readerModal").classList.remove("show");
+$("readerCopy").onclick=async()=>{await navigator.clipboard.writeText($("readerText").textContent);toast(t("copied"));};
+$("readerPrint").onclick=()=>window.print();
+$("exportTxt").onclick=exportTxt;
+$("exportMarkdown").onclick=exportMarkdown;
+$("exportPdf").onclick=printReader;
+$("providerSelect").onchange=updateProviderUI;
+$("saveAiBtn").onclick=saveAiSetup;
+$("testAiBtn").onclick=testAI;
+$("quickSettingsBtn").onclick=()=>{syncQuickUI();$("quickModal").classList.add("show");};
+$("quickClose").onclick=()=>$("quickModal").classList.remove("show");
+$("quickProvider").onchange=()=>{
+  const p=$("quickProvider").value;
+  if(openAICompatibleProviders.includes(p)){
+    if(!$("quickModel").value)$("quickModel").value=providerDefaultModels[p]||"";
+    if(!$("quickEndpoint").value)$("quickEndpoint").value=providerEndpoints[p]||"";
+    $("quickEndpoint").style.display="block";
+  }else{
+    if(!$("quickModel").value)$("quickModel").value=providerDefaultModels[p]||"";
+  }
+};
+$("quickSave").onclick=quickSave;
+$("quickTest").onclick=async()=>{
+  state.provider=$("quickProvider").value;
+  state.apiKey=$("quickApiKey").value.trim();
+  state.model=$("quickModel").value.trim();
+  state.endpoint=$("quickEndpoint").value.trim();
+  try{
+    toast(t("testingAi"));
+    const result=await callAI([{role:"system",content:"Reply with exactly: OK"},{role:"user",content:"Connection test."}]);
+    toast(result?t("aiConnectionSuccess"):t("aiReturnedNoResponse"));
+  }catch(e){toast(e.message||t("aiConnectionFailed"));}
+};
+document.querySelectorAll(".modal").forEach(modal=>{
+  modal.addEventListener("click",event=>{if(event.target===modal)modal.classList.remove("show");});
+});
+
+function init(){
+  $("durationRange").value=state.duration;
+  $("scriptLanguage").value=state.scriptLanguage;
+  $("scriptEditor").value=state.currentScript;
+  applyLanguage();
+  applyTheme();
+  loadAiUI();
+  updateDuration();
+  updateFormatSummary();
+  updateStyle(state.style);
+  defaultCharacters();
+  updateEditorStats();
+  loadLibrary();
+}
+init();
+</script>
+</body>
+</html>
