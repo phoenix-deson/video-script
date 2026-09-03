@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>ScriptForge AI — Video Script Studio</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--panel2:#eef2f7;--text:#18202c;--muted:#687385;--line:#dfe4ec;--accent:#5b5cf0;--accent2:#7c3aed;--good:#16a34a;--danger:#dc2626;--shadow:0 10px 30px #18202c12}
+:root.dark{--bg:#0b0e14;--panel:#121722;--panel2:#1a2130;--text:#eef2f7;--muted:#98a2b3;--line:#293244;--shadow:0 14px 40px #0006}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}
+.sidebar{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+.logo{font-weight:800;font-size:20px;padding:0 10px}.logo span{color:var(--accent)}
+.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:var(--muted);text-align:left;padding:11px 12px;border-radius:10px}.nav button.active,.nav button:hover{background:var(--panel2);color:var(--text)}
+.side-bottom{margin-top:auto}.pill{font-size:11px;background:var(--panel2);padding:5px 8px;border-radius:999px;color:var(--muted)}
+.main{min-width:0}.topbar{height:68px;border-bottom:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}
+.top-actions{display:flex;gap:8px;align-items:center}.icon-btn,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.ghost{background:var(--panel2)}.btn.danger{color:var(--danger)}
+.content{max-width:1280px;margin:auto;padding:28px}.page{display:none}.page.active{display:block}
+.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:22px}.hero h1{margin:0 0 5px;font-size:28px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px}.card h2,.card h3{margin:0 0 14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:650}.field small{color:var(--muted)}
+input,select,textarea{width:100%;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:10px 11px;outline:none}textarea{resize:vertical;min-height:110px}input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.role{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px}.role input{min-width:0}
+.script-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.toolbar-left,.toolbar-right{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.editor{min-height:560px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:24px;white-space:pre-wrap;outline:none;line-height:1.75;font-size:15px}
+.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}.dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-box{background:var(--panel);width:min(760px,100%);max-height:90vh;overflow:auto;border:1px solid var(--line);border-radius:16px;padding:22px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.provider{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
+.tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin-bottom:16px}.tab{border:0;background:transparent;color:var(--muted);padding:10px 12px;border-bottom:2px solid transparent}.tab.active{color:var(--accent);border-color:var(--accent)}
+.empty{text-align:center;padding:45px;color:var(--muted)}.list{display:grid;gap:8px}.saved{display:flex;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--text);color:var(--bg);padding:11px 14px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;z-index:100}.toast.show{opacity:1;transform:none}
+.fullscreen{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;max-height:none!important;margin:0!important;border-radius:0!important;z-index:40;background:var(--bg);padding:30px 8vw;overflow:auto}
+.reading{max-width:900px;margin:auto;font-size:18px;line-height:1.9;white-space:pre-wrap}
+.kbd{font-size:11px;border:1px solid var(--line);padding:2px 6px;border-radius:5px;color:var(--muted)}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative;border-right:0;border-bottom:1px solid var(--line);padding:10px;flex-direction:row;align-items:center}.nav{display:flex;overflow:auto}.side-bottom{display:none}.grid{grid-template-columns:1fr}.content{padding:18px}.topbar{padding:0 16px}.role,.provider{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}}
+@media print{.sidebar,.topbar,.script-toolbar,.no-print{display:none!important}.app{display:block}.content{padding:0}.page{display:none!important}.page.print-page{display:block}.editor{border:0;box-shadow:none;padding:0;font-size:12pt}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">Script<span>Forge</span> AI</div>
+  <nav class="nav">
+    <button class="active" data-page="studio">✦ <span data-i18n="nav.studio">Studio</span></button>
+    <button data-page="scripts">▤ <span data-i18n="nav.scripts">My Scripts</span></button>
+    <button data-page="settings">⚙ <span data-i18n="nav.settings">Settings</span></button>
+  </nav>
+  <div class="side-bottom"><span class="pill" data-i18n="app.noLogin">No login required</span></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <strong id="pageTitle">Studio</strong>
+  <div class="top-actions">
+    <span class="status"><i class="dot"></i><span id="apiStatus">Local ready</span></span>
+    <button class="icon-btn" id="themeBtn" title="Toggle theme">☾</button>
+  </div>
+</header>
+
+<div class="content">
+<section class="page active" id="studio">
+  <div class="hero">
+    <div><h1 data-i18n="studio.title">Create a natural video script</h1><div class="muted" data-i18n="studio.sub">Choose your format, topic and voices. The AI writes for the target runtime.</div></div>
+    <div class="row"><button class="btn ghost" id="newBtn" data-i18n="common.new">New</button><button class="btn primary" id="generateBtn" data-i18n="studio.generate">Generate script</button></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2 data-i18n="studio.brief">Video brief</h2>
+      <div class="form-grid">
+        <div class="field"><label data-i18n="fields.format">Format</label><select id="format">
+          <option value="solo" data-i18n="formats.solo">Solo narration</option>
+          <option value="podcast" data-i18n="formats.podcast">Multi-person podcast</option>
+          <option value="interview" data-i18n="formats.interview">Interview</option>
+          <option value="documentary" data-i18n="formats.doc">Documentary</option>
+          <option value="news" data-i18n="formats.news">News / explainer</option>
+          <option value="story" data-i18n="formats.story">Storytelling</option>
+        </select></div>
+        <div class="field"><label data-i18n="fields.duration">Target duration</label><select id="duration">
+          <option value="1">1 min</option><option value="3">3 min</option><option value="5" selected>5 min</option><option value="8">8 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option>
+        </select></div>
+        <div class="field"><label data-i18n="fields.language">Script language</label><select id="language"></select></div>
+        <div class="field"><label data-i18n="fields.tone">Tone</label><select id="tone">
+          <option value="natural" data-i18n="tones.natural">Natural & conversational</option><option value="cinematic" data-i18n="tones.cinematic">Cinematic</option><option value="educational" data-i18n="tones.educational">Educational</option><option value="energetic" data-i18n="tones.energetic">Energetic</option><option value="calm" data-i18n="tones.calm">Calm & thoughtful</option><option value="humorous" data-i18n="tones.humorous">Light humor</option>
+        </select></div>
+        <div class="field full"><label data-i18n="fields.topic">Topic / title</label><input id="topic" placeholder="e.g. Why people are quitting social media" data-ph="topic"></div>
+        <div class="field full"><label data-i18n="fields.brief">Your idea</label><textarea id="brief" placeholder="Paste notes, facts, a rough idea, or the message you want the video to deliver." data-ph="brief"></textarea></div>
+        <div class="field full"><label data-i18n="fields.instructions">Style instructions <span class="muted" data-i18n="fields.optional">(optional)</span></label><input id="instructions" placeholder="e.g. Short sentences, no clichés, sound like a real creator." data-ph="instructions"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="studio.voices">Voices & roles</h2>
+      <div class="muted" style="margin-bottom:12px" data-i18n="studio.voicesSub">Add only the people you need. The first voice is the main speaker.</div>
+      <div id="roles"></div>
+      <button class="btn ghost" id="addRole" data-i18n="studio.addRole">＋ Add role</button>
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      <div class="field"><label data-i18n="fields.provider">AI provider</label><select id="provider"></select><small data-i18n="studio.providerHint">Your API key stays in this browser. For Firebase sync, configure Firestore rules for your project.</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="editorPage">
+  <div class="hero">
+    <div><h1 data-i18n="editor.title">Script editor</h1><div class="muted" id="scriptMeta">Ready</div></div>
+    <div class="row"><button class="btn ghost" id="readBtn" data-i18n="editor.read">Full screen</button><button class="btn ghost" id="copyBtn" data-i18n="editor.copy">Copy</button><button class="btn ghost" id="pdfBtn" data-i18n="editor.pdf">Export PDF</button><button class="btn primary" id="saveBtn" data-i18n="editor.save">Save</button></div>
+  </div>
+  <div class="card">
+    <div class="script-toolbar">
+      <div class="toolbar-left"><span class="kbd">AI</span><button class="btn ghost" id="polishBtn" data-i18n="editor.polish">Make natural</button><button class="btn ghost" id="shortenBtn" data-i18n="editor.shorten">Tighten</button><button class="btn ghost" id="expandBtn" data-i18n="editor.expand">Add detail</button></div>
+      <div class="toolbar-right"><button class="btn ghost" id="regenBtn" data-i18n="editor.regenerate">Regenerate</button></div>
+    </div>
+    <div id="editor" class="editor" contenteditable="true" spellcheck="true"></div>
+  </div>
+</section>
+
+<section class="page" id="scripts">
+  <div class="hero"><div><h1 data-i18n="scripts.title">My Scripts</h1><div class="muted" data-i18n="scripts.sub">Scripts saved locally and optionally synced to Firebase.</div></div><button class="btn primary" id="newScriptBtn" data-i18n="common.new">New</button></div>
+  <div class="card"><div id="savedList" class="list"></div></div>
+</section>
+
+<section class="page" id="settings">
+  <div class="hero"><div><h1 data-i18n="settings.title">Settings</h1><div class="muted" data-i18n="settings.sub">Keep the setup simple: language, appearance and AI providers.</div></div></div>
+  <div class="card">
+    <div class="tabs"><button class="tab active" data-tab="general" data-i18n="settings.general">General</button><button class="tab" data-tab="providers" data-i18n="settings.providers">AI providers</button><button class="tab" data-tab="firebase">Firebase</button></div>
+    <div id="tab-general">
+      <div class="form-grid">
+        <div class="field"><label data-i18n="settings.uiLanguage">Interface language</label><select id="uiLanguage"><option value="en">English</option><option value="zh">中文</option><option value="hi">हिन्दी</option></select></div>
+        <div class="field"><label data-i18n="settings.appearance">Appearance</label><select id="appearance"><option value="system" data-i18n="settings.system">System</option><option value="light" data-i18n="settings.light">Light</option><option value="dark" data-i18n="settings.dark">Dark</option></select></div>
+      </div>
+    </div>
+    <div id="tab-providers" style="display:none">
+      <p class="muted" data-i18n="settings.providerIntro">Add one or more compatible providers. Built-in presets cover international and Chinese services. OpenAI-compatible endpoints are supported.</p>
+      <div id="providers"></div><button class="btn ghost" id="addProvider" data-i18n="settings.addProvider">＋ Add provider</button>
+    </div>
+    <div id="tab-firebase" style="display:none">
+      <div class="field"><label>Firebase config</label><textarea id="firebaseConfig" rows="8"></textarea><small data-i18n="settings.firebaseHint">This static app uses Firebase Web SDK modules. Firestore writes require Firestore to be enabled and rules to allow your chosen access pattern. Do not put privileged server credentials here.</small></div>
+      <div class="actions"><button class="btn" id="testFirebase" data-i18n="settings.testFirebase">Test Firebase</button><button class="btn primary" id="saveFirebase" data-i18n="common.save">Save</button></div>
+      <div id="firebaseStatus" class="status" style="margin-top:10px"></div>
+    </div>
+  </div>
+</section>
+</div>
+</main>
+</div>
+
+<div class="modal" id="readerModal"><div class="modal-box fullscreen"><div class="hero no-print"><div><h1 id="readerTitle">Script</h1></div><button class="btn" id="closeReader" data-i18n="common.close">Close</button></div><div id="readerText" class="reading"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const DEFAULT_FIREBASE={apiKey:"AIzaSyD765DnPTLqSMnziFIsyatKqJ9yS_7ayog",authDomain:"page-99350.firebaseapp.com",projectId:"page-99350",storageBucket:"page-99350.firebasestorage.app",messagingSenderId:"1017475806028",appId:"1:1017475806028:web:5618c25e716b44f694d5e9"};
+const LANGS=[
+ {id:"en",name:"English"},{id:"zh",name:"中文"},{id:"hi",name:"हिन्दी"},{id:"es",name:"Español"},{id:"fr",name:"Français"},{id:"de",name:"Deutsch"},{id:"pt",name:"Português"},{id:"ja",name:"日本語"},{id:"ko",name:"한국어"},{id:"ar",name:"العربية"},{id:"ru",name:"Русский"},{id:"it",name:"Italiano"},{id:"id",name:"Bahasa Indonesia"},{id:"vi",name:"Tiếng Việt"}];
+
+const I={
+en:{
+"nav.studio":"Studio","nav.scripts":"My Scripts","nav.settings":"Settings","app.noLogin":"No login required",
+"studio.title":"Create a natural video script","studio.sub":"Choose your format, topic and voices. The AI writes for the target runtime.","studio.generate":"Generate script","common.new":"New","common.save":"Save","common.close":"Close",
+"studio.brief":"Video brief","studio.voices":"Voices & roles","studio.voicesSub":"Add only the people you need. The first voice is the main speaker.","studio.addRole":"＋ Add role","studio.providerHint":"Your API key stays in this browser. For Firebase sync, configure Firestore rules for your project.",
+"fields.format":"Format","fields.duration":"Target duration","fields.language":"Script language","fields.tone":"Tone","fields.topic":"Topic / title","fields.brief":"Your idea","fields.instructions":"Style instructions","fields.optional":"(optional)","fields.provider":"AI provider",
+"formats.solo":"Solo narration","formats.podcast":"Multi-person podcast","formats.interview":"Interview","formats.doc":"Documentary","formats.news":"News / explainer","formats.story":"Storytelling",
+"tones.natural":"Natural & conversational","tones.cinematic":"Cinematic","tones.educational":"Educational","tones.energetic":"Energetic","tones.calm":"Calm & thoughtful","tones.humorous":"Light humor",
+"editor.title":"Script editor","editor.read":"Full screen","editor.copy":"Copy","editor.pdf":"Export PDF","editor.save":"Save","editor.polish":"Make natural","editor.shorten":"Tighten","editor.expand":"Add detail","editor.regenerate":"Regenerate",
+"scripts.title":"My Scripts","scripts.sub":"Scripts saved locally and optionally synced to Firebase.",
+"settings.title":"Settings","settings.sub":"Keep the setup simple: language, appearance and AI providers.","settings.general":"General","settings.providers":"AI providers","settings.uiLanguage":"Interface language","settings.appearance":"Appearance","settings.system":"System","settings.light":"Light","settings.dark":"Dark","settings.providerIntro":"Add one or more compatible providers. Built-in presets cover international and Chinese services. OpenAI-compatible endpoints are supported.","settings.addProvider":"＋ Add provider","settings.testFirebase":"Test Firebase","settings.firebaseHint":"This static app uses Firebase Web SDK modules. Firestore writes require Firestore to be enabled and rules to allow your chosen access pattern. Do not put privileged server credentials here.",
+"placeholders.topic":"e.g. Why people are quitting social media","placeholders.brief":"Paste notes, facts, a rough idea, or the message you want the video to deliver.","placeholders.instructions":"e.g. Short sentences, no clichés, sound like a real creator",
+"role.name":"Name","role.type":"Role","role.style":"Voice style","role.main":"Main speaker","role.host":"Host","role.guest":"Guest","role.narrator":"Narrator","role.remove":"Remove",
+"provider.name":"Provider","provider.model":"Model","provider.key":"API key","provider.endpoint":"Endpoint","provider.test":"Test","provider.remove":"Remove"
+},
+zh:{
+"nav.studio":"创作工作台","nav.scripts":"我的脚本","nav.settings":"设置","app.noLogin":"无需登录","studio.title":"生成自然的人类感视频脚本","studio.sub":"选择视频形式、主题和角色，AI 会按目标时长控制稿件长度。","studio.generate":"生成脚本","common.new":"新建","common.save":"保存","common.close":"关闭",
+"studio.brief":"视频需求","studio.voices":"角色与声音","studio.voicesSub":"只添加需要的角色，第一个角色默认为主讲人。","studio.addRole":"＋ 添加角色","studio.providerHint":"API Key 只保存在当前浏览器。若使用 Firebase 同步，请配置 Firestore 安全规则。",
+"fields.format":"视频形式","fields.duration":"目标时长","fields.language":"脚本语言","fields.tone":"语气风格","fields.topic":"主题 / 标题","fields.brief":"你的想法","fields.instructions":"风格要求","fields.optional":"（可选）","fields.provider":"AI 服务商",
+"formats.solo":"单人旁白","formats.podcast":"多人播客","formats.interview":"采访对话","formats.doc":"纪录片","formats.news":"新闻 / 科普","formats.story":"故事叙事",
+"tones.natural":"自然、口语化","tones.cinematic":"电影感","tones.educational":"知识讲解","tones.energetic":"活力、有节奏","tones.calm":"沉稳、思考感","tones.humorous":"轻松幽默",
+"editor.title":"脚本编辑器","editor.read":"全屏阅读","editor.copy":"复制","editor.pdf":"导出 PDF","editor.save":"保存","editor.polish":"降低 AI 感","editor.shorten":"精简","editor.expand":"增加细节","editor.regenerate":"重新生成",
+"scripts.title":"我的脚本","scripts.sub":"脚本保存在本机，也可以选择同步到 Firebase。","settings.title":"设置","settings.sub":"保持简单：语言、外观和 AI 服务商。","settings.general":"常规","settings.providers":"AI 服务商","settings.uiLanguage":"界面语言","settings.appearance":"外观","settings.system":"跟随系统","settings.light":"浅色","settings.dark":"深色","settings.providerIntro":"可添加多个兼容的 AI 服务商。预设包含国内和海外服务，支持 OpenAI 兼容接口。","settings.addProvider":"＋ 添加服务商","settings.testFirebase":"测试 Firebase","settings.firebaseHint":"本静态网页使用 Firebase Web SDK。写入 Firestore 前，请在 Firebase 控制台启用 Firestore 并配置合适的安全规则。不要在这里放服务器私钥。",
+"placeholders.topic":"例如：为什么越来越多人离开社交媒体","placeholders.brief":"粘贴资料、事实、粗略想法，或者你希望视频传达的核心信息。","placeholders.instructions":"例如：句子短一些，不要套话，要像真实创作者说话",
+"role.name":"名称","role.type":"角色","role.style":"说话风格","role.main":"主讲人","role.host":"主持人","role.guest":"嘉宾","role.narrator":"旁白","role.remove":"删除",
+"provider.name":"服务商","provider.model":"模型","provider.key":"API Key","provider.endpoint":"接口地址","provider.test":"测试","provider.remove":"删除"
+},
+hi:{
+"nav.studio":"स्टूडियो","nav.scripts":"मेरी स्क्रिप्ट","nav.settings":"सेटिंग्स","app.noLogin":"लॉगिन की आवश्यकता नहीं","studio.title":"स्वाभाविक वीडियो स्क्रिप्ट बनाएं","studio.sub":"फॉर्मेट, विषय और आवाज़ चुनें। AI लक्ष्य अवधि के अनुसार स्क्रिप्ट लिखेगा।","studio.generate":"स्क्रिप्ट बनाएं","common.new":"नया","common.save":"सहेजें","common.close":"बंद करें",
+"studio.brief":"वीडियो विवरण","studio.voices":"भूमिकाएँ और आवाज़ें","studio.voicesSub":"सिर्फ आवश्यक लोग जोड़ें। पहली आवाज़ मुख्य वक्ता होगी।","studio.addRole":"＋ भूमिका जोड़ें","studio.providerHint":"API Key इसी ब्राउज़र में रहती है। Firebase सिंक के लिए Firestore नियम कॉन्फ़िगर करें।",
+"fields.format":"फॉर्मेट","fields.duration":"लक्ष्य अवधि","fields.language":"स्क्रिप्ट भाषा","fields.tone":"टोन","fields.topic":"विषय / शीर्षक","fields.brief":"आपका विचार","fields.instructions":"शैली निर्देश","fields.optional":"(वैकल्पिक)","fields.provider":"AI प्रदाता",
+"formats.solo":"एकल नैरेशन","formats.podcast":"मल्टी-पर्सन पॉडकास्ट","formats.interview":"इंटरव्यू","formats.doc":"डॉक्यूमेंट्री","formats.news":"न्यूज़ / एक्सप्लेनर","formats.story":"कहानी",
+"tones.natural":"स्वाभाविक और बातचीत जैसा","tones.cinematic":"सिनेमैटिक","tones.educational":"शैक्षिक","tones.energetic":"ऊर्जावान","tones.calm":"शांत और विचारशील","tones.humorous":"हल्का हास्य",
+"editor.title":"स्क्रिप्ट एडिटर","editor.read":"फुल स्क्रीन","editor.copy":"कॉपी","editor.pdf":"PDF निर्यात","editor.save":"सहेजें","editor.polish":"प्राकृतिक बनाएं","editor.shorten":"संक्षिप्त करें","editor.expand":"विवरण जोड़ें","editor.regenerate":"फिर बनाएं",
+"scripts.title":"मेरी स्क्रिप्ट","scripts.sub":"स्क्रिप्ट स्थानीय रूप से सेव होती हैं और चाहें तो Firebase से सिंक की जा सकती हैं।","settings.title":"सेटिंग्स","settings.sub":"सरल रखें: भाषा, रूप और AI प्रदाता।","settings.general":"सामान्य","settings.providers":"AI प्रदाता","settings.uiLanguage":"इंटरफेस भाषा","settings.appearance":"रूप","settings.system":"सिस्टम","settings.light":"लाइट","settings.dark":"डार्क","settings.providerIntro":"कई संगत AI प्रदाता जोड़ें। इंटरनेशनल और चीनी सेवाओं के प्रीसेट शामिल हैं। OpenAI-संगत API समर्थित है।","settings.addProvider":"＋ प्रदाता जोड़ें","settings.testFirebase":"Firebase जांचें","settings.firebaseHint":"यह स्टैटिक ऐप Firebase Web SDK का उपयोग करता है। Firestore लिखने के लिए उसे सक्षम करके सुरक्षा नियम सेट करें। सर्वर की निजी कुंजी यहां न रखें।",
+"placeholders.topic":"उदा. लोग सोशल मीडिया छोड़ क्यों रहे हैं","placeholders.brief":"नोट्स, तथ्य, विचार या वीडियो का मुख्य संदेश यहां डालें।","placeholders.instructions":"उदा. छोटे वाक्य, क्लिशे नहीं, असली क्रिएटर जैसा बोलना",
+"role.name":"नाम","role.type":"भूमिका","role.style":"बोलने की शैली","role.main":"मुख्य वक्ता","role.host":"होस्ट","role.guest":"अतिथि","role.narrator":"नैरेटर","role.remove":"हटाएं",
+"provider.name":"प्रदाता","provider.model":"मॉडल","provider.key":"API Key","provider.endpoint":"एंडपॉइंट","provider.test":"टेस्ट","provider.remove":"हटाएं"
+}};
+
+const PROVIDER_PRESETS=[
+{id:"openai",name:"OpenAI",endpoint:"https://api.openai.com/v1/chat/completions",model:"gpt-4o-mini"},
+{id:"anthropic",name:"Anthropic Claude",endpoint:"https://api.anthropic.com/v1/messages",model:"claude-3-5-sonnet-latest"},
+{id:"gemini",name:"Google Gemini",endpoint:"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",model:"gemini-2.5-flash"},
+{id:"deepseek",name:"DeepSeek",endpoint:"https://api.deepseek.com/chat/completions",model:"deepseek-chat"},
+{id:"qwen",name:"阿里云 Qwen / 通义千问",endpoint:"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",model:"qwen-plus"},
+{id:"doubao",name:"字节跳动 豆包",endpoint:"https://ark.cn-beijing.volces.com/api/v3/chat/completions",model:"doubao-1-5-pro-32k-250115"},
+{id:"zhipu",name:"智谱 GLM",endpoint:"https://open.bigmodel.cn/api/paas/v4/chat/completions",model:"glm-4.5-flash"},
+{id:"moonshot",name:"Moonshot / Kimi",endpoint:"https://api.moonshot.cn/v1/chat/completions",model:"moonshot-v1-8k"},
+{id:"siliconflow",name:"SiliconFlow",endpoint:"https://api.siliconflow.cn/v1/chat/completions",model:"Qwen/Qwen3-8B"},
+{id:"groq",name:"Groq",endpoint:"https://api.groq.com/openai/v1/chat/completions",model:"llama-3.3-70b-versatile"},
+{id:"mistral",name:"Mistral",endpoint:"https://api.mistral.ai/v1/chat/completions",model:"mistral-small-latest"},
+{id:"custom",name:"Custom OpenAI-compatible",endpoint:"",model:""}
+];
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let lang=localStorage.lang||"en", roles=JSON.parse(localStorage.roles||"null")||[{name:"Alex",type:"Host",style:"warm, natural"}], providers=JSON.parse(localStorage.providers||"null")||PROVIDER_PRESETS.map(p=>({...p,key:""}));
+let currentScript={title:"",text:"",meta:{}}, db=null;
+
+function t(k){return (I[lang]&&I[lang][k])||I.en[k]||k}
+function applyI18n(){
+ document.documentElement.lang=lang;
+ $$("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
+ $$("[data-ph]").forEach(e=>e.placeholder=t("placeholders."+e.dataset.ph));
+ $("#pageTitle").textContent=t({studio:"nav.studio",editorPage:"editor.title",scripts:"nav.scripts",settings:"nav.settings"}[location.hash.replace("#","")||"studio"]||"nav.studio");
+ renderRoles(); renderProviders(); renderSaved();
+}
+function initLangs(){ $("#language").innerHTML=LANGS.map(x=>`<option value="${x.id}">${x.name}</option>`).join(""); $("#language").value=lang; $("#uiLanguage").value=lang; }
+function renderRoles(){
+ $("#roles").innerHTML=roles.map((r,i)=>`<div class="role">
+<input data-r="${i}" data-k="name" value="${esc(r.name)}" placeholder="${t("role.name")}">
+<input data-r="${i}" data-k="type" value="${esc(r.type)}" placeholder="${t("role.type")}">
+<input data-r="${i}" data-k="style" value="${esc(r.style)}" placeholder="${t("role.style")}">
+<button class="btn danger" data-remove-role="${i}">×</button></div>`).join("");
+ $$("[data-r]").forEach(e=>e.oninput=()=>{roles[e.dataset.r][e.dataset.k]=e.value;localStorage.roles=JSON.stringify(roles)});
+ $$("[data-remove-role]").forEach(e=>e.onclick=()=>{if(roles.length>1){roles.splice(+e.dataset.removeRole,1);localStorage.roles=JSON.stringify(roles);renderRoles()}});
+}
+function renderProviders(){
+ $("#provider").innerHTML=providers.map((p,i)=>`<option value="${i}">${esc(p.name)} — ${esc(p.model||"")}</option>`).join("");
+ $("#providers").innerHTML=providers.map((p,i)=>`<div class="provider">
+<input data-p="${i}" data-k="name" value="${esc(p.name)}" placeholder="${t("provider.name")}">
+<input data-p="${i}" data-k="model" value="${esc(p.model)}" placeholder="${t("provider.model")}">
+<input data-p="${i}" data-k="key" type="password" value="${esc(p.key||"")}" placeholder="${t("provider.key")}">
+<input data-p="${i}" data-k="endpoint" value="${esc(p.endpoint)}" placeholder="${t("provider.endpoint")}">
+<button class="btn" data-test-provider="${i}">${t("provider.test")}</button><button class="btn danger" data-remove-provider="${i}">×</button></div>`).join("");
+ $$("[data-p]").forEach(e=>e.oninput=()=>{providers[e.dataset.p][e.dataset.k]=e.value;localStorage.providers=JSON.stringify(providers);renderProviders()});
+ $$("[data-test-provider]").forEach(e=>e.onclick=()=>testProvider(+e.dataset.testProvider));
+ $$("[data-remove-provider]").forEach(e=>e.onclick=()=>{if(providers.length>1){providers.splice(+e.dataset.removeProvider,1);localStorage.providers=JSON.stringify(providers);renderProviders()}});
+}
+function esc(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function toast(s){let x=$("#toast");x.textContent=s;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2500)}
+function showPage(id){$$(".page").forEach(x=>x.classList.remove("active"));$("#"+id).classList.add("active");$$(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));$("#pageTitle").textContent=t({studio:"nav.studio",scripts:"nav.scripts",settings:"nav.settings"}[id]||"editor.title")}
+$$(".nav button").forEach(b=>b.onclick=()=>{showPage(b.dataset.page);history.replaceState(null,"","#"+b.dataset.page)});
+$("#themeBtn").onclick=()=>{let d=document.documentElement.classList.toggle("dark");localStorage.theme=d?"dark":"light";$("#appearance").value=d?"dark":"light"};
+$("#uiLanguage").onchange=e=>{lang=e.target.value;localStorage.lang=lang;initLangs();applyI18n()};
+$("#appearance").onchange=e=>{document.documentElement.classList.toggle("dark",e.target.value==="dark"||(e.target.value==="system"&&matchMedia("(prefers-color-scheme:dark)").matches));localStorage.appearance=e.target.value};
+$("#addRole").onclick=()=>{roles.push({name:"Guest",type:"Guest",style:"friendly, conversational"});localStorage.roles=JSON.stringify(roles);renderRoles()};
+$("#addProvider").onclick=()=>{providers.push({id:"custom",name:"Custom provider",endpoint:"",model:"",key:""});localStorage.providers=JSON.stringify(providers);renderProviders()};
+$("#newBtn").onclick=()=>newProject();$("#newScriptBtn").onclick=()=>{newProject();showPage("studio")};
+function newProject(){$("#topic").value="";$("#brief").value="";$("#instructions").value="";$("#editor").textContent="";showPage("studio");toast(lang==="zh"?"已新建":"New project created")}
+
+function buildPrompt(action="generate"){
+ const dur=+$("#duration").value, words=Math.round(dur*135), fmt=$("#format").selectedOptions[0].textContent, tone=$("#tone").selectedOptions[0].textContent, language=$("#language").selectedOptions[0].textContent;
+ const people=roles.map(r=>`${r.name} (${r.type}, ${r.style})`).join("; ");
+ const base=`You are an experienced human video writer and producer. Write an ORIGINAL spoken script in ${language}.
+TARGET: approximately ${words} words for ${dur} minute(s), assuming natural conversational delivery around 125–145 words/minute.
+FORMAT: ${fmt}. TONE: ${tone}. TOPIC: ${$("#topic").value}.
+CREATOR'S IDEA/NOTES: ${$("#brief").value}.
+STYLE INSTRUCTIONS: ${$("#instructions").value||"None"}.
+ROLES: ${people}.
+
+ANTI-AI WRITING RULES:
+- Sound like a real person speaking, not an essay or marketing copy.
+- Prefer concrete observations, specific examples, varied sentence lengths, contractions where natural, and occasional rhetorical questions.
+- Do not use generic openings like “In today’s fast-paced world”, “Have you ever wondered”, “Let’s dive in”, “In conclusion”, or “Whether you’re…”.
+- Do not restate the topic repeatedly.
+- Avoid excessive headings, bullet lists, fake quotes, motivational filler, symmetrical phrasing, and corporate jargon.
+- Include useful transitions that feel spoken.
+- Do not invent statistics, sources, quotes, or personal experiences. If a fact is uncertain, phrase it cautiously.
+- Every line must earn its place. The result should sound record-ready.
+- For multiple roles, clearly label each speaker and give each person a distinct voice.
+- Output ONLY the finished script, with speaker labels where needed. No preamble or explanation.`;
+ if(action==="natural") return base+`\nRewrite the existing script below to sound substantially more human while preserving facts, structure and approximate length:\n${$("#editor").innerText}`;
+ if(action==="shorten") return base+`\nTighten the existing script by removing repetition and filler while preserving the core message:\n${$("#editor").innerText}`;
+ if(action==="expand") return base+`\nExpand the existing script with specific examples and useful detail, without adding fluff:\n${$("#editor").innerText}`;
+ return base;
+}
+async function callAI(prompt){
+ const idx=+$("#provider").value,p=providers[idx]; if(!p?.key) throw Error(lang==="zh"?"请先在设置中填写 API Key":"Add an API key in Settings first");
+ if(!p.endpoint) throw Error(lang==="zh"?"请填写接口地址":"Add the provider endpoint");
+ const headers={"Content-Type":"application/json","Authorization":"Bearer "+p.key};
+ let body={model:p.model||"gpt-4o-mini",messages:[{role:"system",content:"You are a professional scriptwriter."},{role:"user",content:prompt}],temperature:.85};
+ let url=p.endpoint;
+ if(p.id==="anthropic"){headers["x-api-key"]=p.key;headers["anthropic-version"]="2023-06-01";delete headers.Authorization;body={model:p.model||"claude-3-5-sonnet-latest",max_tokens:12000,messages:[{role:"user",content:prompt}]}}
+ const r=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)}); if(!r.ok)throw Error(await r.text());
+ const j=await r.json(); const out=j.choices?.[0]?.message?.content||j.content?.map(x=>x.text||"").join("")||"";
+ if(!out)throw Error("Empty AI response"); return out;
+}
+async function generate(action="generate"){
+ const topic=$("#topic").value.trim(); if(!topic){toast(lang==="zh"?"请先填写主题":"Add a topic first");return}
+ const btn=$("#generateBtn");btn.disabled=true;btn.textContent=lang==="zh"?"生成中…":"Writing…";
+ try{let text=await callAI(buildPrompt(action));currentScript={title:topic,text,meta:{duration:$("#duration").value,language:$("#language").value,format:$("#format").value}};$("#editor").textContent=text;$("#scriptMeta").textContent=`${topic} · ${$("#duration").value} min · ${$("#language").selectedOptions[0].textContent}`;showPage("editorPage");toast(lang==="zh"?"脚本已生成":"Script generated")}
+ catch(e){toast(e.message||"AI request failed")}
+ finally{btn.disabled=false;btn.textContent=t("studio.generate")}
+}
+$("#generateBtn").onclick=()=>generate();$("#regenBtn").onclick=()=>generate();$("#polishBtn").onclick=()=>generate("natural");$("#shortenBtn").onclick=()=>generate("shorten");$("#expandBtn").onclick=()=>generate("expand");
+$("#copyBtn").onclick=async()=>{await navigator.clipboard.writeText($("#editor").innerText);toast(lang==="zh"?"已复制":"Copied")};
+$("#readBtn").onclick=()=>{$("#readerTitle").textContent=currentScript.title||"Script";$("#readerText").textContent=$("#editor").innerText;$("#readerModal").classList.add("open")};$("#closeReader").onclick=()=>$("#readerModal").classList.remove("open");
+$("#pdfBtn").onclick=()=>{document.title=(currentScript.title||"script")+" — Script";$("#editor").classList.add("print-page");window.print();setTimeout(()=>document.title="ScriptForge AI",500)};
+$("#saveBtn").onclick=saveScript;
+async function saveScript(){
+ currentScript.text=$("#editor").innerText;currentScript.title=currentScript.title||$("#topic").value||"Untitled script";currentScript.savedAt=new Date().toISOString();
+ let arr=JSON.parse(localStorage.savedScripts||"[]");arr.unshift(currentScript);localStorage.savedScripts=JSON.stringify(arr.slice(0,50));renderSaved();
+ try{if(db){await addDoc(collection(db,"scripts"),{...currentScript,createdAt:serverTimestamp()});toast(lang==="zh"?"已保存并同步 Firebase":"Saved and synced to Firebase")}else toast(lang==="zh"?"已保存到本机":"Saved locally")}
+ catch(e){toast(lang==="zh"?"本机已保存，Firebase 同步失败":"Saved locally; Firebase sync failed")}
+}
+function renderSaved(){let arr=JSON.parse(localStorage.savedScripts||"[]");$("#savedList").innerHTML=arr.length?arr.map((s,i)=>`<div class="saved"><div><strong>${esc(s.title)}</strong><div class="muted">${new Date(s.savedAt||Date.now()).toLocaleString()} · ${esc(s.meta?.language||"")}</div></div><div class="row"><button class="btn ghost" data-open="${i}">${lang==="zh"?"打开":"Open"}</button><button class="btn danger" data-del="${i}">×</button></div></div>`).join(""):`<div class="empty">${lang==="zh"?"还没有保存的脚本":"No saved scripts yet."}</div>`;
+ $$("[data-open]").forEach(b=>b.onclick=()=>{let a=JSON.parse(localStorage.savedScripts||"[]")[+b.dataset.open];currentScript=a;$("#editor").textContent=a.text;$("#topic").value=a.title;showPage("editorPage")});
+ $$("[data-del]").forEach(b=>b.onclick=()=>{let a=JSON.parse(localStorage.savedScripts||"[]");a.splice(+b.dataset.del,1);localStorage.savedScripts=JSON.stringify(a);renderSaved()});
+}
+async function testProvider(i){try{await callProviderTest(providers[i]);toast(lang==="zh"?"连接成功":"Connection successful");$("#apiStatus").textContent=providers[i].name+" ✓"}catch(e){toast((lang==="zh"?"连接失败：":"Failed: ")+e.message)}}
+async function callProviderTest(p){if(!p.key)throw Error(lang==="zh"?"缺少 API Key":"Missing API key");let h={"Content-Type":"application/json","Authorization":"Bearer "+p.key};let b={model:p.model||"gpt-4o-mini",messages:[{role:"user",content:"Reply with exactly OK"}],max_tokens:5};if(p.id==="anthropic"){h["x-api-key"]=p.key;h["anthropic-version"]="2023-06-01";delete h.Authorization;b={model:p.model||"claude-3-5-sonnet-latest",max_tokens:5,messages:[{role:"user",content:"Reply with exactly OK"}]}}let r=await fetch(p.endpoint,{method:"POST",headers:h,body:JSON.stringify(b)});if(!r.ok)throw Error("HTTP "+r.status);return r.json()}
+
+async function initFirebase(){
+ try{
+  let cfg=JSON.parse(localStorage.firebaseConfig||JSON.stringify(DEFAULT_FIREBASE));$("#firebaseConfig").value=JSON.stringify(cfg,null,2);
+  const app=getApps().length?getApps()[0]:initializeApp(cfg);db=getFirestore(app);$("#apiStatus").textContent="Firebase ready";$("#firebaseStatus").textContent="✓ Firebase initialized";
+ }catch(e){$("#firebaseStatus").textContent="Firebase: "+e.message}
+}
+$("#saveFirebase").onclick=()=>{try{JSON.parse($("#firebaseConfig").value);localStorage.firebaseConfig=$("#firebaseConfig").value;location.reload()}catch(e){toast("Invalid Firebase JSON")}};
+$("#testFirebase").onclick=async()=>{try{if(!db)await initFirebase();await getDocs(collection(db,"scripts"));$("#firebaseStatus").textContent="✓ Firestore connection successful";toast("Firebase OK")}catch(e){$("#firebaseStatus").textContent="✕ "+e.message;toast("Firebase test failed")}};
+$$(".tab").forEach(b=>b.onclick=()=>{$$(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");["general","providers","firebase"].forEach(x=>$("#tab-"+x).style.display=x===b.dataset.tab?"block":"none")});
+
+document.documentElement.classList.toggle("dark",localStorage.appearance==="dark"||(localStorage.appearance==="system"&&matchMedia("(prefers-color-scheme:dark)").matches));
+initLangs();$("#appearance").value=localStorage.appearance||"system";applyI18n();initFirebase();
+if(location.hash==="#scripts")showPage("scripts");else if(location.hash==="#settings")showPage("settings");
+</script>
+</body>
+</html>
