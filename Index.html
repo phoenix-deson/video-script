@@ -1,0 +1,5365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
+<title>ScriptForge — AI Video Script Studio</title>
+
+<style>
+:root{
+    --bg:#0b0d12;
+    --panel:#11141b;
+    --panel2:#171b24;
+    --panel3:#1d222d;
+    --border:#292f3b;
+    --text:#f4f6fa;
+    --muted:#8e97a8;
+    --accent:#7c5cff;
+    --accent2:#9a82ff;
+    --danger:#ff5d73;
+    --success:#39d98a;
+    --warning:#f5b942;
+    --shadow:0 20px 60px rgba(0,0,0,.35);
+    --radius:14px;
+}
+
+body.light{
+    --bg:#f4f6f9;
+    --panel:#ffffff;
+    --panel2:#f8f9fb;
+    --panel3:#eef1f5;
+    --border:#dfe3ea;
+    --text:#171a21;
+    --muted:#6e7787;
+    --shadow:0 15px 40px rgba(0,0,0,.08);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:245px;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    padding:22px 15px;
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    inset:0 auto 0 0;
+    z-index:20;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:5px 10px 27px;
+    font-size:19px;
+    font-weight:800;
+    letter-spacing:-.4px;
+}
+
+.logo-mark{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#7c5cff,#b7a5ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:17px;
+    box-shadow:0 8px 25px rgba(124,92,255,.3);
+}
+
+.nav-label{
+    font-size:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    padding:12px 12px 7px;
+}
+
+.nav-item{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 12px;
+    border-radius:10px;
+    margin-bottom:3px;
+    text-align:left;
+    transition:.18s;
+}
+
+.nav-item:hover{
+    color:var(--text);
+    background:var(--panel2);
+}
+
+.nav-item.active{
+    background:rgba(124,92,255,.14);
+    color:var(--text);
+}
+
+.nav-icon{
+    width:20px;
+    text-align:center;
+}
+
+.sidebar-bottom{
+    margin-top:auto;
+}
+
+.status-card{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+    margin:10px 5px;
+}
+
+.status-title{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:7px;
+}
+
+.status-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+}
+
+.dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--success);
+}
+
+/* MAIN */
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    min-height:100vh;
+}
+
+.topbar{
+    height:68px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:color-mix(in srgb,var(--bg) 92%,transparent);
+    backdrop-filter:blur(18px);
+}
+
+.page-title{
+    font-size:16px;
+    font-weight:700;
+}
+
+.top-actions{
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+
+.icon-btn{
+    width:38px;
+    height:38px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    border-radius:10px;
+}
+
+.content{
+    padding:30px;
+    max-width:1550px;
+    margin:auto;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* BUTTONS */
+
+.btn{
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    border-radius:9px;
+    padding:10px 15px;
+    transition:.18s;
+    font-weight:600;
+    font-size:13px;
+}
+
+.btn:hover{
+    border-color:#454d5d;
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    border-color:transparent;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    box-shadow:0 8px 25px rgba(124,92,255,.22);
+}
+
+.btn-primary:hover{
+    box-shadow:0 10px 30px rgba(124,92,255,.34);
+}
+
+.btn-danger{
+    color:#ff7184;
+}
+
+.btn-success{
+    color:var(--success);
+}
+
+.btn-sm{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+/* DASHBOARD */
+
+.hero{
+    background:
+        radial-gradient(circle at 90% 10%,rgba(124,92,255,.2),transparent 30%),
+        radial-gradient(circle at 20% 100%,rgba(74,114,255,.08),transparent 35%),
+        var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:34px;
+    margin-bottom:25px;
+    box-shadow:var(--shadow);
+}
+
+.hero h1{
+    margin:0 0 10px;
+    font-size:34px;
+    letter-spacing:-1.5px;
+}
+
+.hero p{
+    margin:0;
+    color:var(--muted);
+    max-width:650px;
+    line-height:1.7;
+}
+
+.hero-actions{
+    margin-top:23px;
+    display:flex;
+    gap:10px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.stat{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:18px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.stat-value{
+    font-size:25px;
+    font-weight:800;
+    margin-top:8px;
+}
+
+.section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:13px;
+}
+
+.section-head h2{
+    font-size:17px;
+    margin:0;
+}
+
+.projects{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.project{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:17px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.project:hover{
+    transform:translateY(-2px);
+    border-color:#4b5261;
+}
+
+.project-title{
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.project-meta{
+    color:var(--muted);
+    font-size:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.badge{
+    display:inline-flex;
+    padding:4px 7px;
+    border-radius:6px;
+    background:var(--panel3);
+    color:var(--muted);
+}
+
+/* CREATE */
+
+.create-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 330px;
+    gap:20px;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:17px;
+}
+
+.card-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:17px;
+}
+
+.card-title h3{
+    margin:0;
+    font-size:15px;
+}
+
+.card-title span{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.field{
+    margin-bottom:14px;
+}
+
+.field:last-child{
+    margin-bottom:0;
+}
+
+.field label{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    margin-bottom:7px;
+    font-weight:600;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text);
+    border-radius:9px;
+    padding:11px 12px;
+    outline:none;
+    transition:.18s;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(124,92,255,.1);
+}
+
+textarea{
+    resize:vertical;
+    min-height:130px;
+    line-height:1.6;
+}
+
+input[type="range"]{
+    padding:0;
+    accent-color:var(--accent);
+}
+
+.range-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.range-value{
+    min-width:60px;
+    text-align:right;
+    font-weight:700;
+    color:var(--accent2);
+}
+
+/* PRESETS */
+
+.preset-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+}
+
+.preset{
+    border:1px solid var(--border);
+    background:var(--panel2);
+    border-radius:10px;
+    padding:11px 8px;
+    text-align:center;
+    color:var(--muted);
+    cursor:pointer;
+    transition:.18s;
+    font-size:12px;
+}
+
+.preset:hover{
+    color:var(--text);
+    border-color:#4b5261;
+}
+
+.preset.selected{
+    color:var(--text);
+    border-color:var(--accent);
+    background:rgba(124,92,255,.12);
+}
+
+.preset-icon{
+    font-size:19px;
+    margin-bottom:6px;
+}
+
+/* SPEAKERS */
+
+.speaker-list{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+
+.speaker{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr auto;
+    gap:8px;
+    align-items:end;
+    padding:11px;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    border-radius:10px;
+}
+
+.speaker .field{
+    margin:0;
+}
+
+/* SIDECARD */
+
+.info-box{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:11px;
+    padding:13px;
+    margin-bottom:10px;
+}
+
+.info-label{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.info-number{
+    font-size:20px;
+    font-weight:800;
+    margin-top:4px;
+}
+
+.generate-area{
+    position:sticky;
+    top:88px;
+}
+
+.generate-btn{
+    width:100%;
+    padding:14px;
+    font-size:14px;
+}
+
+.provider-mini{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    margin-top:12px;
+    background:var(--panel2);
+}
+
+.provider-mini-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:9px;
+}
+
+.provider-name{
+    font-weight:700;
+    font-size:13px;
+}
+
+.connection{
+    font-size:10px;
+    color:var(--muted);
+}
+
+.connection.ok{
+    color:var(--success);
+}
+
+/* EDITOR */
+
+.editor-layout{
+    display:grid;
+    grid-template-columns:230px minmax(0,1fr) 280px;
+    gap:15px;
+    height:calc(100vh - 130px);
+    min-height:600px;
+}
+
+.editor-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+
+.panel-head{
+    padding:14px;
+    border-bottom:1px solid var(--border);
+    font-size:12px;
+    font-weight:700;
+}
+
+.chapter-list{
+    overflow:auto;
+}
+
+.chapter{
+    padding:12px 13px;
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.chapter:hover,
+.chapter.active{
+    background:var(--panel2);
+    color:var(--text);
+}
+
+.editor-main{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.toolbar{
+    display:flex;
+    gap:6px;
+    padding:10px;
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+}
+
+.toolbar button{
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--muted);
+    padding:6px 9px;
+    border-radius:7px;
+    font-size:11px;
+}
+
+.toolbar button:hover{
+    color:var(--text);
+}
+
+.script-editor{
+    flex:1;
+    width:100%;
+    resize:none;
+    border:0;
+    border-radius:0;
+    background:var(--panel);
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size:14px;
+    line-height:1.8;
+    padding:22px;
+}
+
+.script-editor:focus{
+    box-shadow:none;
+}
+
+.editor-footer{
+    border-top:1px solid var(--border);
+    padding:9px 13px;
+    display:flex;
+    justify-content:space-between;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.ai-tools{
+    padding:12px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.ai-tool{
+    padding:9px;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text);
+    border-radius:8px;
+    font-size:11px;
+}
+
+.ai-tool:hover{
+    border-color:var(--accent);
+}
+
+/* SETTINGS */
+
+.settings-layout{
+    max-width:900px;
+}
+
+.settings-section{
+    margin-bottom:25px;
+}
+
+.settings-section h2{
+    font-size:15px;
+    margin:0 0 10px;
+}
+
+.settings-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:16px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:10px;
+    margin-bottom:8px;
+}
+
+.settings-row-title{
+    font-size:13px;
+    font-weight:600;
+}
+
+.settings-row-description{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:4px;
+}
+
+.settings-control{
+    min-width:200px;
+}
+
+/* PROVIDERS */
+
+.provider-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.provider-card{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:16px;
+}
+
+.provider-card h3{
+    margin:0 0 4px;
+    font-size:14px;
+}
+
+.provider-card p{
+    margin:0 0 14px;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.provider-status{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:10px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.open{
+    display:flex;
+}
+
+.modal-box{
+    width:min(600px,100%);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:20px;
+    max-height:90vh;
+    overflow:auto;
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.modal-head h2{
+    font-size:17px;
+    margin:0;
+}
+
+/* TOAST */
+
+.toast-container{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:200;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.toast{
+    background:var(--panel);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    border-radius:10px;
+    padding:12px 15px;
+    font-size:12px;
+    min-width:220px;
+    animation:slideIn .25s ease;
+}
+
+.toast.success{
+    border-color:rgba(57,217,138,.4);
+}
+
+.toast.error{
+    border-color:rgba(255,93,115,.4);
+}
+
+@keyframes slideIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+}
+
+.empty-icon{
+    font-size:35px;
+    margin-bottom:12px;
+}
+
+/* MOBILE */
+
+.mobile-menu{
+    display:none;
+}
+
+@media(max-width:1100px){
+    .create-layout{
+        grid-template-columns:1fr;
+    }
+
+    .generate-area{
+        position:static;
+    }
+
+    .editor-layout{
+        grid-template-columns:190px minmax(0,1fr);
+    }
+
+    .editor-layout > .editor-panel:last-child{
+        display:none;
+    }
+
+    .projects{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .content{
+        padding:18px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .projects{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .preset-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .speaker{
+        grid-template-columns:1fr;
+    }
+
+    .provider-grid{
+        grid-template-columns:1fr;
+    }
+
+    .settings-row{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .settings-control{
+        width:100%;
+    }
+
+    .editor-layout{
+        display:block;
+        height:auto;
+    }
+
+    .editor-layout > .editor-panel:first-child{
+        display:none;
+    }
+
+    .editor-main{
+        height:calc(100vh - 120px);
+        min-height:600px;
+    }
+
+    .hero{
+        padding:24px;
+    }
+
+    .hero h1{
+        font-size:27px;
+    }
+}
+
+/* PRINT */
+
+@media print{
+    body{
+        background:white;
+        color:black;
+    }
+
+    .sidebar,
+    .topbar,
+    .toolbar,
+    .editor-footer,
+    .editor-layout > .editor-panel:first-child,
+    .editor-layout > .editor-panel:last-child{
+        display:none !important;
+    }
+
+    .main{
+        margin:0;
+        width:100%;
+    }
+
+    .editor-layout{
+        display:block;
+        height:auto;
+    }
+
+    .editor-panel{
+        border:0;
+    }
+
+    .script-editor{
+        color:black;
+        background:white;
+        min-height:100vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        <div class="logo-mark">✦</div>
+        <span>ScriptForge</span>
+    </div>
+
+    <div class="nav-label">Workspace</div>
+
+    <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">⌂</span>
+        <span data-i18n="dashboard">Dashboard</span>
+    </button>
+
+    <button class="nav-item" data-page="create">
+        <span class="nav-icon">＋</span>
+        <span data-i18n="newScript">New Script</span>
+    </button>
+
+    <button class="nav-item" data-page="projects">
+        <span class="nav-icon">▣</span>
+        <span data-i18n="projects">My Projects</span>
+    </button>
+
+    <button class="nav-item" data-page="editor">
+        <span class="nav-icon">✎</span>
+        <span data-i18n="editor">Script Editor</span>
+    </button>
+
+    <div class="nav-label">Configuration</div>
+
+    <button class="nav-item" data-page="providers">
+        <span class="nav-icon">⚡</span>
+        <span data-i18n="aiProviders">AI Providers</span>
+    </button>
+
+    <button class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙</span>
+        <span data-i18n="settings">Settings</span>
+    </button>
+
+    <div class="sidebar-bottom">
+
+        <div class="status-card">
+            <div class="status-title">LOCAL WORKSPACE</div>
+            <div class="status-row">
+                <span class="dot"></span>
+                <span>Saved in browser</span>
+            </div>
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- MAIN -->
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button class="icon-btn mobile-menu" id="mobileMenu">☰</button>
+            <div class="page-title" id="pageTitle">Dashboard</div>
+        </div>
+
+        <div class="top-actions">
+
+            <button class="icon-btn" id="themeBtn" title="Toggle theme">
+                ◐
+            </button>
+
+            <button class="btn btn-primary" onclick="showPage('create')">
+                + New Script
+            </button>
+
+        </div>
+
+    </header>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+
+        <section class="page active" id="page-dashboard">
+
+            <div class="hero">
+
+                <h1>Turn ideas into powerful scripts.</h1>
+
+                <p>
+                    Create production-ready video scripts with AI.
+                    Choose your video format, duration, language,
+                    tone and speakers — then generate, edit and export.
+                </p>
+
+                <div class="hero-actions">
+
+                    <button class="btn btn-primary" onclick="showPage('create')">
+                        ✦ Create New Script
+                    </button>
+
+                    <button class="btn" onclick="showPage('projects')">
+                        View Projects
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <div class="stat-label">TOTAL PROJECTS</div>
+                    <div class="stat-value" id="statProjects">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">SCRIPTS GENERATED</div>
+                    <div class="stat-value" id="statScripts">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">WORDS WRITTEN</div>
+                    <div class="stat-value" id="statWords">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">CURRENT LANGUAGE</div>
+                    <div class="stat-value" id="statLanguage">English</div>
+                </div>
+
+            </div>
+
+            <div class="section-head">
+                <h2>Recent Projects</h2>
+                <button class="btn btn-sm" onclick="showPage('projects')">View all</button>
+            </div>
+
+            <div class="projects" id="recentProjects"></div>
+
+        </section>
+
+
+        <!-- CREATE -->
+
+        <section class="page" id="page-create">
+
+            <div class="section-head">
+                <div>
+                    <h2 style="margin:0 0 5px;">Create New Script</h2>
+                    <div style="font-size:12px;color:var(--muted);">
+                        Configure your video and let AI build the script.
+                    </div>
+                </div>
+            </div>
+
+            <div class="create-layout">
+
+                <div>
+
+                    <!-- BASIC -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>01 · Video Brief</h3>
+                            <span>Required</span>
+                        </div>
+
+                        <div class="field">
+
+                            <label>VIDEO TOPIC</label>
+
+                            <input
+                                id="topic"
+                                type="text"
+                                placeholder="e.g. The future of artificial intelligence in India"
+                            >
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>ADDITIONAL INSTRUCTIONS</label>
+
+                            <textarea
+                                id="instructions"
+                                placeholder="Tell the AI what you want. Mention your audience, key points, examples, CTA, references or anything else..."
+                            ></textarea>
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>REFERENCE MATERIAL (OPTIONAL)</label>
+
+                            <textarea
+                                id="reference"
+                                style="min-height:90px;"
+                                placeholder="Paste notes, research, facts, source material or an existing outline here..."
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FORMAT -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>02 · Video Format</h3>
+                            <span>Choose a preset</span>
+                        </div>
+
+                        <div class="preset-grid" id="formatPresets">
+
+                            <div class="preset selected" data-value="YouTube Video">
+                                <div class="preset-icon">▶</div>
+                                YouTube
+                            </div>
+
+                            <div class="preset" data-value="Podcast">
+                                <div class="preset-icon">🎙</div>
+                                Podcast
+                            </div>
+
+                            <div class="preset" data-value="Documentary">
+                                <div class="preset-icon">🎬</div>
+                                Documentary
+                            </div>
+
+                            <div class="preset" data-value="News">
+                                <div class="preset-icon">📰</div>
+                                News
+                            </div>
+
+                            <div class="preset" data-value="Educational">
+                                <div class="preset-icon">📚</div>
+                                Educational
+                            </div>
+
+                            <div class="preset" data-value="Storytelling">
+                                <div class="preset-icon">📖</div>
+                                Storytelling
+                            </div>
+
+                            <div class="preset" data-value="Gaming">
+                                <div class="preset-icon">🎮</div>
+                                Gaming
+                            </div>
+
+                            <div class="preset" data-value="Interview">
+                                <div class="preset-icon">🎤</div>
+                                Interview
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DURATION -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>03 · Duration & Language</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>VIDEO DURATION</label>
+
+                                <select id="duration">
+                                    <option value="1">1 minute</option>
+                                    <option value="3">3 minutes</option>
+                                    <option value="5" selected>5 minutes</option>
+                                    <option value="10">10 minutes</option>
+                                    <option value="15">15 minutes</option>
+                                    <option value="20">20 minutes</option>
+                                    <option value="30">30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>SCRIPT LANGUAGE</label>
+
+                                <select id="scriptLanguage">
+
+                                    <option value="English" selected>🇺🇸 English</option>
+                                    <option value="Chinese">🇨🇳 中文</option>
+                                    <option value="Hindi">🇮🇳 हिन्दी</option>
+                                    <option value="Spanish">🇪🇸 Español</option>
+                                    <option value="French">🇫🇷 Français</option>
+                                    <option value="German">🇩🇪 Deutsch</option>
+                                    <option value="Japanese">🇯🇵 日本語</option>
+                                    <option value="Korean">🇰🇷 한국어</option>
+                                    <option value="Portuguese">🇵🇹 Português</option>
+                                    <option value="Arabic">🇸🇦 العربية</option>
+                                    <option value="Italian">🇮🇹 Italiano</option>
+                                    <option value="Indonesian">🇮🇩 Bahasa Indonesia</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STYLE -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>04 · Writing Style</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>TONE</label>
+
+                                <select id="tone">
+
+                                    <option>Professional</option>
+                                    <option selected>Conversational</option>
+                                    <option>Friendly</option>
+                                    <option>Energetic</option>
+                                    <option>Funny</option>
+                                    <option>Serious</option>
+                                    <option>Dramatic</option>
+                                    <option>Inspirational</option>
+                                    <option>Cinematic</option>
+                                    <option>Educational</option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>STRUCTURE</label>
+
+                                <select id="structure">
+
+                                    <option selected>Hook → Intro → Main Content → Conclusion</option>
+                                    <option>Hook → Story → Lesson → CTA</option>
+                                    <option>Question → Explanation → Examples → Summary</option>
+                                    <option>Headline → Details → Analysis → Conclusion</option>
+                                    <option>Cold Open → Context → Story → Ending</option>
+                                    <option>Custom / Natural Flow</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>CREATIVITY</label>
+
+                            <div class="range-row">
+
+                                <input
+                                    type="range"
+                                    id="creativity"
+                                    min="0"
+                                    max="100"
+                                    value="65"
+                                >
+
+                                <div class="range-value" id="creativityValue">
+                                    65%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SPEAKERS -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>05 · Speakers</h3>
+                            <button class="btn btn-sm" onclick="addSpeaker()">+ Add Speaker</button>
+                        </div>
+
+                        <div class="field">
+
+                            <label>SPEAKER MODE</label>
+
+                            <select id="speakerMode">
+
+                                <option value="single" selected>Single Narrator</option>
+                                <option value="podcast2">Two-Person Podcast</option>
+                                <option value="multi">Multi-Person</option>
+                                <option value="documentary">Documentary</option>
+                                <option value="interview">Interview</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="speaker-list" id="speakerList"></div>
+
+                    </div>
+
+
+                    <!-- VISUALS -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>06 · Production Options</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>VISUAL SUGGESTIONS</label>
+
+                                <select id="visuals">
+                                    <option value="No">No visual suggestions</option>
+                                    <option value="Yes" selected>Generate visual / B-roll suggestions</option>
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>CALL TO ACTION</label>
+
+                                <select id="cta">
+                                    <option>None</option>
+                                    <option selected>Natural CTA</option>
+                                    <option>Strong CTA</option>
+                                    <option>Subscribe & Follow</option>
+                                    <option>Custom CTA</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT -->
+
+                <aside class="generate-area">
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>Script Estimate</h3>
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">TARGET DURATION</div>
+                            <div class="info-number" id="estimateDuration">05:00</div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">ESTIMATED WORDS</div>
+                            <div class="info-number" id="estimateWords">750</div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">SPEAKING SPEED</div>
+                            <div class="info-number">150 WPM</div>
+
+                        </div>
+
+                        <div class="provider-mini">
+
+                            <div class="provider-mini-head">
+
+                                <div class="provider-name" id="activeProviderName">
+                                    Demo Generator
+                                </div>
+
+                                <div class="connection" id="activeProviderStatus">
+                                    Local
+                                </div>
+
+                            </div>
+
+                            <select id="quickProvider"></select>
+
+                        </div>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary generate-btn"
+                            id="generateBtn"
+                            onclick="generateScript()"
+                        >
+                            ✦ Generate Script
+                        </button>
+
+                        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;">
+                            Your API key stays in your browser.
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROJECTS -->
+
+        <section class="page" id="page-projects">
+
+            <div class="section-head">
+
+                <div>
+                    <h2 style="margin:0 0 5px;">My Projects</h2>
+                    <div style="font-size:12px;color:var(--muted);">
+                        Projects are stored locally in this browser.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showPage('create')">
+                    + New Script
+                </button>
+
+            </div>
+
+            <div class="projects" id="allProjects"></div>
+
+        </section>
+
+
+        <!-- EDITOR -->
+
+        <section class="page" id="page-editor">
+
+            <div class="editor-layout">
+
+                <div class="editor-panel">
+
+                    <div class="panel-head">
+                        SCRIPT OUTLINE
+                    </div>
+
+                    <div class="chapter-list" id="chapterList">
+
+                        <div class="chapter active">
+                            Introduction
+                        </div>
+
+                        <div class="chapter">
+                            Main Content
+                        </div>
+
+                        <div class="chapter">
+                            Conclusion
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="editor-panel editor-main">
+
+                    <div class="toolbar">
+
+                        <button onclick="formatText('bold')"><b>B</b></button>
+
+                        <button onclick="formatText('italic')"><i>I</i></button>
+
+                        <button onclick="aiEdit('Improve the selected or relevant section and make it more engaging.')">
+                            ✦ Improve
+                        </button>
+
+                        <button onclick="aiEdit('Rewrite this script to sound more natural and conversational.')">
+                            Rewrite
+                        </button>
+
+                        <button onclick="aiEdit('Make this script shorter while preserving the important information.')">
+                            Shorten
+                        </button>
+
+                        <button onclick="aiEdit('Expand this script with useful detail and examples.')">
+                            Expand
+                        </button>
+
+                        <button onclick="translateScript()">
+                            Translate
+                        </button>
+
+                        <div style="margin-left:auto;display:flex;gap:5px;">
+
+                            <button onclick="saveCurrentProject()">
+                                Save
+                            </button>
+
+                            <button onclick="printScript()">
+                                Print / PDF
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <textarea
+                        class="script-editor"
+                        id="scriptEditor"
+                        placeholder="Your generated script will appear here..."
+                        spellcheck="true"
+                    ></textarea>
+
+                    <div class="editor-footer">
+
+                        <div>
+                            <span id="editorWords">0</span> words
+                            ·
+                            <span id="editorChars">0</span> characters
+                        </div>
+
+                        <div>
+                            Estimated speaking time:
+                            <span id="editorTime">00:00</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="editor-panel">
+
+                    <div class="panel-head">
+                        AI TOOLS
+                    </div>
+
+                    <div class="ai-tools">
+
+                        <button class="ai-tool" onclick="aiEdit('Create a stronger opening hook.')">
+                            🎯 Better Hook
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the writing more cinematic.')">
+                            🎬 Cinematic
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the writing simpler and easier to understand.')">
+                            🧠 Simplify
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the dialogue more natural.')">
+                            🎙 Natural
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Add useful examples.')">
+                            💡 Examples
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Create a stronger conclusion.')">
+                            🚀 Ending
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Improve the pacing of this script.')">
+                            ⏱ Pacing
+                        </button>
+
+                        <button class="ai-tool" onclick="analyzeScript()">
+                            📊 Analyze
+                        </button>
+
+                    </div>
+
+                    <div style="padding:14px;">
+
+                        <div class="info-box">
+
+                            <div class="info-label">SCRIPT QUALITY</div>
+
+                            <div
+                                class="info-number"
+                                id="qualityScore"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">FORMAT</div>
+
+                            <div
+                                id="editorFormat"
+                                style="font-size:13px;font-weight:700;margin-top:5px;"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">LANGUAGE</div>
+
+                            <div
+                                id="editorLanguage"
+                                style="font-size:13px;font-weight:700;margin-top:5px;"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROVIDERS -->
+
+        <section class="page" id="page-providers">
+
+            <div class="section-head">
+
+                <div>
+                    <h2 style="margin:0 0 5px;">AI Providers</h2>
+
+                    <div style="font-size:12px;color:var(--muted);">
+                        Connect your own AI API. Keys are stored locally.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="openProviderModal()">
+                    + Add Provider
+                </button>
+
+            </div>
+
+            <div class="provider-grid" id="providerGrid"></div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="page" id="page-settings">
+
+            <div class="settings-layout">
+
+                <div class="settings-section">
+
+                    <h2>General</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Interface Language</div>
+                            <div class="settings-row-description">
+                                Language used throughout the application.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="uiLanguage">
+
+                                <option value="English" selected>English</option>
+                                <option value="Chinese">中文</option>
+                                <option value="Hindi">हिन्दी</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Appearance</div>
+                            <div class="settings-row-description">
+                                Choose light, dark or system appearance.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="appearance">
+
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="system">System</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Default Script Language</div>
+                            <div class="settings-row-description">
+                                Used when creating a new script.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="defaultScriptLanguage">
+
+                                <option>English</option>
+                                <option>Chinese</option>
+                                <option>Hindi</option>
+                                <option>Spanish</option>
+                                <option>French</option>
+                                <option>German</option>
+                                <option>Japanese</option>
+                                <option>Korean</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-section">
+
+                    <h2>Script Defaults</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Default Speaking Speed</div>
+                            <div class="settings-row-description">
+                                Used to estimate script length.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="defaultWpm">
+
+                                <option value="130">130 WPM — Slow</option>
+                                <option value="150" selected>150 WPM — Normal</option>
+                                <option value="170">170 WPM — Fast</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Auto Save</div>
+                            <div class="settings-row-description">
+                                Automatically save scripts to browser storage.
+                            </div>
+                        </div>
+
+                        <label style="cursor:pointer;">
+                            <input
+                                type="checkbox"
+                                id="autoSave"
+                                checked
+                                style="width:auto;"
+                            >
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-section">
+
+                    <h2>Data</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Export Workspace</div>
+                            <div class="settings-row-description">
+                                Export all locally saved projects as JSON.
+                            </div>
+                        </div>
+
+                        <button class="btn" onclick="exportWorkspace()">
+                            Export
+                        </button>
+
+                    </div>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Clear Local Data</div>
+                            <div class="settings-row-description">
+                                Permanently remove projects and API settings from this browser.
+                            </div>
+                        </div>
+
+                        <button class="btn btn-danger" onclick="clearData()">
+                            Clear Data
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+</div>
+
+
+<!-- PROVIDER MODAL -->
+
+<div class="modal" id="providerModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>Add AI Provider</h2>
+
+            <button class="icon-btn" onclick="closeProviderModal()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="field">
+
+            <label>PROVIDER</label>
+
+            <select id="providerType">
+
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Google Gemini</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="groq">Groq</option>
+                <option value="custom">Custom OpenAI-Compatible</option>
+
+            </select>
+
+        </div>
+
+        <div class="field">
+
+            <label>DISPLAY NAME</label>
+
+            <input
+                id="providerName"
+                placeholder="My OpenAI"
+            >
+
+        </div>
+
+        <div class="field">
+
+            <label>API KEY</label>
+
+            <input
+                id="providerKey"
+                type="password"
+                placeholder="Enter API key"
+            >
+
+        </div>
+
+        <div class="field">
+
+            <label>MODEL</label>
+
+            <input
+                id="providerModel"
+                placeholder="Model name"
+            >
+
+        </div>
+
+        <div class="field" id="baseUrlField">
+
+            <label>BASE URL</label>
+
+            <input
+                id="providerBaseUrl"
+                placeholder="https://api.example.com/v1"
+            >
+
+        </div>
+
+        <div
+            style="
+                padding:11px;
+                border-radius:9px;
+                background:rgba(245,185,66,.08);
+                border:1px solid rgba(245,185,66,.2);
+                color:var(--muted);
+                font-size:11px;
+                line-height:1.5;
+                margin-bottom:15px;
+            "
+        >
+            API keys are stored in this browser's localStorage.
+            Never use a personal API key on a public or shared computer.
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+
+            <button class="btn" onclick="closeProviderModal()">
+                Cancel
+            </button>
+
+            <button class="btn btn-primary" onclick="saveProvider()">
+                Save Provider
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script>
+
+/* =========================================================
+   SCRIPT FORGE
+   Single-file static AI script studio
+   ========================================================= */
+
+
+/* -----------------------------
+   STORAGE
+----------------------------- */
+
+const STORAGE = {
+    projects: "scriptforge_projects",
+    providers: "scriptforge_providers",
+    settings: "scriptforge_settings",
+    counter: "scriptforge_counter"
+};
+
+let projects = JSON.parse(
+    localStorage.getItem(STORAGE.projects) || "[]"
+);
+
+let providers = JSON.parse(
+    localStorage.getItem(STORAGE.providers) || "[]"
+);
+
+let settings = JSON.parse(
+    localStorage.getItem(STORAGE.settings) || "{}"
+);
+
+let currentProject = null;
+
+let selectedFormat = "YouTube Video";
+
+
+/* -----------------------------
+   DEFAULT SETTINGS
+----------------------------- */
+
+if(!settings.appearance){
+    settings.appearance = "dark";
+}
+
+if(!settings.uiLanguage){
+    settings.uiLanguage = "English";
+}
+
+if(!settings.defaultScriptLanguage){
+    settings.defaultScriptLanguage = "English";
+}
+
+if(!settings.defaultWpm){
+    settings.defaultWpm = 150;
+}
+
+if(settings.autoSave === undefined){
+    settings.autoSave = true;
+}
+
+saveSettings();
+
+
+/* -----------------------------
+   TRANSLATIONS
+----------------------------- */
+
+const translations = {
+
+    English: {
+        dashboard:"Dashboard",
+        newScript:"New Script",
+        projects:"My Projects",
+        editor:"Script Editor",
+        aiProviders:"AI Providers",
+        settings:"Settings"
+    },
+
+    Chinese: {
+        dashboard:"仪表板",
+        newScript:"新建脚本",
+        projects:"我的项目",
+        editor:"脚本编辑器",
+        aiProviders:"AI 服务商",
+        settings:"设置"
+    },
+
+    Hindi: {
+        dashboard:"डैशबोर्ड",
+        newScript:"नई स्क्रिप्ट",
+        projects:"मेरे प्रोजेक्ट",
+        editor:"स्क्रिप्ट एडिटर",
+        aiProviders:"AI प्रदाता",
+        settings:"सेटिंग्स"
+    }
+
+};
+
+
+/* -----------------------------
+   INIT
+----------------------------- */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    applyAppearance();
+
+    loadSettingsUI();
+
+    initNavigation();
+
+    initPresets();
+
+    initSpeakers();
+
+    initInputs();
+
+    renderProjects();
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    updateStats();
+
+    updateEstimate();
+
+    updateEditorStats();
+
+});
+
+
+/* -----------------------------
+   NAVIGATION
+----------------------------- */
+
+function initNavigation(){
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+
+        item.addEventListener("click", () => {
+
+            showPage(item.dataset.page);
+
+            document
+                .getElementById("sidebar")
+                .classList.remove("open");
+
+        });
+
+    });
+
+}
+
+
+function showPage(page){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(p => p.classList.remove("active"));
+
+    const target = document.getElementById("page-" + page);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(item => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.page === page
+            );
+
+        });
+
+    const titles = {
+        dashboard:"Dashboard",
+        create:"New Script",
+        projects:"My Projects",
+        editor:"Script Editor",
+        providers:"AI Providers",
+        settings:"Settings"
+    };
+
+    document.getElementById("pageTitle").textContent =
+        titles[page] || "ScriptForge";
+
+    if(page === "projects"){
+        renderProjects();
+    }
+
+    if(page === "providers"){
+        renderProviders();
+    }
+
+    if(page === "dashboard"){
+        updateStats();
+        renderRecentProjects();
+    }
+
+}
+
+
+/* -----------------------------
+   MOBILE
+----------------------------- */
+
+document
+    .getElementById("mobileMenu")
+    .addEventListener("click", () => {
+
+        document
+            .getElementById("sidebar")
+            .classList.toggle("open");
+
+    });
+
+
+/* -----------------------------
+   THEME
+----------------------------- */
+
+document
+    .getElementById("themeBtn")
+    .addEventListener("click", () => {
+
+        if(settings.appearance === "dark"){
+            settings.appearance = "light";
+        }else{
+            settings.appearance = "dark";
+        }
+
+        saveSettings();
+
+        applyAppearance();
+
+        document.getElementById("appearance").value =
+            settings.appearance;
+
+    });
+
+
+function applyAppearance(){
+
+    let mode = settings.appearance;
+
+    if(mode === "system"){
+
+        if(
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: light)").matches
+        ){
+            document.body.classList.add("light");
+        }else{
+            document.body.classList.remove("light");
+        }
+
+    }else if(mode === "light"){
+
+        document.body.classList.add("light");
+
+    }else{
+
+        document.body.classList.remove("light");
+
+    }
+
+}
+
+
+/* -----------------------------
+   INPUTS
+----------------------------- */
+
+function initInputs(){
+
+    document
+        .getElementById("duration")
+        .addEventListener("change", updateEstimate);
+
+    document
+        .getElementById("scriptLanguage")
+        .addEventListener("change", updateEstimate);
+
+    document
+        .getElementById("creativity")
+        .addEventListener("input", () => {
+
+            document.getElementById("creativityValue").textContent =
+                document.getElementById("creativity").value + "%";
+
+        });
+
+    document
+        .getElementById("speakerMode")
+        .addEventListener("change", updateSpeakerMode);
+
+    document
+        .getElementById("scriptEditor")
+        .addEventListener("input", () => {
+
+            updateEditorStats();
+
+            if(
+                settings.autoSave &&
+                currentProject
+            ){
+                currentProject.content =
+                    document.getElementById("scriptEditor").value;
+
+                saveCurrentProject(false);
+            }
+
+        });
+
+    document
+        .getElementById("appearance")
+        .addEventListener("change", e => {
+
+            settings.appearance = e.target.value;
+
+            saveSettings();
+
+            applyAppearance();
+
+        });
+
+    document
+        .getElementById("uiLanguage")
+        .addEventListener("change", e => {
+
+            settings.uiLanguage = e.target.value;
+
+            saveSettings();
+
+            applyTranslations();
+
+        });
+
+    document
+        .getElementById("defaultScriptLanguage")
+        .addEventListener("change", e => {
+
+            settings.defaultScriptLanguage = e.target.value;
+
+            saveSettings();
+
+            document.getElementById("scriptLanguage").value =
+                e.target.value;
+
+        });
+
+    document
+        .getElementById("defaultWpm")
+        .addEventListener("change", e => {
+
+            settings.defaultWpm =
+                Number(e.target.value);
+
+            saveSettings();
+
+            updateEstimate();
+
+            updateEditorStats();
+
+        });
+
+    document
+        .getElementById("autoSave")
+        .addEventListener("change", e => {
+
+            settings.autoSave = e.target.checked;
+
+            saveSettings();
+
+        });
+
+}
+
+
+/* -----------------------------
+   FORMAT PRESETS
+----------------------------- */
+
+function initPresets(){
+
+    document
+        .querySelectorAll("#formatPresets .preset")
+        .forEach(preset => {
+
+            preset.addEventListener("click", () => {
+
+                document
+                    .querySelectorAll("#formatPresets .preset")
+                    .forEach(p =>
+                        p.classList.remove("selected")
+                    );
+
+                preset.classList.add("selected");
+
+                selectedFormat =
+                    preset.dataset.value;
+
+                const mode =
+                    document.getElementById("speakerMode");
+
+                if(selectedFormat === "Podcast"){
+                    mode.value = "podcast2";
+                    updateSpeakerMode();
+                }
+
+                if(selectedFormat === "Documentary"){
+                    mode.value = "documentary";
+                    updateSpeakerMode();
+                }
+
+                if(selectedFormat === "Interview"){
+                    mode.value = "interview";
+                    updateSpeakerMode();
+                }
+
+            });
+
+        });
+
+}
+
+
+/* -----------------------------
+   SPEAKERS
+----------------------------- */
+
+let speakers = [
+    {
+        name:"Narrator",
+        role:"Narrator",
+        personality:"Professional"
+    }
+];
+
+
+function initSpeakers(){
+
+    renderSpeakers();
+
+}
+
+
+function renderSpeakers(){
+
+    const container =
+        document.getElementById("speakerList");
+
+    container.innerHTML = "";
+
+    speakers.forEach((speaker,index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "speaker";
+
+        div.innerHTML = `
+
+            <div class="field">
+                <label>NAME</label>
+                <input
+                    value="${escapeHtml(speaker.name)}"
+                    onchange="updateSpeaker(${index},'name',this.value)"
+                >
+            </div>
+
+            <div class="field">
+                <label>ROLE</label>
+                <select
+                    onchange="updateSpeaker(${index},'role',this.value)"
+                >
+                    ${roleOptions(speaker.role)}
+                </select>
+            </div>
+
+            <div class="field">
+                <label>PERSONALITY</label>
+                <select
+                    onchange="updateSpeaker(${index},'personality',this.value)"
+                >
+                    ${personalityOptions(speaker.personality)}
+                </select>
+            </div>
+
+            <button
+                class="btn btn-sm btn-danger"
+                onclick="removeSpeaker(${index})"
+            >
+                ×
+            </button>
+
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+function roleOptions(selected){
+
+    const options = [
+        "Narrator",
+        "Host",
+        "Co-host",
+        "Guest",
+        "Expert",
+        "Reporter",
+        "Anchor",
+        "Character",
+        "Interviewer",
+        "Interviewee"
+    ];
+
+    return options.map(x =>
+        `<option ${x === selected ? "selected" : ""}>${x}</option>`
+    ).join("");
+
+}
+
+
+function personalityOptions(selected){
+
+    const options = [
+        "Professional",
+        "Friendly",
+        "Funny",
+        "Serious",
+        "Energetic",
+        "Calm",
+        "Dramatic",
+        "Sarcastic",
+        "Inspirational"
+    ];
+
+    return options.map(x =>
+        `<option ${x === selected ? "selected" : ""}>${x}</option>`
+    ).join("");
+
+}
+
+
+function addSpeaker(){
+
+    speakers.push({
+        name:"Speaker " + (speakers.length + 1),
+        role:"Guest",
+        personality:"Friendly"
+    });
+
+    renderSpeakers();
+
+}
+
+
+function removeSpeaker(index){
+
+    if(speakers.length <= 1){
+        toast("At least one speaker is required.","error");
+        return;
+    }
+
+    speakers.splice(index,1);
+
+    renderSpeakers();
+
+}
+
+
+function updateSpeaker(index,key,value){
+
+    speakers[index][key] = value;
+
+}
+
+
+function updateSpeakerMode(){
+
+    const mode =
+        document.getElementById("speakerMode").value;
+
+    if(mode === "single"){
+
+        speakers = [
+            {
+                name:"Narrator",
+                role:"Narrator",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "podcast2"){
+
+        speakers = [
+            {
+                name:"Alex",
+                role:"Host",
+                personality:"Friendly"
+            },
+            {
+                name:"Jordan",
+                role:"Guest",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "documentary"){
+
+        speakers = [
+            {
+                name:"Narrator",
+                role:"Narrator",
+                personality:"Cinematic"
+            },
+            {
+                name:"Expert",
+                role:"Expert",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "interview"){
+
+        speakers = [
+            {
+                name:"Host",
+                role:"Interviewer",
+                personality:"Friendly"
+            },
+            {
+                name:"Guest",
+                role:"Interviewee",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    renderSpeakers();
+
+}
+
+
+/* -----------------------------
+   ESTIMATE
+----------------------------- */
+
+function getWPM(){
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    if(language === "Chinese"){
+        return 275;
+    }
+
+    if(language === "Hindi"){
+        return 135;
+    }
+
+    return Number(settings.defaultWpm || 150);
+
+}
+
+
+function updateEstimate(){
+
+    const minutes =
+        Number(
+            document.getElementById("duration").value
+        );
+
+    const wpm = getWPM();
+
+    const words =
+        Math.round(minutes * wpm);
+
+    document.getElementById("estimateWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("estimateDuration").textContent =
+        formatTime(minutes * 60);
+
+}
+
+
+function formatTime(seconds){
+
+    seconds = Math.max(0,Math.round(seconds));
+
+    const h =
+        Math.floor(seconds / 3600);
+
+    const m =
+        Math.floor((seconds % 3600) / 60);
+
+    const s =
+        seconds % 60;
+
+    if(h > 0){
+
+        return (
+            String(h).padStart(2,"0") +
+            ":" +
+            String(m).padStart(2,"0") +
+            ":" +
+            String(s).padStart(2,"0")
+        );
+
+    }
+
+    return (
+        String(m).padStart(2,"0") +
+        ":" +
+        String(s).padStart(2,"0")
+    );
+
+}
+
+
+/* -----------------------------
+   GENERATION
+----------------------------- */
+
+async function generateScript(){
+
+    const topic =
+        document.getElementById("topic").value.trim();
+
+    if(!topic){
+
+        toast(
+            "Please enter a video topic first.",
+            "error"
+        );
+
+        document.getElementById("topic").focus();
+
+        return;
+
+    }
+
+    const button =
+        document.getElementById("generateBtn");
+
+    button.disabled = true;
+
+    button.textContent =
+        "Generating...";
+
+    try{
+
+        const providerId =
+            document.getElementById("quickProvider").value;
+
+        let content;
+
+        if(providerId === "demo"){
+
+            await delay(700);
+
+            content =
+                generateDemoScript();
+
+        }else{
+
+            const provider =
+                providers.find(
+                    p => p.id === providerId
+                );
+
+            if(!provider){
+
+                throw new Error(
+                    "Provider not found."
+                );
+
+            }
+
+            content =
+                await callAI(provider,buildPrompt());
+
+        }
+
+        const project = {
+
+            id:Date.now(),
+
+            title:topic,
+
+            topic,
+
+            format:selectedFormat,
+
+            duration:Number(
+                document.getElementById("duration").value
+            ),
+
+            language:
+                document.getElementById("scriptLanguage").value,
+
+            tone:
+                document.getElementById("tone").value,
+
+            speakers:
+                JSON.parse(JSON.stringify(speakers)),
+
+            content,
+
+            createdAt:new Date().toISOString(),
+
+            updatedAt:new Date().toISOString()
+
+        };
+
+        projects.unshift(project);
+
+        saveProjects();
+
+        currentProject = project;
+
+        loadProjectIntoEditor(project);
+
+        updateStats();
+
+        renderProjects();
+
+        showPage("editor");
+
+        toast(
+            "Script generated successfully.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        toast(
+            error.message ||
+            "Generation failed.",
+            "error"
+        );
+
+    }finally{
+
+        button.disabled = false;
+
+        button.textContent =
+            "✦ Generate Script";
+
+    }
+
+}
+
+
+/* -----------------------------
+   PROMPT
+----------------------------- */
+
+function buildPrompt(){
+
+    const topic =
+        document.getElementById("topic").value;
+
+    const instructions =
+        document.getElementById("instructions").value;
+
+    const reference =
+        document.getElementById("reference").value;
+
+    const duration =
+        document.getElementById("duration").value;
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    const tone =
+        document.getElementById("tone").value;
+
+    const structure =
+        document.getElementById("structure").value;
+
+    const creativity =
+        document.getElementById("creativity").value;
+
+    const visual =
+        document.getElementById("visuals").value;
+
+    const cta =
+        document.getElementById("cta").value;
+
+    const wpm =
+        getWPM();
+
+    const targetWords =
+        Math.round(
+            Number(duration) * wpm
+        );
+
+    let speakerText =
+        speakers.map(
+            s =>
+                `${s.name} — ${s.role} — ${s.personality}`
+        ).join("\n");
+
+    return `
+
+You are an expert professional video script writer.
+
+Create a production-ready video script.
+
+VIDEO TOPIC:
+${topic}
+
+VIDEO FORMAT:
+${selectedFormat}
+
+TARGET DURATION:
+${duration} minutes
+
+TARGET WORD COUNT:
+approximately ${targetWords} words
+
+SCRIPT LANGUAGE:
+${language}
+
+TONE:
+${tone}
+
+STRUCTURE:
+${structure}
+
+CREATIVITY:
+${creativity}/100
+
+SPEAKERS:
+${speakerText}
+
+VISUAL SUGGESTIONS:
+${visual}
+
+CALL TO ACTION:
+${cta}
+
+ADDITIONAL INSTRUCTIONS:
+${instructions || "None"}
+
+REFERENCE MATERIAL:
+${reference || "None"}
+
+Requirements:
+
+1. Write naturally for spoken narration.
+2. Match the requested duration as closely as possible.
+3. Use the selected language.
+4. Make the opening engaging.
+5. Keep paragraphs short and easy to speak.
+6. If there are multiple speakers, clearly label every speaker.
+7. Make conversations sound natural.
+8. Do not add unnecessary meta commentary.
+9. If visual suggestions are requested, include [VISUAL: ...] lines.
+10. Include a strong but natural conclusion.
+11. Do not claim that you accessed information that was not provided.
+12. Return only the finished script.
+
+    `;
+
+}
+
+
+/* -----------------------------
+   AI API
+----------------------------- */
+
+async function callAI(provider,prompt){
+
+    if(
+        provider.type === "openai" ||
+        provider.type === "openrouter" ||
+        provider.type === "deepseek" ||
+        provider.type === "groq" ||
+        provider.type === "custom"
+    ){
+
+        return await callOpenAICompatible(
+            provider,
+            prompt
+        );
+
+    }
+
+    if(provider.type === "anthropic"){
+
+        return await callAnthropic(
+            provider,
+            prompt
+        );
+
+    }
+
+    if(provider.type === "gemini"){
+
+        return await callGemini(
+            provider,
+            prompt
+        );
+
+    }
+
+    throw new Error(
+        "Unsupported provider."
+    );
+
+}
+
+
+/* OPENAI COMPATIBLE */
+
+async function callOpenAICompatible(
+    provider,
+    prompt
+){
+
+    let base =
+        provider.baseUrl ||
+        defaultBaseUrl(provider.type);
+
+    base = base.replace(/\/$/,"");
+
+    let url = base;
+
+    if(!url.endsWith("/chat/completions")){
+        url += "/chat/completions";
+    }
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":
+                    "Bearer " + provider.key
+            },
+
+            body:JSON.stringify({
+
+                model:provider.model,
+
+                messages:[
+                    {
+                        role:"system",
+                        content:
+                            "You are an expert video script writer."
+                    },
+                    {
+                        role:"user",
+                        content:prompt
+                    }
+                ],
+
+                temperature:
+                    Number(
+                        document.getElementById("creativity").value
+                    ) / 100
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "API request failed."
+        );
+
+    }
+
+    return (
+        data?.choices?.[0]?.message?.content ||
+        ""
+    );
+
+}
+
+
+function defaultBaseUrl(type){
+
+    if(type === "openai"){
+        return "https://api.openai.com/v1";
+    }
+
+    if(type === "openrouter"){
+        return "https://openrouter.ai/api/v1";
+    }
+
+    if(type === "deepseek"){
+        return "https://api.deepseek.com/v1";
+    }
+
+    if(type === "groq"){
+        return "https://api.groq.com/openai/v1";
+    }
+
+    return "";
+
+}
+
+
+/* ANTHROPIC */
+
+async function callAnthropic(
+    provider,
+    prompt
+){
+
+    const base =
+        provider.baseUrl ||
+        "https://api.anthropic.com";
+
+    const url =
+        base.replace(/\/$/,"") +
+        "/v1/messages";
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "x-api-key":provider.key,
+                "anthropic-version":"2023-06-01",
+                "anthropic-dangerous-direct-browser-access":"true"
+            },
+
+            body:JSON.stringify({
+
+                model:provider.model,
+
+                max_tokens:10000,
+
+                messages:[
+                    {
+                        role:"user",
+                        content:prompt
+                    }
+                ]
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "Anthropic API request failed."
+        );
+
+    }
+
+    return (
+        data?.content
+            ?.map(x => x.text || "")
+            .join("\n") ||
+        ""
+    );
+
+}
+
+
+/* GEMINI */
+
+async function callGemini(
+    provider,
+    prompt
+){
+
+    const model =
+        encodeURIComponent(
+            provider.model
+        );
+
+    const url =
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(provider.key)}`;
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                contents:[
+                    {
+                        parts:[
+                            {
+                                text:prompt
+                            }
+                        ]
+                    }
+                ]
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "Gemini API request failed."
+        );
+
+    }
+
+    return (
+        data
+            ?.candidates?.[0]
+            ?.content?.parts
+            ?.map(x => x.text || "")
+            .join("\n") ||
+        ""
+    );
+
+}
+
+
+/* -----------------------------
+   DEMO GENERATOR
+----------------------------- */
+
+function generateDemoScript(){
+
+    const topic =
+        document.getElementById("topic").value;
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    const duration =
+        Number(
+            document.getElementById("duration").value
+        );
+
+    const format =
+        selectedFormat;
+
+    const names =
+        speakers.map(
+            s => s.name
+        );
+
+    if(language === "Chinese"){
+
+        return `【开场】
+
+${names[0] || "旁白"}：
+
+想象一下，如果我们今天正在见证一个改变整个时代的技术诞生，会是什么感觉？
+
+今天，我们要聊的主题是：${topic}。
+
+【第一部分：为什么重要】
+
+${names[0] || "旁白"}：
+
+过去几年，科技的发展速度远远超过了很多人的想象。
+
+${topic}，正在影响我们的工作、生活以及我们理解这个世界的方式。
+
+但真正值得思考的问题并不是“它现在有多强”，而是——接下来会发生什么？
+
+【第二部分：深入分析】
+
+${names[0] || "旁白"}：
+
+首先，我们需要理解这个问题背后的核心逻辑。
+
+很多变化并不是突然发生的。
+
+它们往往从一个很小的突破开始，然后逐渐进入普通人的生活。
+
+${topic}也是如此。
+
+【第三部分：一个简单的例子】
+
+${names[0] || "旁白"}：
+
+举一个简单的例子。
+
+假设一个普通人第一次接触这项技术。
+
+一开始，它可能只是一个工具。
+
+但随着时间推移，它可能成为工作流程的一部分，甚至改变整个行业的规则。
+
+【结论】
+
+${names[0] || "旁白"}：
+
+所以，当我们再次思考${topic}的时候，不妨把视角放得更远一些。
+
+真正重要的，并不是预测未来一定会发生什么。
+
+而是理解变化正在发生，并思考我们希望自己在未来扮演什么角色。
+
+感谢观看，我们下一期再见。`;
+
+    }
+
+
+    if(language === "Hindi"){
+
+        return `OPENING
+
+${names[0] || "Narrator"}:
+
+Imagine waking up one day and realizing that a technology you once thought was science fiction has become part of everyday life.
+
+Today, we are exploring ${topic}.
+
+INTRODUCTION
+
+${names[0] || "Narrator"}:
+
+Technology is changing faster than ever.
+
+But the interesting question is not simply what this technology can do today.
+
+The real question is what it could change tomorrow.
+
+MAIN STORY
+
+${names[0] || "Narrator"}:
+
+To understand ${topic}, we first need to understand why it matters.
+
+Major changes rarely happen overnight.
+
+They usually begin with a small breakthrough, followed by adoption, experimentation and eventually transformation.
+
+EXAMPLE
+
+${names[0] || "Narrator"}:
+
+Consider a simple example.
+
+A person discovers a new tool.
+
+At first, it is just another application.
+
+But over time, it becomes part of the person's daily workflow.
+
+That is how technological change often spreads.
+
+CONCLUSION
+
+${names[0] || "Narrator"}:
+
+So, when we think about ${topic}, we should not only ask what is possible today.
+
+We should also ask what kind of future we want to create.
+
+Thank you for watching.`;
+
+    }
+
+
+    if(speakers.length >= 2){
+
+        return `HOST:
+
+Welcome back to the show.
+
+Today we're talking about ${topic}.
+
+Before we get into the details, let's start with the big question: why should anyone care about this right now?
+
+GUEST:
+
+That's a great question.
+
+The simple answer is that ${topic} is changing faster than most people realize.
+
+HOST:
+
+And that's exactly what we're going to explore today.
+
+We'll look at what is happening, why it matters, what people often misunderstand, and what could happen next.
+
+GUEST:
+
+One important thing to understand is that major changes rarely happen all at once.
+
+They usually start with small developments.
+
+Then people begin experimenting with them.
+
+And eventually, those developments can become part of everyday life.
+
+HOST:
+
+Let's make that practical.
+
+Imagine someone encountering this technology for the first time.
+
+At first, it might look like a simple tool.
+
+But once it becomes part of their workflow, the impact can become much larger.
+
+GUEST:
+
+Exactly.
+
+And that is why the conversation should not only be about what the technology can do.
+
+It should also be about how people choose to use it.
+
+HOST:
+
+So if there is one thing viewers should remember from today's discussion, what would it be?
+
+GUEST:
+
+Stay curious.
+
+The future is rarely created by one big moment.
+
+It is usually created by thousands of small decisions.
+
+HOST:
+
+And that's a perfect place to end.
+
+Thanks for listening, and we'll see you in the next episode.`;
+
+    }
+
+
+    return `HOOK
+
+What if one of the biggest changes of the next decade is already happening right now — and most people haven't fully noticed it yet?
+
+Today, we're exploring ${topic}.
+
+INTRODUCTION
+
+Welcome back.
+
+In this video, we're going to break down ${topic}, explain why it matters, look at some real-world examples, and explore what could happen next.
+
+MAIN CONTENT
+
+Let's start with the most important question.
+
+Why does ${topic} matter?
+
+The answer is more interesting than it might seem.
+
+Whenever a major technology, idea or social change appears, people usually focus on what is visible immediately.
+
+But the biggest impact often happens underneath the surface.
+
+Think about the way people work.
+
+A new tool may begin as something optional.
+
+Then people start experimenting with it.
+
+Eventually, it becomes part of their daily workflow.
+
+And once that happens, the entire environment begins to change.
+
+REAL-WORLD EXAMPLE
+
+Let's consider a simple example.
+
+Imagine someone discovering ${topic} for the first time.
+
+At the beginning, they may only use it occasionally.
+
+But after discovering how useful it can be, they start using it every day.
+
+That small change can lead to a much bigger transformation.
+
+THE BIGGER PICTURE
+
+This is why understanding ${topic} requires us to look beyond today's headlines.
+
+The real question is not only what is happening now.
+
+The better question is what today's developments could make possible tomorrow.
+
+CONCLUSION
+
+So, what should we take away from all of this?
+
+First, change is happening faster than ever.
+
+Second, the most important developments are not always the most obvious ones.
+
+And finally, the people who understand change early often have the best opportunity to adapt to it.
+
+${document.getElementById("cta").value !== "None"
+        ? "If you found this useful, make sure to follow the channel for more."
+        : ""}
+
+Thanks for watching.
+
+I'll see you in the next one.`;
+
+}
+
+
+/* -----------------------------
+   EDITOR
+----------------------------- */
+
+function loadProjectIntoEditor(project){
+
+    currentProject = project;
+
+    document.getElementById("scriptEditor").value =
+        project.content || "";
+
+    document.getElementById("editorFormat").textContent =
+        project.format || "—";
+
+    document.getElementById("editorLanguage").textContent =
+        project.language || "—";
+
+    updateEditorStats();
+
+    generateChapters(project.content || "");
+
+}
+
+
+function updateEditorStats(){
+
+    const text =
+        document.getElementById("scriptEditor").value || "";
+
+    const words =
+        countWords(text);
+
+    const chars =
+        text.length;
+
+    const wpm =
+        getWPM();
+
+    const seconds =
+        words / wpm * 60;
+
+    document.getElementById("editorWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("editorChars").textContent =
+        chars.toLocaleString();
+
+    document.getElementById("editorTime").textContent =
+        formatTime(seconds);
+
+}
+
+
+function countWords(text){
+
+    if(!text.trim()){
+        return 0;
+    }
+
+    return text
+        .trim()
+        .split(/\s+/)
+        .length;
+
+}
+
+
+function generateChapters(text){
+
+    const list =
+        document.getElementById("chapterList");
+
+    const lines =
+        text
+            .split("\n")
+            .filter(
+                line =>
+                    line.trim() &&
+                    (
+                        line.trim().toUpperCase() === line.trim() ||
+                        line.includes("HOOK") ||
+                        line.includes("INTRO") ||
+                        line.includes("CONCLUSION") ||
+                        line.includes("MAIN")
+                    )
+            )
+            .slice(0,12);
+
+    list.innerHTML = "";
+
+    if(lines.length === 0){
+
+        list.innerHTML = `
+            <div class="chapter active">
+                Full Script
+            </div>
+        `;
+
+        return;
+    }
+
+    lines.forEach((line,index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "chapter " +
+            (index === 0 ? "active" : "");
+
+        div.textContent =
+            line.trim().replace(/[:\[\]]/g,"");
+
+        list.appendChild(div);
+
+    });
+
+}
+
+
+/* -----------------------------
+   AI EDIT
+----------------------------- */
+
+async function aiEdit(instruction){
+
+    if(!currentProject){
+
+        toast(
+            "Open or generate a script first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    if(!text.trim()){
+
+        toast(
+            "There is no script to edit.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const providerId =
+        document.getElementById("quickProvider").value;
+
+    if(providerId === "demo"){
+
+        toast(
+            "AI editing requires a connected AI provider.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === providerId
+        );
+
+    if(!provider){
+
+        toast(
+            "Please configure an AI provider first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    toast(
+        "AI is editing your script...",
+        "success"
+    );
+
+    try{
+
+        const prompt = `
+
+You are an expert script editor.
+
+Here is the current video script:
+
+--- SCRIPT START ---
+${text}
+--- SCRIPT END ---
+
+USER REQUEST:
+${instruction}
+
+Return only the improved full script.
+Preserve the original language.
+Do not add explanations.
+
+        `;
+
+        const result =
+            await callAI(
+                provider,
+                prompt
+            );
+
+        document.getElementById("scriptEditor").value =
+            result;
+
+        currentProject.content =
+            result;
+
+        currentProject.updatedAt =
+            new Date().toISOString();
+
+        saveProjects();
+
+        updateEditorStats();
+
+        generateChapters(result);
+
+        toast(
+            "Script updated.",
+            "success"
+        );
+
+    }catch(error){
+
+        toast(
+            error.message ||
+            "AI editing failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* -----------------------------
+   ANALYZE
+----------------------------- */
+
+async function analyzeScript(){
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    if(!text.trim()){
+
+        toast(
+            "Write or generate a script first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const words =
+        countWords(text);
+
+    let score = 70;
+
+    if(words > 200){
+        score += 5;
+    }
+
+    if(text.includes("?")){
+        score += 5;
+    }
+
+    if(
+        /hook|welcome|imagine|today/i.test(text)
+    ){
+        score += 5;
+    }
+
+    if(
+        /thanks|thank you|subscribe|follow/i.test(text)
+    ){
+        score += 5;
+    }
+
+    score =
+        Math.min(
+            98,
+            score
+        );
+
+    document.getElementById("qualityScore").textContent =
+        score + "/100";
+
+    toast(
+        `Script quality score: ${score}/100`,
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   TRANSLATE
+----------------------------- */
+
+async function translateScript(){
+
+    if(!currentProject){
+
+        toast(
+            "Open a project first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const providerId =
+        document.getElementById("quickProvider").value;
+
+    if(providerId === "demo"){
+
+        toast(
+            "Translation requires an AI provider.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === providerId
+        );
+
+    if(!provider){
+        toast(
+            "Configure an AI provider first.",
+            "error"
+        );
+        return;
+    }
+
+    const target =
+        prompt(
+            "Translate this script to which language?",
+            "English"
+        );
+
+    if(!target){
+        return;
+    }
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    try{
+
+        const result =
+            await callAI(
+                provider,
+                `
+Translate the following video script into ${target}.
+
+Preserve:
+- speaker names
+- structure
+- meaning
+- tone
+- visual notes
+
+Return only the translated script.
+
+SCRIPT:
+
+${text}
+                `
+            );
+
+        document.getElementById("scriptEditor").value =
+            result;
+
+        currentProject.content =
+            result;
+
+        currentProject.updatedAt =
+            new Date().toISOString();
+
+        saveProjects();
+
+        updateEditorStats();
+
+        toast(
+            "Translation complete.",
+            "success"
+        );
+
+    }catch(error){
+
+        toast(
+            error.message ||
+            "Translation failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* -----------------------------
+   TEXT FORMAT
+----------------------------- */
+
+function formatText(type){
+
+    const editor =
+        document.getElementById("scriptEditor");
+
+    const start =
+        editor.selectionStart;
+
+    const end =
+        editor.selectionEnd;
+
+    if(start === end){
+
+        toast(
+            "Select some text first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const selected =
+        editor.value.substring(
+            start,
+            end
+        );
+
+    let replacement;
+
+    if(type === "bold"){
+        replacement = `**${selected}**`;
+    }
+
+    if(type === "italic"){
+        replacement = `*${selected}*`;
+    }
+
+    editor.setRangeText(
+        replacement,
+        start,
+        end,
+        "end"
+    );
+
+    updateEditorStats();
+
+}
+
+
+/* -----------------------------
+   SAVE
+----------------------------- */
+
+function saveCurrentProject(showToast=true){
+
+    if(!currentProject){
+
+        if(showToast){
+            toast(
+                "No active project.",
+                "error"
+            );
+        }
+
+        return;
+
+    }
+
+    currentProject.content =
+        document.getElementById("scriptEditor").value;
+
+    currentProject.updatedAt =
+        new Date().toISOString();
+
+    const index =
+        projects.findIndex(
+            p => p.id === currentProject.id
+        );
+
+    if(index >= 0){
+        projects[index] =
+            currentProject;
+    }else{
+        projects.unshift(
+            currentProject
+        );
+    }
+
+    saveProjects();
+
+    if(showToast){
+        toast(
+            "Project saved.",
+            "success"
+        );
+    }
+
+    renderProjects();
+
+    updateStats();
+
+}
+
+
+function saveProjects(){
+
+    localStorage.setItem(
+        STORAGE.projects,
+        JSON.stringify(projects)
+    );
+
+}
+
+
+function saveSettings(){
+
+    localStorage.setItem(
+        STORAGE.settings,
+        JSON.stringify(settings)
+    );
+
+}
+
+
+/* -----------------------------
+   PROJECTS
+----------------------------- */
+
+function renderProjects(){
+
+    const container =
+        document.getElementById("allProjects");
+
+    if(!projects.length){
+
+        container.innerHTML = `
+            <div class="empty" style="grid-column:1/-1;">
+                <div class="empty-icon">✦</div>
+                <div>No projects yet.</div>
+                <br>
+                <button
+                    class="btn btn-primary"
+                    onclick="showPage('create')"
+                >
+                    Create your first script
+                </button>
+            </div>
+        `;
+
+        renderRecentProjects();
+
+        return;
+
+    }
+
+    container.innerHTML =
+        projects
+            .map(projectCard)
+            .join("");
+
+    renderRecentProjects();
+
+}
+
+
+function renderRecentProjects(){
+
+    const container =
+        document.getElementById("recentProjects");
+
+    const recent =
+        projects.slice(0,3);
+
+    if(!recent.length){
+
+        container.innerHTML = `
+            <div class="empty" style="grid-column:1/-1;">
+                <div class="empty-icon">✦</div>
+                Create your first AI script.
+            </div>
+        `;
+
+        return;
+
+    }
+
+    container.innerHTML =
+        recent
+            .map(projectCard)
+            .join("");
+
+}
+
+
+function projectCard(project){
+
+    const date =
+        new Date(
+            project.updatedAt ||
+            project.createdAt
+        );
+
+    const words =
+        countWords(
+            project.content || ""
+        );
+
+    return `
+
+        <div
+            class="project"
+            onclick="openProject(${project.id})"
+        >
+
+            <div class="project-title">
+                ${escapeHtml(project.title)}
+            </div>
+
+            <div class="project-meta">
+
+                <span class="badge">
+                    ${escapeHtml(project.format || "Video")}
+                </span>
+
+                <span class="badge">
+                    ${escapeHtml(project.language || "English")}
+                </span>
+
+                <span class="badge">
+                    ${words.toLocaleString()} words
+                </span>
+
+                <span>
+                    ${date.toLocaleDateString()}
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function openProject(id){
+
+    const project =
+        projects.find(
+            p => p.id === id
+        );
+
+    if(!project){
+        return;
+    }
+
+    loadProjectIntoEditor(project);
+
+    showPage("editor");
+
+}
+
+
+/* -----------------------------
+   STATS
+----------------------------- */
+
+function updateStats(){
+
+    document.getElementById("statProjects").textContent =
+        projects.length;
+
+    document.getElementById("statScripts").textContent =
+        projects.length;
+
+    const words =
+        projects.reduce(
+            (total,p) =>
+                total +
+                countWords(p.content || ""),
+            0
+        );
+
+    document.getElementById("statWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("statLanguage").textContent =
+        settings.defaultScriptLanguage || "English";
+
+}
+
+
+/* -----------------------------
+   PROVIDERS
+----------------------------- */
+
+function renderProviders(){
+
+    const container =
+        document.getElementById("providerGrid");
+
+    if(!providers.length){
+
+        container.innerHTML = `
+
+            <div class="provider-card">
+
+                <h3>Demo Generator</h3>
+
+                <p>
+                    Built-in offline demo generator.
+                    No API key required.
+                </p>
+
+                <div class="provider-status">
+                    ● Available
+                </div>
+
+                <button class="btn btn-success btn-sm">
+                    Active
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+    container.innerHTML =
+        providers.map(provider => `
+
+            <div class="provider-card">
+
+                <h3>
+                    ${escapeHtml(provider.name)}
+                </h3>
+
+                <p>
+                    ${escapeHtml(provider.model)}
+                </p>
+
+                <div
+                    class="provider-status"
+                    id="status-${provider.id}"
+                >
+                    ● Configured
+                </div>
+
+                <div style="display:flex;gap:7px;">
+
+                    <button
+                        class="btn btn-sm"
+                        onclick="testProvider('${provider.id}')"
+                    >
+                        Test Connection
+                    </button>
+
+                    <button
+                        class="btn btn-sm btn-danger"
+                        onclick="deleteProvider('${provider.id}')"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        `).join("");
+
+}
+
+
+function renderQuickProviders(){
+
+    const select =
+        document.getElementById("quickProvider");
+
+    select.innerHTML = `
+
+        <option value="demo">
+            Demo Generator
+        </option>
+
+    `;
+
+    providers.forEach(provider => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            provider.id;
+
+        option.textContent =
+            `${provider.name} · ${provider.model}`;
+
+        select.appendChild(option);
+
+    });
+
+    select.addEventListener(
+        "change",
+        updateActiveProvider
+    );
+
+    updateActiveProvider();
+
+}
+
+
+function updateActiveProvider(){
+
+    const id =
+        document.getElementById("quickProvider").value;
+
+    if(id === "demo"){
+
+        document.getElementById(
+            "activeProviderName"
+        ).textContent =
+            "Demo Generator";
+
+        document.getElementById(
+            "activeProviderStatus"
+        ).textContent =
+            "Local";
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === id
+        );
+
+    if(!provider){
+        return;
+    }
+
+    document.getElementById(
+        "activeProviderName"
+    ).textContent =
+        provider.name;
+
+    document.getElementById(
+        "activeProviderStatus"
+    ).textContent =
+        "Configured";
+
+}
+
+
+/* -----------------------------
+   PROVIDER MODAL
+----------------------------- */
+
+function openProviderModal(){
+
+    document
+        .getElementById("providerModal")
+        .classList.add("open");
+
+    document.getElementById("providerName").value = "";
+
+    document.getElementById("providerKey").value = "";
+
+    document.getElementById("providerModel").value = "";
+
+    document.getElementById("providerBaseUrl").value = "";
+
+    updateProviderDefaults();
+
+}
+
+
+function closeProviderModal(){
+
+    document
+        .getElementById("providerModal")
+        .classList.remove("open");
+
+}
+
+
+document
+    .getElementById("providerType")
+    .addEventListener(
+        "change",
+        updateProviderDefaults
+    );
+
+
+function updateProviderDefaults(){
+
+    const type =
+        document.getElementById("providerType").value;
+
+    const names = {
+
+        openai:"OpenAI",
+
+        anthropic:"Anthropic",
+
+        gemini:"Google Gemini",
+
+        openrouter:"OpenRouter",
+
+        deepseek:"DeepSeek",
+
+        groq:"Groq",
+
+        custom:"Custom Provider"
+
+    };
+
+    const models = {
+
+        openai:"gpt-5.6",
+
+        anthropic:"claude-sonnet",
+
+        gemini:"gemini-2.5-flash",
+
+        openrouter:"openai/gpt-5.6",
+
+        deepseek:"deepseek-chat",
+
+        groq:"llama-3.3-70b-versatile",
+
+        custom:"your-model"
+
+    };
+
+    if(
+        !document.getElementById("providerName").value
+    ){
+
+        document.getElementById(
+            "providerName"
+        ).value =
+            names[type];
+
+    }
+
+    document.getElementById(
+        "providerModel"
+    ).value =
+        models[type];
+
+    const baseUrls = {
+
+        openai:
+            "https://api.openai.com/v1",
+
+        anthropic:
+            "https://api.anthropic.com",
+
+        gemini:
+            "",
+
+        openrouter:
+            "https://openrouter.ai/api/v1",
+
+        deepseek:
+            "https://api.deepseek.com/v1",
+
+        groq:
+            "https://api.groq.com/openai/v1",
+
+        custom:
+            ""
+
+    };
+
+    document.getElementById(
+        "providerBaseUrl"
+    ).value =
+        baseUrls[type] || "";
+
+}
+
+
+function saveProvider(){
+
+    const type =
+        document.getElementById("providerType").value;
+
+    const name =
+        document.getElementById("providerName").value.trim();
+
+    const key =
+        document.getElementById("providerKey").value.trim();
+
+    const model =
+        document.getElementById("providerModel").value.trim();
+
+    const baseUrl =
+        document.getElementById("providerBaseUrl").value.trim();
+
+    if(!name || !key || !model){
+
+        toast(
+            "Please complete provider name, API key and model.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider = {
+
+        id:
+            "provider_" +
+            Date.now(),
+
+        type,
+
+        name,
+
+        key,
+
+        model,
+
+        baseUrl
+
+    };
+
+    providers.push(provider);
+
+    localStorage.setItem(
+        STORAGE.providers,
+        JSON.stringify(providers)
+    );
+
+    closeProviderModal();
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    toast(
+        "Provider added.",
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   TEST PROVIDER
+----------------------------- */
+
+async function testProvider(id){
+
+    const provider =
+        providers.find(
+            p => p.id === id
+        );
+
+    if(!provider){
+        return;
+    }
+
+    const status =
+        document.getElementById(
+            "status-" + id
+        );
+
+    status.textContent =
+        "● Testing...";
+
+    try{
+
+        const result =
+            await callAI(
+                provider,
+                "Reply with exactly: CONNECTION_OK"
+            );
+
+        if(result){
+
+            status.textContent =
+                "● Connection successful";
+
+            status.style.color =
+                "var(--success)";
+
+            toast(
+                `${provider.name} connection successful.`,
+                "success"
+            );
+
+        }else{
+
+            throw new Error(
+                "Empty response."
+            );
+
+        }
+
+    }catch(error){
+
+        status.textContent =
+            "● Connection failed";
+
+        status.style.color =
+            "var(--danger)";
+
+        toast(
+            error.message ||
+            "Connection failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+function deleteProvider(id){
+
+    if(
+        !confirm(
+            "Delete this provider and its API key?"
+        )
+    ){
+        return;
+    }
+
+    providers =
+        providers.filter(
+            p => p.id !== id
+        );
+
+    localStorage.setItem(
+        STORAGE.providers,
+        JSON.stringify(providers)
+    );
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    toast(
+        "Provider deleted.",
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   EXPORT
+----------------------------- */
+
+function downloadFile(
+    filename,
+    content,
+    mime
+){
+
+    const blob =
+        new Blob(
+            [content],
+            {type:mime}
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download = filename;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+function exportTXT(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".txt",
+        currentProject.content,
+        "text/plain;charset=utf-8"
+    );
+
+}
+
+
+function exportMarkdown(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    const content = `# ${currentProject.title}
+
+**Format:** ${currentProject.format}
+
+**Language:** ${currentProject.language}
+
+**Duration:** ${currentProject.duration} minutes
+
+---
+
+${currentProject.content}
+`;
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".md",
+        content,
+        "text/markdown;charset=utf-8"
+    );
+
+}
+
+
+function exportHTML(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    const content = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml(currentProject.title)}</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+max-width:900px;
+margin:50px auto;
+padding:20px;
+line-height:1.8;
+}
+h1{margin-bottom:5px}
+.meta{color:#666;margin-bottom:30px}
+pre{
+white-space:pre-wrap;
+font-family:inherit;
+}
+</style>
+</head>
+<body>
+
+<h1>${escapeHtml(currentProject.title)}</h1>
+
+<div class="meta">
+${escapeHtml(currentProject.format)}
+ ·
+${escapeHtml(currentProject.language)}
+ ·
+${currentProject.duration} minutes
+</div>
+
+<pre>${escapeHtml(currentProject.content)}</pre>
+
+</body>
+</html>`;
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".html",
+        content,
+        "text/html;charset=utf-8"
+    );
+
+}
+
+
+function exportJSON(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".json",
+        JSON.stringify(
+            currentProject,
+            null,
+            2
+        ),
+        "application/json;charset=utf-8"
+    );
+
+}
+
+
+function exportWorkspace(){
+
+    downloadFile(
+        "scriptforge-workspace.json",
+        JSON.stringify(
+            {
+                projects,
+                settings
+            },
+            null,
+            2
+        ),
+        "application/json;charset=utf-8"
+    );
+
+    toast(
+        "Workspace exported.",
+        "success"
+    );
+
+}
+
+
+function printScript(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    window.print();
+
+}
+
+
+function safeFilename(name){
+
+    return name
+        .replace(/[<>:"/\\|?*]+/g,"")
+        .trim()
+        .replace(/\s+/g,"-")
+        .substring(0,100)
+        || "script";
+
+}
+
+
+/* -----------------------------
+   SETTINGS UI
+----------------------------- */
+
+function loadSettingsUI(){
+
+    document.getElementById(
+        "appearance"
+    ).value =
+        settings.appearance;
+
+    document.getElementById(
+        "uiLanguage"
+    ).value =
+        settings.uiLanguage;
+
+    document.getElementById(
+        "defaultScriptLanguage"
+    ).value =
+        settings.defaultScriptLanguage;
+
+    document.getElementById(
+        "defaultWpm"
+    ).value =
+        settings.defaultWpm;
+
+    document.getElementById(
+        "autoSave"
+    ).checked =
+        settings.autoSave;
+
+    document.getElementById(
+        "scriptLanguage"
+    ).value =
+        settings.defaultScriptLanguage;
+
+}
+
+
+/* -----------------------------
+   TRANSLATION
+----------------------------- */
+
+function applyTranslations(){
+
+    const lang =
+        translations[
+            settings.uiLanguage
+        ] ||
+        translations.English;
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+            const key =
+                element.dataset.i18n;
+
+            if(lang[key]){
+                element.textContent =
+                    lang[key];
+            }
+
+        });
+
+}
+
+
+/* -----------------------------
+   CLEAR DATA
+----------------------------- */
+
+function clearData(){
+
+    if(
+        !confirm(
+            "This will delete all projects, providers and settings from this browser. Continue?"
+        )
+    ){
+        return;
+    }
+
+    localStorage.removeItem(
+        STORAGE.projects
+    );
+
+    localStorage.removeItem(
+        STORAGE.providers
+    );
+
+    localStorage.removeItem(
+        STORAGE.settings
+    );
+
+    projects = [];
+
+    providers = [];
+
+    currentProject = null;
+
+    location.reload();
+
+}
+
+
+/* -----------------------------
+   UTILITY
+----------------------------- */
+
+function delay(ms){
+
+    return new Promise(
+        resolve =>
+            setTimeout(resolve,ms)
+    );
+
+}
+
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* -----------------------------
+   TOAST
+----------------------------- */
+
+function toast(message,type="success"){
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "toast " + type;
+
+    div.textContent =
+        message;
+
+    container.appendChild(div);
+
+    setTimeout(() => {
+
+        div.remove();
+
+    },3500);
+
+}
+
+
+/* -----------------------------
+   KEYBOARD SHORTCUTS
+----------------------------- */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if(
+            (e.ctrlKey || e.metaKey) &&
+            e.key.toLowerCase() === "s"
+        ){
+
+            e.preventDefault();
+
+            saveCurrentProject();
+
+        }
+
+    }
+);
+
+
+/* -----------------------------
+   PROVIDER MODAL CLICK OUTSIDE
+----------------------------- */
+
+document
+    .getElementById("providerModal")
+    .addEventListener(
+        "click",
+        e => {
+
+            if(
+                e.target.id ===
+                "providerModal"
+            ){
+                closeProviderModal();
+            }
+
+        }
+    );
+
+
+/* -----------------------------
+   EXPORT MENU
+----------------------------- */
+
+document
+    .getElementById("scriptEditor")
+    .addEventListener(
+        "contextmenu",
+        () => {}
+    );
+
+
+/* Add export buttons dynamically
+   to editor toolbar */
+
+const toolbar =
+    document.querySelector(".toolbar");
+
+if(toolbar){
+
+    const exportWrap =
+        document.createElement("div");
+
+    exportWrap.style.cssText =
+        "display:flex;gap:5px;margin-left:5px;";
+
+    exportWrap.innerHTML = `
+
+        <button onclick="exportTXT()">
+            TXT
+        </button>
+
+        <button onclick="exportMarkdown()">
+            MD
+        </button>
+
+        <button onclick="exportHTML()">
+            HTML
+        </button>
+
+        <button onclick="exportJSON()">
+            JSON
+        </button>
+
+    `;
+
+    toolbar.appendChild(
+        exportWrap
+    );
+
+}
+
+
+/* -----------------------------
+   SYSTEM THEME
+----------------------------- */
+
+if(window.matchMedia){
+
+    window
+        .matchMedia(
+            "(prefers-color-scheme: light)"
+        )
+        .addEventListener(
+            "change",
+            () => {
+
+                if(
+                    settings.appearance ===
+                    "system"
+                ){
+
+                    applyAppearance();
+
+                }
+
+            }
+        );
+
+}
+
+
+/* -----------------------------
+   INITIAL TRANSLATION
+----------------------------- */
+
+applyTranslations();
+
+
+</script>
+
+</body>
+</html>
