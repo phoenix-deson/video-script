@@ -1,1271 +1,5365 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#0b0d10">
-<title>ScriptForge AI — AI 视频脚本生成器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d12">
+<title>ScriptForge — AI Video Script Studio</title>
+
 <style>
 :root{
-  --bg:#f5f6f8;
-  --surface:#ffffff;
-  --surface2:#f0f2f5;
-  --text:#16181d;
-  --muted:#6b7280;
-  --border:#e3e6eb;
-  --primary:#111827;
-  --primaryText:#ffffff;
-  --accent:#6366f1;
-  --accent2:#818cf8;
-  --danger:#dc2626;
-  --success:#16a34a;
-  --shadow:0 12px 35px rgba(0,0,0,.07);
-  --radius:16px;
-  --sidebar:260px;
+    --bg:#0b0d12;
+    --panel:#11141b;
+    --panel2:#171b24;
+    --panel3:#1d222d;
+    --border:#292f3b;
+    --text:#f4f6fa;
+    --muted:#8e97a8;
+    --accent:#7c5cff;
+    --accent2:#9a82ff;
+    --danger:#ff5d73;
+    --success:#39d98a;
+    --warning:#f5b942;
+    --shadow:0 20px 60px rgba(0,0,0,.35);
+    --radius:14px;
 }
-html.dark{
-  --bg:#0b0d10;
-  --surface:#111418;
-  --surface2:#181c21;
-  --text:#f4f5f7;
-  --muted:#9ca3af;
-  --border:#292e36;
-  --primary:#f4f5f7;
-  --primaryText:#0b0d10;
-  --accent:#818cf8;
-  --accent2:#a5b4fc;
-  --shadow:0 12px 35px rgba(0,0,0,.28);
+
+body.light{
+    --bg:#f4f6f9;
+    --panel:#ffffff;
+    --panel2:#f8f9fb;
+    --panel3:#eef1f5;
+    --border:#dfe3ea;
+    --text:#171a21;
+    --muted:#6e7787;
+    --shadow:0 15px 40px rgba(0,0,0,.08);
 }
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
+
+*{
+    box-sizing:border-box;
 }
-button,input,textarea,select{font:inherit;}
-button{cursor:pointer;}
-.app{display:flex;min-height:100vh;}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
 .sidebar{
-  width:var(--sidebar);position:fixed;left:0;top:0;bottom:0;
-  border-right:1px solid var(--border);background:var(--surface);
-  display:flex;flex-direction:column;z-index:50;
+    width:245px;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    padding:22px 15px;
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    inset:0 auto 0 0;
+    z-index:20;
 }
-.logo{padding:25px 22px;display:flex;align-items:center;gap:11px;font-weight:800;font-size:20px;}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:5px 10px 27px;
+    font-size:19px;
+    font-weight:800;
+    letter-spacing:-.4px;
+}
+
 .logo-mark{
-  width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#a855f7);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#7c5cff,#b7a5ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:17px;
+    box-shadow:0 8px 25px rgba(124,92,255,.3);
 }
-.nav{padding:10px 12px;}
-.nav button{
-  width:100%;border:0;background:transparent;color:var(--muted);padding:12px 14px;
-  border-radius:12px;text-align:left;margin-bottom:4px;display:flex;align-items:center;gap:11px;transition:.2s;
+
+.nav-label{
+    font-size:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    padding:12px 12px 7px;
 }
-.nav button:hover{background:var(--surface2);color:var(--text);}
-.nav button.active{background:var(--surface2);color:var(--text);font-weight:700;}
-.nav-icon{width:20px;text-align:center;}
-.sidebar-bottom{margin-top:auto;padding:15px;border-top:1px solid var(--border);}
-.language-mini{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);}
-.main{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));}
+
+.nav-item{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 12px;
+    border-radius:10px;
+    margin-bottom:3px;
+    text-align:left;
+    transition:.18s;
+}
+
+.nav-item:hover{
+    color:var(--text);
+    background:var(--panel2);
+}
+
+.nav-item.active{
+    background:rgba(124,92,255,.14);
+    color:var(--text);
+}
+
+.nav-icon{
+    width:20px;
+    text-align:center;
+}
+
+.sidebar-bottom{
+    margin-top:auto;
+}
+
+.status-card{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+    margin:10px 5px;
+}
+
+.status-title{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:7px;
+}
+
+.status-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+}
+
+.dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--success);
+}
+
+/* MAIN */
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    min-height:100vh;
+}
+
 .topbar{
-  height:72px;border-bottom:1px solid var(--border);background:var(--surface);
-  display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:30;
+    height:68px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:color-mix(in srgb,var(--bg) 92%,transparent);
+    backdrop-filter:blur(18px);
 }
-.topbar-title{font-size:18px;font-weight:750;}
-.top-actions{display:flex;align-items:center;gap:9px;}
-.icon-btn{width:40px;height:40px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;}
-.content{padding:30px;max-width:1500px;margin:auto;}
-.page{display:none;}
-.page.active{display:block;}
-.hero{padding:12px 0 28px;}
-.hero h1{margin:0 0 9px;font-size:34px;letter-spacing:-1px;}
-.hero p{margin:0;color:var(--muted);max-width:760px;line-height:1.7;}
-.grid{display:grid;gap:18px;}
-.grid-2{grid-template-columns:repeat(2,minmax(0,1fr));}
-.grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
-.card-header{padding:20px 21px;border-bottom:1px solid var(--border);}
-.card-header h3{margin:0 0 5px;font-size:16px;}
-.card-header p{margin:0;color:var(--muted);font-size:13px;line-height:1.5;}
-.card-body{padding:21px;}
-label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
-.field{margin-bottom:17px;}
-input,textarea,select{
-  width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);
-  border-radius:11px;padding:12px 13px;outline:none;transition:.2s;
+
+.page-title{
+    font-size:16px;
+    font-weight:700;
 }
-input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
-textarea{resize:vertical;min-height:120px;line-height:1.6;}
-.row{display:flex;gap:12px;}
-.row>*{flex:1;}
+
+.top-actions{
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+
+.icon-btn{
+    width:38px;
+    height:38px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    border-radius:10px;
+}
+
+.content{
+    padding:30px;
+    max-width:1550px;
+    margin:auto;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* BUTTONS */
+
 .btn{
-  border:1px solid var(--border);background:var(--surface);color:var(--text);padding:11px 15px;
-  border-radius:11px;font-weight:700;transition:.2s;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    border-radius:9px;
+    padding:10px 15px;
+    transition:.18s;
+    font-weight:600;
+    font-size:13px;
 }
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08);}
-.btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
-.btn-dark{background:var(--primary);color:var(--primaryText);border-color:var(--primary);}
-.btn-danger{color:#fff;background:var(--danger);border-color:var(--danger);}
-.btn-success{color:#fff;background:var(--success);border-color:var(--success);}
-.btn-small{padding:8px 11px;font-size:12px;}
-.full{width:100%;}
-.muted{color:var(--muted);}
-.small{font-size:12px;}
-.status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
-.dot{width:8px;height:8px;border-radius:50%;background:#9ca3af;}
-.dot.ok{background:#22c55e;}
-.dot.error{background:#ef4444;}
-.generator-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;}
-.big-input{min-height:260px;}
-.range-wrap{display:flex;align-items:center;gap:12px;}
-.range-wrap input[type=range]{padding:0;}
-.range-value{min-width:65px;text-align:center;padding:8px;border-radius:9px;background:var(--surface2);font-weight:800;}
-.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
-.preset{padding:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:11px;text-align:left;}
-.preset strong{display:block;margin-bottom:4px;font-size:13px;}
-.preset span{font-size:11px;color:var(--muted);}
-.preset.selected{border-color:var(--accent);background:rgba(99,102,241,.08);}
-.characters{display:flex;flex-direction:column;gap:10px;}
-.character{display:grid;grid-template-columns:1fr 1fr 40px;gap:8px;align-items:center;}
-.character button{height:42px;}
-.generate-box{position:sticky;top:100px;}
-.summary{padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:16px;}
-.summary-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;}
-.summary-row span:last-child{font-weight:800;}
-.editor-layout{display:grid;grid-template-columns:1fr 310px;gap:18px;}
-.editor-card{min-height:650px;}
-.editor-toolbar{padding:12px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:7px;}
-.editor-toolbar .btn{font-size:12px;padding:8px 10px;}
-.script-editor{width:100%;min-height:570px;border:0;border-radius:0;padding:25px;font-size:16px;line-height:1.8;resize:vertical;background:var(--surface);color:var(--text);outline:none;}
-.editor-sidebar{display:flex;flex-direction:column;gap:16px;}
-.word-count{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-.stat{background:var(--surface2);padding:13px;border-radius:11px;}
-.stat strong{display:block;font-size:18px;}
-.stat span{color:var(--muted);font-size:11px;}
-.library-list{display:grid;gap:12px;}
-.script-item{padding:17px;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;justify-content:space-between;align-items:center;gap:15px;}
-.script-item h4{margin:0 0 6px;}
-.script-item p{margin:0;color:var(--muted);font-size:12px;}
-.script-actions{display:flex;gap:7px;}
-.settings{max-width:900px;}
-.setting-section{margin-bottom:18px;}
-.provider-card{border:1px solid var(--border);border-radius:13px;padding:15px;margin-bottom:12px;}
-.provider-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.provider-name{font-weight:800;}
-.api-hidden{-webkit-text-security:disc;}
-.toggle{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);}
-.switch{position:relative;width:45px;height:25px;}
-.switch input{opacity:0;width:0;height:0;}
-.slider{position:absolute;inset:0;background:#9ca3af;border-radius:30px;transition:.2s;}
-.slider:before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;}
-.switch input:checked + .slider{background:var(--accent);}
-.switch input:checked + .slider:before{transform:translateX(20px);}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:20px;z-index:100;}
-.modal.show{display:flex;}
-.modal-box{width:min(850px,100%);max-height:90vh;overflow:auto;background:var(--surface);color:var(--text);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.3);}
-.modal-head{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.modal-head h2{margin:0;}
-.modal-body{padding:22px;}
-.reader{width:min(1000px,100%);max-height:94vh;}
-.reader-content{padding:40px;font-size:18px;line-height:1.9;white-space:pre-wrap;overflow:auto;max-height:75vh;}
-.reader-title{font-size:30px;font-weight:800;margin-bottom:25px;}
-.toast{position:fixed;right:25px;bottom:25px;z-index:200;background:var(--primary);color:var(--primaryText);padding:13px 17px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;}
-.toast.show{opacity:1;transform:translateY(0);}
-.loading{display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.42);align-items:center;justify-content:center;}
-.loading.show{display:flex;}
-.loading-box{background:var(--surface);padding:25px 30px;border-radius:15px;text-align:center;}
-.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 13px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.mobile-menu{display:none;}
-@media(max-width:1050px){
-  .generator-layout,.editor-layout{grid-template-columns:1fr;}
-  .generate-box{position:static;}
-  .grid-3{grid-template-columns:1fr;}
+
+.btn:hover{
+    border-color:#454d5d;
+    transform:translateY(-1px);
 }
-@media(max-width:760px){
-  :root{--sidebar:0px;}
-  .sidebar{transform:translateX(-100%);transition:.25s;width:260px;}
-  .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0;width:100%;}
-  .topbar{padding:0 15px;}
-  .mobile-menu{display:block;}
-  .content{padding:18px;}
-  .hero h1{font-size:27px;}
-  .grid-2{grid-template-columns:1fr;}
-  .preset-grid{grid-template-columns:1fr 1fr;}
-  .row{flex-direction:column;}
-  .character{grid-template-columns:1fr 1fr 40px;}
-  .reader-content{padding:22px;font-size:16px;}
+
+.btn-primary{
+    border-color:transparent;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    box-shadow:0 8px 25px rgba(124,92,255,.22);
 }
+
+.btn-primary:hover{
+    box-shadow:0 10px 30px rgba(124,92,255,.34);
+}
+
+.btn-danger{
+    color:#ff7184;
+}
+
+.btn-success{
+    color:var(--success);
+}
+
+.btn-sm{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+/* DASHBOARD */
+
+.hero{
+    background:
+        radial-gradient(circle at 90% 10%,rgba(124,92,255,.2),transparent 30%),
+        radial-gradient(circle at 20% 100%,rgba(74,114,255,.08),transparent 35%),
+        var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:34px;
+    margin-bottom:25px;
+    box-shadow:var(--shadow);
+}
+
+.hero h1{
+    margin:0 0 10px;
+    font-size:34px;
+    letter-spacing:-1.5px;
+}
+
+.hero p{
+    margin:0;
+    color:var(--muted);
+    max-width:650px;
+    line-height:1.7;
+}
+
+.hero-actions{
+    margin-top:23px;
+    display:flex;
+    gap:10px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.stat{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:18px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.stat-value{
+    font-size:25px;
+    font-weight:800;
+    margin-top:8px;
+}
+
+.section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:13px;
+}
+
+.section-head h2{
+    font-size:17px;
+    margin:0;
+}
+
+.projects{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.project{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:17px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.project:hover{
+    transform:translateY(-2px);
+    border-color:#4b5261;
+}
+
+.project-title{
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.project-meta{
+    color:var(--muted);
+    font-size:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.badge{
+    display:inline-flex;
+    padding:4px 7px;
+    border-radius:6px;
+    background:var(--panel3);
+    color:var(--muted);
+}
+
+/* CREATE */
+
+.create-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 330px;
+    gap:20px;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:17px;
+}
+
+.card-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:17px;
+}
+
+.card-title h3{
+    margin:0;
+    font-size:15px;
+}
+
+.card-title span{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.field{
+    margin-bottom:14px;
+}
+
+.field:last-child{
+    margin-bottom:0;
+}
+
+.field label{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    margin-bottom:7px;
+    font-weight:600;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text);
+    border-radius:9px;
+    padding:11px 12px;
+    outline:none;
+    transition:.18s;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(124,92,255,.1);
+}
+
+textarea{
+    resize:vertical;
+    min-height:130px;
+    line-height:1.6;
+}
+
+input[type="range"]{
+    padding:0;
+    accent-color:var(--accent);
+}
+
+.range-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.range-value{
+    min-width:60px;
+    text-align:right;
+    font-weight:700;
+    color:var(--accent2);
+}
+
+/* PRESETS */
+
+.preset-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+}
+
+.preset{
+    border:1px solid var(--border);
+    background:var(--panel2);
+    border-radius:10px;
+    padding:11px 8px;
+    text-align:center;
+    color:var(--muted);
+    cursor:pointer;
+    transition:.18s;
+    font-size:12px;
+}
+
+.preset:hover{
+    color:var(--text);
+    border-color:#4b5261;
+}
+
+.preset.selected{
+    color:var(--text);
+    border-color:var(--accent);
+    background:rgba(124,92,255,.12);
+}
+
+.preset-icon{
+    font-size:19px;
+    margin-bottom:6px;
+}
+
+/* SPEAKERS */
+
+.speaker-list{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+
+.speaker{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr auto;
+    gap:8px;
+    align-items:end;
+    padding:11px;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    border-radius:10px;
+}
+
+.speaker .field{
+    margin:0;
+}
+
+/* SIDECARD */
+
+.info-box{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:11px;
+    padding:13px;
+    margin-bottom:10px;
+}
+
+.info-label{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.info-number{
+    font-size:20px;
+    font-weight:800;
+    margin-top:4px;
+}
+
+.generate-area{
+    position:sticky;
+    top:88px;
+}
+
+.generate-btn{
+    width:100%;
+    padding:14px;
+    font-size:14px;
+}
+
+.provider-mini{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    margin-top:12px;
+    background:var(--panel2);
+}
+
+.provider-mini-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:9px;
+}
+
+.provider-name{
+    font-weight:700;
+    font-size:13px;
+}
+
+.connection{
+    font-size:10px;
+    color:var(--muted);
+}
+
+.connection.ok{
+    color:var(--success);
+}
+
+/* EDITOR */
+
+.editor-layout{
+    display:grid;
+    grid-template-columns:230px minmax(0,1fr) 280px;
+    gap:15px;
+    height:calc(100vh - 130px);
+    min-height:600px;
+}
+
+.editor-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+
+.panel-head{
+    padding:14px;
+    border-bottom:1px solid var(--border);
+    font-size:12px;
+    font-weight:700;
+}
+
+.chapter-list{
+    overflow:auto;
+}
+
+.chapter{
+    padding:12px 13px;
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.chapter:hover,
+.chapter.active{
+    background:var(--panel2);
+    color:var(--text);
+}
+
+.editor-main{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.toolbar{
+    display:flex;
+    gap:6px;
+    padding:10px;
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+}
+
+.toolbar button{
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--muted);
+    padding:6px 9px;
+    border-radius:7px;
+    font-size:11px;
+}
+
+.toolbar button:hover{
+    color:var(--text);
+}
+
+.script-editor{
+    flex:1;
+    width:100%;
+    resize:none;
+    border:0;
+    border-radius:0;
+    background:var(--panel);
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size:14px;
+    line-height:1.8;
+    padding:22px;
+}
+
+.script-editor:focus{
+    box-shadow:none;
+}
+
+.editor-footer{
+    border-top:1px solid var(--border);
+    padding:9px 13px;
+    display:flex;
+    justify-content:space-between;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.ai-tools{
+    padding:12px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.ai-tool{
+    padding:9px;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text);
+    border-radius:8px;
+    font-size:11px;
+}
+
+.ai-tool:hover{
+    border-color:var(--accent);
+}
+
+/* SETTINGS */
+
+.settings-layout{
+    max-width:900px;
+}
+
+.settings-section{
+    margin-bottom:25px;
+}
+
+.settings-section h2{
+    font-size:15px;
+    margin:0 0 10px;
+}
+
+.settings-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:16px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:10px;
+    margin-bottom:8px;
+}
+
+.settings-row-title{
+    font-size:13px;
+    font-weight:600;
+}
+
+.settings-row-description{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:4px;
+}
+
+.settings-control{
+    min-width:200px;
+}
+
+/* PROVIDERS */
+
+.provider-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.provider-card{
+    border:1px solid var(--border);
+    background:var(--panel);
+    border-radius:14px;
+    padding:16px;
+}
+
+.provider-card h3{
+    margin:0 0 4px;
+    font-size:14px;
+}
+
+.provider-card p{
+    margin:0 0 14px;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.provider-status{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:10px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.open{
+    display:flex;
+}
+
+.modal-box{
+    width:min(600px,100%);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:20px;
+    max-height:90vh;
+    overflow:auto;
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.modal-head h2{
+    font-size:17px;
+    margin:0;
+}
+
+/* TOAST */
+
+.toast-container{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:200;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.toast{
+    background:var(--panel);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    border-radius:10px;
+    padding:12px 15px;
+    font-size:12px;
+    min-width:220px;
+    animation:slideIn .25s ease;
+}
+
+.toast.success{
+    border-color:rgba(57,217,138,.4);
+}
+
+.toast.error{
+    border-color:rgba(255,93,115,.4);
+}
+
+@keyframes slideIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+}
+
+.empty-icon{
+    font-size:35px;
+    margin-bottom:12px;
+}
+
+/* MOBILE */
+
+.mobile-menu{
+    display:none;
+}
+
+@media(max-width:1100px){
+    .create-layout{
+        grid-template-columns:1fr;
+    }
+
+    .generate-area{
+        position:static;
+    }
+
+    .editor-layout{
+        grid-template-columns:190px minmax(0,1fr);
+    }
+
+    .editor-layout > .editor-panel:last-child{
+        display:none;
+    }
+
+    .projects{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .content{
+        padding:18px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .projects{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .preset-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .speaker{
+        grid-template-columns:1fr;
+    }
+
+    .provider-grid{
+        grid-template-columns:1fr;
+    }
+
+    .settings-row{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .settings-control{
+        width:100%;
+    }
+
+    .editor-layout{
+        display:block;
+        height:auto;
+    }
+
+    .editor-layout > .editor-panel:first-child{
+        display:none;
+    }
+
+    .editor-main{
+        height:calc(100vh - 120px);
+        min-height:600px;
+    }
+
+    .hero{
+        padding:24px;
+    }
+
+    .hero h1{
+        font-size:27px;
+    }
+}
+
+/* PRINT */
+
 @media print{
-  @page{size:A4;margin:18mm 17mm;}
-  body{background:white !important;color:#111 !important;}
-  .sidebar,.topbar,.no-print,.modal-head,.reader-actions{display:none !important;}
-  .main{margin:0 !important;width:100% !important;}
-  .content{padding:0 !important;max-width:none !important;}
-  #readerModal{position:static !important;display:block !important;background:white !important;padding:0 !important;}
-  #readerModal .modal-box{box-shadow:none !important;max-height:none !important;width:100% !important;border:0 !important;}
-  .reader-content{max-height:none !important;overflow:visible !important;padding:0 !important;color:#111 !important;font-size:11.5pt !important;line-height:1.65 !important;}
-  .reader-title{font-size:23pt !important;color:#111 !important;page-break-after:avoid;}
-  .pdf-header{display:block !important;}
+    body{
+        background:white;
+        color:black;
+    }
+
+    .sidebar,
+    .topbar,
+    .toolbar,
+    .editor-footer,
+    .editor-layout > .editor-panel:first-child,
+    .editor-layout > .editor-panel:last-child{
+        display:none !important;
+    }
+
+    .main{
+        margin:0;
+        width:100%;
+    }
+
+    .editor-layout{
+        display:block;
+        height:auto;
+    }
+
+    .editor-panel{
+        border:0;
+    }
+
+    .script-editor{
+        color:black;
+        background:white;
+        min-height:100vh;
+    }
 }
-.pdf-header{display:none;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:25px;}
-.pdf-header h1{margin:0 0 4px;}
-.pdf-header p{margin:0;font-size:10pt;color:#555;}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        <div class="logo-mark">✦</div>
+        <span>ScriptForge</span>
+    </div>
+
+    <div class="nav-label">Workspace</div>
+
+    <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">⌂</span>
+        <span data-i18n="dashboard">Dashboard</span>
+    </button>
+
+    <button class="nav-item" data-page="create">
+        <span class="nav-icon">＋</span>
+        <span data-i18n="newScript">New Script</span>
+    </button>
+
+    <button class="nav-item" data-page="projects">
+        <span class="nav-icon">▣</span>
+        <span data-i18n="projects">My Projects</span>
+    </button>
+
+    <button class="nav-item" data-page="editor">
+        <span class="nav-icon">✎</span>
+        <span data-i18n="editor">Script Editor</span>
+    </button>
+
+    <div class="nav-label">Configuration</div>
+
+    <button class="nav-item" data-page="providers">
+        <span class="nav-icon">⚡</span>
+        <span data-i18n="aiProviders">AI Providers</span>
+    </button>
+
+    <button class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙</span>
+        <span data-i18n="settings">Settings</span>
+    </button>
+
+    <div class="sidebar-bottom">
+
+        <div class="status-card">
+            <div class="status-title">LOCAL WORKSPACE</div>
+            <div class="status-row">
+                <span class="dot"></span>
+                <span>Saved in browser</span>
+            </div>
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- MAIN -->
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button class="icon-btn mobile-menu" id="mobileMenu">☰</button>
+            <div class="page-title" id="pageTitle">Dashboard</div>
+        </div>
+
+        <div class="top-actions">
+
+            <button class="icon-btn" id="themeBtn" title="Toggle theme">
+                ◐
+            </button>
+
+            <button class="btn btn-primary" onclick="showPage('create')">
+                + New Script
+            </button>
+
+        </div>
+
+    </header>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+
+        <section class="page active" id="page-dashboard">
+
+            <div class="hero">
+
+                <h1>Turn ideas into powerful scripts.</h1>
+
+                <p>
+                    Create production-ready video scripts with AI.
+                    Choose your video format, duration, language,
+                    tone and speakers — then generate, edit and export.
+                </p>
+
+                <div class="hero-actions">
+
+                    <button class="btn btn-primary" onclick="showPage('create')">
+                        ✦ Create New Script
+                    </button>
+
+                    <button class="btn" onclick="showPage('projects')">
+                        View Projects
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <div class="stat-label">TOTAL PROJECTS</div>
+                    <div class="stat-value" id="statProjects">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">SCRIPTS GENERATED</div>
+                    <div class="stat-value" id="statScripts">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">WORDS WRITTEN</div>
+                    <div class="stat-value" id="statWords">0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">CURRENT LANGUAGE</div>
+                    <div class="stat-value" id="statLanguage">English</div>
+                </div>
+
+            </div>
+
+            <div class="section-head">
+                <h2>Recent Projects</h2>
+                <button class="btn btn-sm" onclick="showPage('projects')">View all</button>
+            </div>
+
+            <div class="projects" id="recentProjects"></div>
+
+        </section>
+
+
+        <!-- CREATE -->
+
+        <section class="page" id="page-create">
+
+            <div class="section-head">
+                <div>
+                    <h2 style="margin:0 0 5px;">Create New Script</h2>
+                    <div style="font-size:12px;color:var(--muted);">
+                        Configure your video and let AI build the script.
+                    </div>
+                </div>
+            </div>
+
+            <div class="create-layout">
+
+                <div>
+
+                    <!-- BASIC -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>01 · Video Brief</h3>
+                            <span>Required</span>
+                        </div>
+
+                        <div class="field">
+
+                            <label>VIDEO TOPIC</label>
+
+                            <input
+                                id="topic"
+                                type="text"
+                                placeholder="e.g. The future of artificial intelligence in India"
+                            >
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>ADDITIONAL INSTRUCTIONS</label>
+
+                            <textarea
+                                id="instructions"
+                                placeholder="Tell the AI what you want. Mention your audience, key points, examples, CTA, references or anything else..."
+                            ></textarea>
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>REFERENCE MATERIAL (OPTIONAL)</label>
+
+                            <textarea
+                                id="reference"
+                                style="min-height:90px;"
+                                placeholder="Paste notes, research, facts, source material or an existing outline here..."
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FORMAT -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>02 · Video Format</h3>
+                            <span>Choose a preset</span>
+                        </div>
+
+                        <div class="preset-grid" id="formatPresets">
+
+                            <div class="preset selected" data-value="YouTube Video">
+                                <div class="preset-icon">▶</div>
+                                YouTube
+                            </div>
+
+                            <div class="preset" data-value="Podcast">
+                                <div class="preset-icon">🎙</div>
+                                Podcast
+                            </div>
+
+                            <div class="preset" data-value="Documentary">
+                                <div class="preset-icon">🎬</div>
+                                Documentary
+                            </div>
+
+                            <div class="preset" data-value="News">
+                                <div class="preset-icon">📰</div>
+                                News
+                            </div>
+
+                            <div class="preset" data-value="Educational">
+                                <div class="preset-icon">📚</div>
+                                Educational
+                            </div>
+
+                            <div class="preset" data-value="Storytelling">
+                                <div class="preset-icon">📖</div>
+                                Storytelling
+                            </div>
+
+                            <div class="preset" data-value="Gaming">
+                                <div class="preset-icon">🎮</div>
+                                Gaming
+                            </div>
+
+                            <div class="preset" data-value="Interview">
+                                <div class="preset-icon">🎤</div>
+                                Interview
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DURATION -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>03 · Duration & Language</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>VIDEO DURATION</label>
+
+                                <select id="duration">
+                                    <option value="1">1 minute</option>
+                                    <option value="3">3 minutes</option>
+                                    <option value="5" selected>5 minutes</option>
+                                    <option value="10">10 minutes</option>
+                                    <option value="15">15 minutes</option>
+                                    <option value="20">20 minutes</option>
+                                    <option value="30">30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>SCRIPT LANGUAGE</label>
+
+                                <select id="scriptLanguage">
+
+                                    <option value="English" selected>🇺🇸 English</option>
+                                    <option value="Chinese">🇨🇳 中文</option>
+                                    <option value="Hindi">🇮🇳 हिन्दी</option>
+                                    <option value="Spanish">🇪🇸 Español</option>
+                                    <option value="French">🇫🇷 Français</option>
+                                    <option value="German">🇩🇪 Deutsch</option>
+                                    <option value="Japanese">🇯🇵 日本語</option>
+                                    <option value="Korean">🇰🇷 한국어</option>
+                                    <option value="Portuguese">🇵🇹 Português</option>
+                                    <option value="Arabic">🇸🇦 العربية</option>
+                                    <option value="Italian">🇮🇹 Italiano</option>
+                                    <option value="Indonesian">🇮🇩 Bahasa Indonesia</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STYLE -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>04 · Writing Style</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>TONE</label>
+
+                                <select id="tone">
+
+                                    <option>Professional</option>
+                                    <option selected>Conversational</option>
+                                    <option>Friendly</option>
+                                    <option>Energetic</option>
+                                    <option>Funny</option>
+                                    <option>Serious</option>
+                                    <option>Dramatic</option>
+                                    <option>Inspirational</option>
+                                    <option>Cinematic</option>
+                                    <option>Educational</option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>STRUCTURE</label>
+
+                                <select id="structure">
+
+                                    <option selected>Hook → Intro → Main Content → Conclusion</option>
+                                    <option>Hook → Story → Lesson → CTA</option>
+                                    <option>Question → Explanation → Examples → Summary</option>
+                                    <option>Headline → Details → Analysis → Conclusion</option>
+                                    <option>Cold Open → Context → Story → Ending</option>
+                                    <option>Custom / Natural Flow</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>CREATIVITY</label>
+
+                            <div class="range-row">
+
+                                <input
+                                    type="range"
+                                    id="creativity"
+                                    min="0"
+                                    max="100"
+                                    value="65"
+                                >
+
+                                <div class="range-value" id="creativityValue">
+                                    65%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SPEAKERS -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>05 · Speakers</h3>
+                            <button class="btn btn-sm" onclick="addSpeaker()">+ Add Speaker</button>
+                        </div>
+
+                        <div class="field">
+
+                            <label>SPEAKER MODE</label>
+
+                            <select id="speakerMode">
+
+                                <option value="single" selected>Single Narrator</option>
+                                <option value="podcast2">Two-Person Podcast</option>
+                                <option value="multi">Multi-Person</option>
+                                <option value="documentary">Documentary</option>
+                                <option value="interview">Interview</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="speaker-list" id="speakerList"></div>
+
+                    </div>
+
+
+                    <!-- VISUALS -->
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>06 · Production Options</h3>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>VISUAL SUGGESTIONS</label>
+
+                                <select id="visuals">
+                                    <option value="No">No visual suggestions</option>
+                                    <option value="Yes" selected>Generate visual / B-roll suggestions</option>
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>CALL TO ACTION</label>
+
+                                <select id="cta">
+                                    <option>None</option>
+                                    <option selected>Natural CTA</option>
+                                    <option>Strong CTA</option>
+                                    <option>Subscribe & Follow</option>
+                                    <option>Custom CTA</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT -->
+
+                <aside class="generate-area">
+
+                    <div class="card">
+
+                        <div class="card-title">
+                            <h3>Script Estimate</h3>
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">TARGET DURATION</div>
+                            <div class="info-number" id="estimateDuration">05:00</div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">ESTIMATED WORDS</div>
+                            <div class="info-number" id="estimateWords">750</div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">SPEAKING SPEED</div>
+                            <div class="info-number">150 WPM</div>
+
+                        </div>
+
+                        <div class="provider-mini">
+
+                            <div class="provider-mini-head">
+
+                                <div class="provider-name" id="activeProviderName">
+                                    Demo Generator
+                                </div>
+
+                                <div class="connection" id="activeProviderStatus">
+                                    Local
+                                </div>
+
+                            </div>
+
+                            <select id="quickProvider"></select>
+
+                        </div>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary generate-btn"
+                            id="generateBtn"
+                            onclick="generateScript()"
+                        >
+                            ✦ Generate Script
+                        </button>
+
+                        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;">
+                            Your API key stays in your browser.
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROJECTS -->
+
+        <section class="page" id="page-projects">
+
+            <div class="section-head">
+
+                <div>
+                    <h2 style="margin:0 0 5px;">My Projects</h2>
+                    <div style="font-size:12px;color:var(--muted);">
+                        Projects are stored locally in this browser.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="showPage('create')">
+                    + New Script
+                </button>
+
+            </div>
+
+            <div class="projects" id="allProjects"></div>
+
+        </section>
+
+
+        <!-- EDITOR -->
+
+        <section class="page" id="page-editor">
+
+            <div class="editor-layout">
+
+                <div class="editor-panel">
+
+                    <div class="panel-head">
+                        SCRIPT OUTLINE
+                    </div>
+
+                    <div class="chapter-list" id="chapterList">
+
+                        <div class="chapter active">
+                            Introduction
+                        </div>
+
+                        <div class="chapter">
+                            Main Content
+                        </div>
+
+                        <div class="chapter">
+                            Conclusion
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="editor-panel editor-main">
+
+                    <div class="toolbar">
+
+                        <button onclick="formatText('bold')"><b>B</b></button>
+
+                        <button onclick="formatText('italic')"><i>I</i></button>
+
+                        <button onclick="aiEdit('Improve the selected or relevant section and make it more engaging.')">
+                            ✦ Improve
+                        </button>
+
+                        <button onclick="aiEdit('Rewrite this script to sound more natural and conversational.')">
+                            Rewrite
+                        </button>
+
+                        <button onclick="aiEdit('Make this script shorter while preserving the important information.')">
+                            Shorten
+                        </button>
+
+                        <button onclick="aiEdit('Expand this script with useful detail and examples.')">
+                            Expand
+                        </button>
+
+                        <button onclick="translateScript()">
+                            Translate
+                        </button>
+
+                        <div style="margin-left:auto;display:flex;gap:5px;">
+
+                            <button onclick="saveCurrentProject()">
+                                Save
+                            </button>
+
+                            <button onclick="printScript()">
+                                Print / PDF
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <textarea
+                        class="script-editor"
+                        id="scriptEditor"
+                        placeholder="Your generated script will appear here..."
+                        spellcheck="true"
+                    ></textarea>
+
+                    <div class="editor-footer">
+
+                        <div>
+                            <span id="editorWords">0</span> words
+                            ·
+                            <span id="editorChars">0</span> characters
+                        </div>
+
+                        <div>
+                            Estimated speaking time:
+                            <span id="editorTime">00:00</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="editor-panel">
+
+                    <div class="panel-head">
+                        AI TOOLS
+                    </div>
+
+                    <div class="ai-tools">
+
+                        <button class="ai-tool" onclick="aiEdit('Create a stronger opening hook.')">
+                            🎯 Better Hook
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the writing more cinematic.')">
+                            🎬 Cinematic
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the writing simpler and easier to understand.')">
+                            🧠 Simplify
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Make the dialogue more natural.')">
+                            🎙 Natural
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Add useful examples.')">
+                            💡 Examples
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Create a stronger conclusion.')">
+                            🚀 Ending
+                        </button>
+
+                        <button class="ai-tool" onclick="aiEdit('Improve the pacing of this script.')">
+                            ⏱ Pacing
+                        </button>
+
+                        <button class="ai-tool" onclick="analyzeScript()">
+                            📊 Analyze
+                        </button>
+
+                    </div>
+
+                    <div style="padding:14px;">
+
+                        <div class="info-box">
+
+                            <div class="info-label">SCRIPT QUALITY</div>
+
+                            <div
+                                class="info-number"
+                                id="qualityScore"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">FORMAT</div>
+
+                            <div
+                                id="editorFormat"
+                                style="font-size:13px;font-weight:700;margin-top:5px;"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">LANGUAGE</div>
+
+                            <div
+                                id="editorLanguage"
+                                style="font-size:13px;font-weight:700;margin-top:5px;"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROVIDERS -->
+
+        <section class="page" id="page-providers">
+
+            <div class="section-head">
+
+                <div>
+                    <h2 style="margin:0 0 5px;">AI Providers</h2>
+
+                    <div style="font-size:12px;color:var(--muted);">
+                        Connect your own AI API. Keys are stored locally.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="openProviderModal()">
+                    + Add Provider
+                </button>
+
+            </div>
+
+            <div class="provider-grid" id="providerGrid"></div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="page" id="page-settings">
+
+            <div class="settings-layout">
+
+                <div class="settings-section">
+
+                    <h2>General</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Interface Language</div>
+                            <div class="settings-row-description">
+                                Language used throughout the application.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="uiLanguage">
+
+                                <option value="English" selected>English</option>
+                                <option value="Chinese">中文</option>
+                                <option value="Hindi">हिन्दी</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Appearance</div>
+                            <div class="settings-row-description">
+                                Choose light, dark or system appearance.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="appearance">
+
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="system">System</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Default Script Language</div>
+                            <div class="settings-row-description">
+                                Used when creating a new script.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="defaultScriptLanguage">
+
+                                <option>English</option>
+                                <option>Chinese</option>
+                                <option>Hindi</option>
+                                <option>Spanish</option>
+                                <option>French</option>
+                                <option>German</option>
+                                <option>Japanese</option>
+                                <option>Korean</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-section">
+
+                    <h2>Script Defaults</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Default Speaking Speed</div>
+                            <div class="settings-row-description">
+                                Used to estimate script length.
+                            </div>
+                        </div>
+
+                        <div class="settings-control">
+
+                            <select id="defaultWpm">
+
+                                <option value="130">130 WPM — Slow</option>
+                                <option value="150" selected>150 WPM — Normal</option>
+                                <option value="170">170 WPM — Fast</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Auto Save</div>
+                            <div class="settings-row-description">
+                                Automatically save scripts to browser storage.
+                            </div>
+                        </div>
+
+                        <label style="cursor:pointer;">
+                            <input
+                                type="checkbox"
+                                id="autoSave"
+                                checked
+                                style="width:auto;"
+                            >
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-section">
+
+                    <h2>Data</h2>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Export Workspace</div>
+                            <div class="settings-row-description">
+                                Export all locally saved projects as JSON.
+                            </div>
+                        </div>
+
+                        <button class="btn" onclick="exportWorkspace()">
+                            Export
+                        </button>
+
+                    </div>
+
+                    <div class="settings-row">
+
+                        <div>
+                            <div class="settings-row-title">Clear Local Data</div>
+                            <div class="settings-row-description">
+                                Permanently remove projects and API settings from this browser.
+                            </div>
+                        </div>
+
+                        <button class="btn btn-danger" onclick="clearData()">
+                            Clear Data
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+</div>
+
+
+<!-- PROVIDER MODAL -->
+
+<div class="modal" id="providerModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>Add AI Provider</h2>
+
+            <button class="icon-btn" onclick="closeProviderModal()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="field">
+
+            <label>PROVIDER</label>
+
+            <select id="providerType">
+
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Google Gemini</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="groq">Groq</option>
+                <option value="custom">Custom OpenAI-Compatible</option>
+
+            </select>
+
+        </div>
+
+        <div class="field">
+
+            <label>DISPLAY NAME</label>
+
+            <input
+                id="providerName"
+                placeholder="My OpenAI"
+            >
+
+        </div>
+
+        <div class="field">
+
+            <label>API KEY</label>
+
+            <input
+                id="providerKey"
+                type="password"
+                placeholder="Enter API key"
+            >
+
+        </div>
+
+        <div class="field">
+
+            <label>MODEL</label>
+
+            <input
+                id="providerModel"
+                placeholder="Model name"
+            >
+
+        </div>
+
+        <div class="field" id="baseUrlField">
+
+            <label>BASE URL</label>
+
+            <input
+                id="providerBaseUrl"
+                placeholder="https://api.example.com/v1"
+            >
+
+        </div>
+
+        <div
+            style="
+                padding:11px;
+                border-radius:9px;
+                background:rgba(245,185,66,.08);
+                border:1px solid rgba(245,185,66,.2);
+                color:var(--muted);
+                font-size:11px;
+                line-height:1.5;
+                margin-bottom:15px;
+            "
+        >
+            API keys are stored in this browser's localStorage.
+            Never use a personal API key on a public or shared computer.
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+
+            <button class="btn" onclick="closeProviderModal()">
+                Cancel
+            </button>
+
+            <button class="btn btn-primary" onclick="saveProvider()">
+                Save Provider
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script>
+
+/* =========================================================
+   SCRIPT FORGE
+   Single-file static AI script studio
+   ========================================================= */
+
+
+/* -----------------------------
+   STORAGE
+----------------------------- */
+
+const STORAGE = {
+    projects: "scriptforge_projects",
+    providers: "scriptforge_providers",
+    settings: "scriptforge_settings",
+    counter: "scriptforge_counter"
+};
+
+let projects = JSON.parse(
+    localStorage.getItem(STORAGE.projects) || "[]"
+);
+
+let providers = JSON.parse(
+    localStorage.getItem(STORAGE.providers) || "[]"
+);
+
+let settings = JSON.parse(
+    localStorage.getItem(STORAGE.settings) || "{}"
+);
+
+let currentProject = null;
+
+let selectedFormat = "YouTube Video";
+
+
+/* -----------------------------
+   DEFAULT SETTINGS
+----------------------------- */
+
+if(!settings.appearance){
+    settings.appearance = "dark";
+}
+
+if(!settings.uiLanguage){
+    settings.uiLanguage = "English";
+}
+
+if(!settings.defaultScriptLanguage){
+    settings.defaultScriptLanguage = "English";
+}
+
+if(!settings.defaultWpm){
+    settings.defaultWpm = 150;
+}
+
+if(settings.autoSave === undefined){
+    settings.autoSave = true;
+}
+
+saveSettings();
+
+
+/* -----------------------------
+   TRANSLATIONS
+----------------------------- */
+
+const translations = {
+
+    English: {
+        dashboard:"Dashboard",
+        newScript:"New Script",
+        projects:"My Projects",
+        editor:"Script Editor",
+        aiProviders:"AI Providers",
+        settings:"Settings"
+    },
+
+    Chinese: {
+        dashboard:"仪表板",
+        newScript:"新建脚本",
+        projects:"我的项目",
+        editor:"脚本编辑器",
+        aiProviders:"AI 服务商",
+        settings:"设置"
+    },
+
+    Hindi: {
+        dashboard:"डैशबोर्ड",
+        newScript:"नई स्क्रिप्ट",
+        projects:"मेरे प्रोजेक्ट",
+        editor:"स्क्रिप्ट एडिटर",
+        aiProviders:"AI प्रदाता",
+        settings:"सेटिंग्स"
+    }
+
+};
+
+
+/* -----------------------------
+   INIT
+----------------------------- */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    applyAppearance();
+
+    loadSettingsUI();
+
+    initNavigation();
+
+    initPresets();
+
+    initSpeakers();
+
+    initInputs();
+
+    renderProjects();
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    updateStats();
+
+    updateEstimate();
+
+    updateEditorStats();
+
+});
+
+
+/* -----------------------------
+   NAVIGATION
+----------------------------- */
+
+function initNavigation(){
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+
+        item.addEventListener("click", () => {
+
+            showPage(item.dataset.page);
+
+            document
+                .getElementById("sidebar")
+                .classList.remove("open");
+
+        });
+
+    });
+
+}
+
+
+function showPage(page){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(p => p.classList.remove("active"));
+
+    const target = document.getElementById("page-" + page);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(item => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.page === page
+            );
+
+        });
+
+    const titles = {
+        dashboard:"Dashboard",
+        create:"New Script",
+        projects:"My Projects",
+        editor:"Script Editor",
+        providers:"AI Providers",
+        settings:"Settings"
+    };
+
+    document.getElementById("pageTitle").textContent =
+        titles[page] || "ScriptForge";
+
+    if(page === "projects"){
+        renderProjects();
+    }
+
+    if(page === "providers"){
+        renderProviders();
+    }
+
+    if(page === "dashboard"){
+        updateStats();
+        renderRecentProjects();
+    }
+
+}
+
+
+/* -----------------------------
+   MOBILE
+----------------------------- */
+
+document
+    .getElementById("mobileMenu")
+    .addEventListener("click", () => {
+
+        document
+            .getElementById("sidebar")
+            .classList.toggle("open");
+
+    });
+
+
+/* -----------------------------
+   THEME
+----------------------------- */
+
+document
+    .getElementById("themeBtn")
+    .addEventListener("click", () => {
+
+        if(settings.appearance === "dark"){
+            settings.appearance = "light";
+        }else{
+            settings.appearance = "dark";
+        }
+
+        saveSettings();
+
+        applyAppearance();
+
+        document.getElementById("appearance").value =
+            settings.appearance;
+
+    });
+
+
+function applyAppearance(){
+
+    let mode = settings.appearance;
+
+    if(mode === "system"){
+
+        if(
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: light)").matches
+        ){
+            document.body.classList.add("light");
+        }else{
+            document.body.classList.remove("light");
+        }
+
+    }else if(mode === "light"){
+
+        document.body.classList.add("light");
+
+    }else{
+
+        document.body.classList.remove("light");
+
+    }
+
+}
+
+
+/* -----------------------------
+   INPUTS
+----------------------------- */
+
+function initInputs(){
+
+    document
+        .getElementById("duration")
+        .addEventListener("change", updateEstimate);
+
+    document
+        .getElementById("scriptLanguage")
+        .addEventListener("change", updateEstimate);
+
+    document
+        .getElementById("creativity")
+        .addEventListener("input", () => {
+
+            document.getElementById("creativityValue").textContent =
+                document.getElementById("creativity").value + "%";
+
+        });
+
+    document
+        .getElementById("speakerMode")
+        .addEventListener("change", updateSpeakerMode);
+
+    document
+        .getElementById("scriptEditor")
+        .addEventListener("input", () => {
+
+            updateEditorStats();
+
+            if(
+                settings.autoSave &&
+                currentProject
+            ){
+                currentProject.content =
+                    document.getElementById("scriptEditor").value;
+
+                saveCurrentProject(false);
+            }
+
+        });
+
+    document
+        .getElementById("appearance")
+        .addEventListener("change", e => {
+
+            settings.appearance = e.target.value;
+
+            saveSettings();
+
+            applyAppearance();
+
+        });
+
+    document
+        .getElementById("uiLanguage")
+        .addEventListener("change", e => {
+
+            settings.uiLanguage = e.target.value;
+
+            saveSettings();
+
+            applyTranslations();
+
+        });
+
+    document
+        .getElementById("defaultScriptLanguage")
+        .addEventListener("change", e => {
+
+            settings.defaultScriptLanguage = e.target.value;
+
+            saveSettings();
+
+            document.getElementById("scriptLanguage").value =
+                e.target.value;
+
+        });
+
+    document
+        .getElementById("defaultWpm")
+        .addEventListener("change", e => {
+
+            settings.defaultWpm =
+                Number(e.target.value);
+
+            saveSettings();
+
+            updateEstimate();
+
+            updateEditorStats();
+
+        });
+
+    document
+        .getElementById("autoSave")
+        .addEventListener("change", e => {
+
+            settings.autoSave = e.target.checked;
+
+            saveSettings();
+
+        });
+
+}
+
+
+/* -----------------------------
+   FORMAT PRESETS
+----------------------------- */
+
+function initPresets(){
+
+    document
+        .querySelectorAll("#formatPresets .preset")
+        .forEach(preset => {
+
+            preset.addEventListener("click", () => {
+
+                document
+                    .querySelectorAll("#formatPresets .preset")
+                    .forEach(p =>
+                        p.classList.remove("selected")
+                    );
+
+                preset.classList.add("selected");
+
+                selectedFormat =
+                    preset.dataset.value;
+
+                const mode =
+                    document.getElementById("speakerMode");
+
+                if(selectedFormat === "Podcast"){
+                    mode.value = "podcast2";
+                    updateSpeakerMode();
+                }
+
+                if(selectedFormat === "Documentary"){
+                    mode.value = "documentary";
+                    updateSpeakerMode();
+                }
+
+                if(selectedFormat === "Interview"){
+                    mode.value = "interview";
+                    updateSpeakerMode();
+                }
+
+            });
+
+        });
+
+}
+
+
+/* -----------------------------
+   SPEAKERS
+----------------------------- */
+
+let speakers = [
+    {
+        name:"Narrator",
+        role:"Narrator",
+        personality:"Professional"
+    }
+];
+
+
+function initSpeakers(){
+
+    renderSpeakers();
+
+}
+
+
+function renderSpeakers(){
+
+    const container =
+        document.getElementById("speakerList");
+
+    container.innerHTML = "";
+
+    speakers.forEach((speaker,index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "speaker";
+
+        div.innerHTML = `
+
+            <div class="field">
+                <label>NAME</label>
+                <input
+                    value="${escapeHtml(speaker.name)}"
+                    onchange="updateSpeaker(${index},'name',this.value)"
+                >
+            </div>
+
+            <div class="field">
+                <label>ROLE</label>
+                <select
+                    onchange="updateSpeaker(${index},'role',this.value)"
+                >
+                    ${roleOptions(speaker.role)}
+                </select>
+            </div>
+
+            <div class="field">
+                <label>PERSONALITY</label>
+                <select
+                    onchange="updateSpeaker(${index},'personality',this.value)"
+                >
+                    ${personalityOptions(speaker.personality)}
+                </select>
+            </div>
+
+            <button
+                class="btn btn-sm btn-danger"
+                onclick="removeSpeaker(${index})"
+            >
+                ×
+            </button>
+
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+function roleOptions(selected){
+
+    const options = [
+        "Narrator",
+        "Host",
+        "Co-host",
+        "Guest",
+        "Expert",
+        "Reporter",
+        "Anchor",
+        "Character",
+        "Interviewer",
+        "Interviewee"
+    ];
+
+    return options.map(x =>
+        `<option ${x === selected ? "selected" : ""}>${x}</option>`
+    ).join("");
+
+}
+
+
+function personalityOptions(selected){
+
+    const options = [
+        "Professional",
+        "Friendly",
+        "Funny",
+        "Serious",
+        "Energetic",
+        "Calm",
+        "Dramatic",
+        "Sarcastic",
+        "Inspirational"
+    ];
+
+    return options.map(x =>
+        `<option ${x === selected ? "selected" : ""}>${x}</option>`
+    ).join("");
+
+}
+
+
+function addSpeaker(){
+
+    speakers.push({
+        name:"Speaker " + (speakers.length + 1),
+        role:"Guest",
+        personality:"Friendly"
+    });
+
+    renderSpeakers();
+
+}
+
+
+function removeSpeaker(index){
+
+    if(speakers.length <= 1){
+        toast("At least one speaker is required.","error");
+        return;
+    }
+
+    speakers.splice(index,1);
+
+    renderSpeakers();
+
+}
+
+
+function updateSpeaker(index,key,value){
+
+    speakers[index][key] = value;
+
+}
+
+
+function updateSpeakerMode(){
+
+    const mode =
+        document.getElementById("speakerMode").value;
+
+    if(mode === "single"){
+
+        speakers = [
+            {
+                name:"Narrator",
+                role:"Narrator",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "podcast2"){
+
+        speakers = [
+            {
+                name:"Alex",
+                role:"Host",
+                personality:"Friendly"
+            },
+            {
+                name:"Jordan",
+                role:"Guest",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "documentary"){
+
+        speakers = [
+            {
+                name:"Narrator",
+                role:"Narrator",
+                personality:"Cinematic"
+            },
+            {
+                name:"Expert",
+                role:"Expert",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    if(mode === "interview"){
+
+        speakers = [
+            {
+                name:"Host",
+                role:"Interviewer",
+                personality:"Friendly"
+            },
+            {
+                name:"Guest",
+                role:"Interviewee",
+                personality:"Professional"
+            }
+        ];
+
+    }
+
+    renderSpeakers();
+
+}
+
+
+/* -----------------------------
+   ESTIMATE
+----------------------------- */
+
+function getWPM(){
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    if(language === "Chinese"){
+        return 275;
+    }
+
+    if(language === "Hindi"){
+        return 135;
+    }
+
+    return Number(settings.defaultWpm || 150);
+
+}
+
+
+function updateEstimate(){
+
+    const minutes =
+        Number(
+            document.getElementById("duration").value
+        );
+
+    const wpm = getWPM();
+
+    const words =
+        Math.round(minutes * wpm);
+
+    document.getElementById("estimateWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("estimateDuration").textContent =
+        formatTime(minutes * 60);
+
+}
+
+
+function formatTime(seconds){
+
+    seconds = Math.max(0,Math.round(seconds));
+
+    const h =
+        Math.floor(seconds / 3600);
+
+    const m =
+        Math.floor((seconds % 3600) / 60);
+
+    const s =
+        seconds % 60;
+
+    if(h > 0){
+
+        return (
+            String(h).padStart(2,"0") +
+            ":" +
+            String(m).padStart(2,"0") +
+            ":" +
+            String(s).padStart(2,"0")
+        );
+
+    }
+
+    return (
+        String(m).padStart(2,"0") +
+        ":" +
+        String(s).padStart(2,"0")
+    );
+
+}
+
+
+/* -----------------------------
+   GENERATION
+----------------------------- */
+
+async function generateScript(){
+
+    const topic =
+        document.getElementById("topic").value.trim();
+
+    if(!topic){
+
+        toast(
+            "Please enter a video topic first.",
+            "error"
+        );
+
+        document.getElementById("topic").focus();
+
+        return;
+
+    }
+
+    const button =
+        document.getElementById("generateBtn");
+
+    button.disabled = true;
+
+    button.textContent =
+        "Generating...";
+
+    try{
+
+        const providerId =
+            document.getElementById("quickProvider").value;
+
+        let content;
+
+        if(providerId === "demo"){
+
+            await delay(700);
+
+            content =
+                generateDemoScript();
+
+        }else{
+
+            const provider =
+                providers.find(
+                    p => p.id === providerId
+                );
+
+            if(!provider){
+
+                throw new Error(
+                    "Provider not found."
+                );
+
+            }
+
+            content =
+                await callAI(provider,buildPrompt());
+
+        }
+
+        const project = {
+
+            id:Date.now(),
+
+            title:topic,
+
+            topic,
+
+            format:selectedFormat,
+
+            duration:Number(
+                document.getElementById("duration").value
+            ),
+
+            language:
+                document.getElementById("scriptLanguage").value,
+
+            tone:
+                document.getElementById("tone").value,
+
+            speakers:
+                JSON.parse(JSON.stringify(speakers)),
+
+            content,
+
+            createdAt:new Date().toISOString(),
+
+            updatedAt:new Date().toISOString()
+
+        };
+
+        projects.unshift(project);
+
+        saveProjects();
+
+        currentProject = project;
+
+        loadProjectIntoEditor(project);
+
+        updateStats();
+
+        renderProjects();
+
+        showPage("editor");
+
+        toast(
+            "Script generated successfully.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        toast(
+            error.message ||
+            "Generation failed.",
+            "error"
+        );
+
+    }finally{
+
+        button.disabled = false;
+
+        button.textContent =
+            "✦ Generate Script";
+
+    }
+
+}
+
+
+/* -----------------------------
+   PROMPT
+----------------------------- */
+
+function buildPrompt(){
+
+    const topic =
+        document.getElementById("topic").value;
+
+    const instructions =
+        document.getElementById("instructions").value;
+
+    const reference =
+        document.getElementById("reference").value;
+
+    const duration =
+        document.getElementById("duration").value;
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    const tone =
+        document.getElementById("tone").value;
+
+    const structure =
+        document.getElementById("structure").value;
+
+    const creativity =
+        document.getElementById("creativity").value;
+
+    const visual =
+        document.getElementById("visuals").value;
+
+    const cta =
+        document.getElementById("cta").value;
+
+    const wpm =
+        getWPM();
+
+    const targetWords =
+        Math.round(
+            Number(duration) * wpm
+        );
+
+    let speakerText =
+        speakers.map(
+            s =>
+                `${s.name} — ${s.role} — ${s.personality}`
+        ).join("\n");
+
+    return `
+
+You are an expert professional video script writer.
+
+Create a production-ready video script.
+
+VIDEO TOPIC:
+${topic}
+
+VIDEO FORMAT:
+${selectedFormat}
+
+TARGET DURATION:
+${duration} minutes
+
+TARGET WORD COUNT:
+approximately ${targetWords} words
+
+SCRIPT LANGUAGE:
+${language}
+
+TONE:
+${tone}
+
+STRUCTURE:
+${structure}
+
+CREATIVITY:
+${creativity}/100
+
+SPEAKERS:
+${speakerText}
+
+VISUAL SUGGESTIONS:
+${visual}
+
+CALL TO ACTION:
+${cta}
+
+ADDITIONAL INSTRUCTIONS:
+${instructions || "None"}
+
+REFERENCE MATERIAL:
+${reference || "None"}
+
+Requirements:
+
+1. Write naturally for spoken narration.
+2. Match the requested duration as closely as possible.
+3. Use the selected language.
+4. Make the opening engaging.
+5. Keep paragraphs short and easy to speak.
+6. If there are multiple speakers, clearly label every speaker.
+7. Make conversations sound natural.
+8. Do not add unnecessary meta commentary.
+9. If visual suggestions are requested, include [VISUAL: ...] lines.
+10. Include a strong but natural conclusion.
+11. Do not claim that you accessed information that was not provided.
+12. Return only the finished script.
+
+    `;
+
+}
+
+
+/* -----------------------------
+   AI API
+----------------------------- */
+
+async function callAI(provider,prompt){
+
+    if(
+        provider.type === "openai" ||
+        provider.type === "openrouter" ||
+        provider.type === "deepseek" ||
+        provider.type === "groq" ||
+        provider.type === "custom"
+    ){
+
+        return await callOpenAICompatible(
+            provider,
+            prompt
+        );
+
+    }
+
+    if(provider.type === "anthropic"){
+
+        return await callAnthropic(
+            provider,
+            prompt
+        );
+
+    }
+
+    if(provider.type === "gemini"){
+
+        return await callGemini(
+            provider,
+            prompt
+        );
+
+    }
+
+    throw new Error(
+        "Unsupported provider."
+    );
+
+}
+
+
+/* OPENAI COMPATIBLE */
+
+async function callOpenAICompatible(
+    provider,
+    prompt
+){
+
+    let base =
+        provider.baseUrl ||
+        defaultBaseUrl(provider.type);
+
+    base = base.replace(/\/$/,"");
+
+    let url = base;
+
+    if(!url.endsWith("/chat/completions")){
+        url += "/chat/completions";
+    }
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":
+                    "Bearer " + provider.key
+            },
+
+            body:JSON.stringify({
+
+                model:provider.model,
+
+                messages:[
+                    {
+                        role:"system",
+                        content:
+                            "You are an expert video script writer."
+                    },
+                    {
+                        role:"user",
+                        content:prompt
+                    }
+                ],
+
+                temperature:
+                    Number(
+                        document.getElementById("creativity").value
+                    ) / 100
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "API request failed."
+        );
+
+    }
+
+    return (
+        data?.choices?.[0]?.message?.content ||
+        ""
+    );
+
+}
+
+
+function defaultBaseUrl(type){
+
+    if(type === "openai"){
+        return "https://api.openai.com/v1";
+    }
+
+    if(type === "openrouter"){
+        return "https://openrouter.ai/api/v1";
+    }
+
+    if(type === "deepseek"){
+        return "https://api.deepseek.com/v1";
+    }
+
+    if(type === "groq"){
+        return "https://api.groq.com/openai/v1";
+    }
+
+    return "";
+
+}
+
+
+/* ANTHROPIC */
+
+async function callAnthropic(
+    provider,
+    prompt
+){
+
+    const base =
+        provider.baseUrl ||
+        "https://api.anthropic.com";
+
+    const url =
+        base.replace(/\/$/,"") +
+        "/v1/messages";
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "x-api-key":provider.key,
+                "anthropic-version":"2023-06-01",
+                "anthropic-dangerous-direct-browser-access":"true"
+            },
+
+            body:JSON.stringify({
+
+                model:provider.model,
+
+                max_tokens:10000,
+
+                messages:[
+                    {
+                        role:"user",
+                        content:prompt
+                    }
+                ]
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "Anthropic API request failed."
+        );
+
+    }
+
+    return (
+        data?.content
+            ?.map(x => x.text || "")
+            .join("\n") ||
+        ""
+    );
+
+}
+
+
+/* GEMINI */
+
+async function callGemini(
+    provider,
+    prompt
+){
+
+    const model =
+        encodeURIComponent(
+            provider.model
+        );
+
+    const url =
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(provider.key)}`;
+
+    const response =
+        await fetch(url,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                contents:[
+                    {
+                        parts:[
+                            {
+                                text:prompt
+                            }
+                        ]
+                    }
+                ]
+
+            })
+
+        });
+
+    const data =
+        await response.json();
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error?.message ||
+            "Gemini API request failed."
+        );
+
+    }
+
+    return (
+        data
+            ?.candidates?.[0]
+            ?.content?.parts
+            ?.map(x => x.text || "")
+            .join("\n") ||
+        ""
+    );
+
+}
+
+
+/* -----------------------------
+   DEMO GENERATOR
+----------------------------- */
+
+function generateDemoScript(){
+
+    const topic =
+        document.getElementById("topic").value;
+
+    const language =
+        document.getElementById("scriptLanguage").value;
+
+    const duration =
+        Number(
+            document.getElementById("duration").value
+        );
+
+    const format =
+        selectedFormat;
+
+    const names =
+        speakers.map(
+            s => s.name
+        );
+
+    if(language === "Chinese"){
+
+        return `【开场】
+
+${names[0] || "旁白"}：
+
+想象一下，如果我们今天正在见证一个改变整个时代的技术诞生，会是什么感觉？
+
+今天，我们要聊的主题是：${topic}。
+
+【第一部分：为什么重要】
+
+${names[0] || "旁白"}：
+
+过去几年，科技的发展速度远远超过了很多人的想象。
+
+${topic}，正在影响我们的工作、生活以及我们理解这个世界的方式。
+
+但真正值得思考的问题并不是“它现在有多强”，而是——接下来会发生什么？
+
+【第二部分：深入分析】
+
+${names[0] || "旁白"}：
+
+首先，我们需要理解这个问题背后的核心逻辑。
+
+很多变化并不是突然发生的。
+
+它们往往从一个很小的突破开始，然后逐渐进入普通人的生活。
+
+${topic}也是如此。
+
+【第三部分：一个简单的例子】
+
+${names[0] || "旁白"}：
+
+举一个简单的例子。
+
+假设一个普通人第一次接触这项技术。
+
+一开始，它可能只是一个工具。
+
+但随着时间推移，它可能成为工作流程的一部分，甚至改变整个行业的规则。
+
+【结论】
+
+${names[0] || "旁白"}：
+
+所以，当我们再次思考${topic}的时候，不妨把视角放得更远一些。
+
+真正重要的，并不是预测未来一定会发生什么。
+
+而是理解变化正在发生，并思考我们希望自己在未来扮演什么角色。
+
+感谢观看，我们下一期再见。`;
+
+    }
+
+
+    if(language === "Hindi"){
+
+        return `OPENING
+
+${names[0] || "Narrator"}:
+
+Imagine waking up one day and realizing that a technology you once thought was science fiction has become part of everyday life.
+
+Today, we are exploring ${topic}.
+
+INTRODUCTION
+
+${names[0] || "Narrator"}:
+
+Technology is changing faster than ever.
+
+But the interesting question is not simply what this technology can do today.
+
+The real question is what it could change tomorrow.
+
+MAIN STORY
+
+${names[0] || "Narrator"}:
+
+To understand ${topic}, we first need to understand why it matters.
+
+Major changes rarely happen overnight.
+
+They usually begin with a small breakthrough, followed by adoption, experimentation and eventually transformation.
+
+EXAMPLE
+
+${names[0] || "Narrator"}:
+
+Consider a simple example.
+
+A person discovers a new tool.
+
+At first, it is just another application.
+
+But over time, it becomes part of the person's daily workflow.
+
+That is how technological change often spreads.
+
+CONCLUSION
+
+${names[0] || "Narrator"}:
+
+So, when we think about ${topic}, we should not only ask what is possible today.
+
+We should also ask what kind of future we want to create.
+
+Thank you for watching.`;
+
+    }
+
+
+    if(speakers.length >= 2){
+
+        return `HOST:
+
+Welcome back to the show.
+
+Today we're talking about ${topic}.
+
+Before we get into the details, let's start with the big question: why should anyone care about this right now?
+
+GUEST:
+
+That's a great question.
+
+The simple answer is that ${topic} is changing faster than most people realize.
+
+HOST:
+
+And that's exactly what we're going to explore today.
+
+We'll look at what is happening, why it matters, what people often misunderstand, and what could happen next.
+
+GUEST:
+
+One important thing to understand is that major changes rarely happen all at once.
+
+They usually start with small developments.
+
+Then people begin experimenting with them.
+
+And eventually, those developments can become part of everyday life.
+
+HOST:
+
+Let's make that practical.
+
+Imagine someone encountering this technology for the first time.
+
+At first, it might look like a simple tool.
+
+But once it becomes part of their workflow, the impact can become much larger.
+
+GUEST:
+
+Exactly.
+
+And that is why the conversation should not only be about what the technology can do.
+
+It should also be about how people choose to use it.
+
+HOST:
+
+So if there is one thing viewers should remember from today's discussion, what would it be?
+
+GUEST:
+
+Stay curious.
+
+The future is rarely created by one big moment.
+
+It is usually created by thousands of small decisions.
+
+HOST:
+
+And that's a perfect place to end.
+
+Thanks for listening, and we'll see you in the next episode.`;
+
+    }
+
+
+    return `HOOK
+
+What if one of the biggest changes of the next decade is already happening right now — and most people haven't fully noticed it yet?
+
+Today, we're exploring ${topic}.
+
+INTRODUCTION
+
+Welcome back.
+
+In this video, we're going to break down ${topic}, explain why it matters, look at some real-world examples, and explore what could happen next.
+
+MAIN CONTENT
+
+Let's start with the most important question.
+
+Why does ${topic} matter?
+
+The answer is more interesting than it might seem.
+
+Whenever a major technology, idea or social change appears, people usually focus on what is visible immediately.
+
+But the biggest impact often happens underneath the surface.
+
+Think about the way people work.
+
+A new tool may begin as something optional.
+
+Then people start experimenting with it.
+
+Eventually, it becomes part of their daily workflow.
+
+And once that happens, the entire environment begins to change.
+
+REAL-WORLD EXAMPLE
+
+Let's consider a simple example.
+
+Imagine someone discovering ${topic} for the first time.
+
+At the beginning, they may only use it occasionally.
+
+But after discovering how useful it can be, they start using it every day.
+
+That small change can lead to a much bigger transformation.
+
+THE BIGGER PICTURE
+
+This is why understanding ${topic} requires us to look beyond today's headlines.
+
+The real question is not only what is happening now.
+
+The better question is what today's developments could make possible tomorrow.
+
+CONCLUSION
+
+So, what should we take away from all of this?
+
+First, change is happening faster than ever.
+
+Second, the most important developments are not always the most obvious ones.
+
+And finally, the people who understand change early often have the best opportunity to adapt to it.
+
+${document.getElementById("cta").value !== "None"
+        ? "If you found this useful, make sure to follow the channel for more."
+        : ""}
+
+Thanks for watching.
+
+I'll see you in the next one.`;
+
+}
+
+
+/* -----------------------------
+   EDITOR
+----------------------------- */
+
+function loadProjectIntoEditor(project){
+
+    currentProject = project;
+
+    document.getElementById("scriptEditor").value =
+        project.content || "";
+
+    document.getElementById("editorFormat").textContent =
+        project.format || "—";
+
+    document.getElementById("editorLanguage").textContent =
+        project.language || "—";
+
+    updateEditorStats();
+
+    generateChapters(project.content || "");
+
+}
+
+
+function updateEditorStats(){
+
+    const text =
+        document.getElementById("scriptEditor").value || "";
+
+    const words =
+        countWords(text);
+
+    const chars =
+        text.length;
+
+    const wpm =
+        getWPM();
+
+    const seconds =
+        words / wpm * 60;
+
+    document.getElementById("editorWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("editorChars").textContent =
+        chars.toLocaleString();
+
+    document.getElementById("editorTime").textContent =
+        formatTime(seconds);
+
+}
+
+
+function countWords(text){
+
+    if(!text.trim()){
+        return 0;
+    }
+
+    return text
+        .trim()
+        .split(/\s+/)
+        .length;
+
+}
+
+
+function generateChapters(text){
+
+    const list =
+        document.getElementById("chapterList");
+
+    const lines =
+        text
+            .split("\n")
+            .filter(
+                line =>
+                    line.trim() &&
+                    (
+                        line.trim().toUpperCase() === line.trim() ||
+                        line.includes("HOOK") ||
+                        line.includes("INTRO") ||
+                        line.includes("CONCLUSION") ||
+                        line.includes("MAIN")
+                    )
+            )
+            .slice(0,12);
+
+    list.innerHTML = "";
+
+    if(lines.length === 0){
+
+        list.innerHTML = `
+            <div class="chapter active">
+                Full Script
+            </div>
+        `;
+
+        return;
+    }
+
+    lines.forEach((line,index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "chapter " +
+            (index === 0 ? "active" : "");
+
+        div.textContent =
+            line.trim().replace(/[:\[\]]/g,"");
+
+        list.appendChild(div);
+
+    });
+
+}
+
+
+/* -----------------------------
+   AI EDIT
+----------------------------- */
+
+async function aiEdit(instruction){
+
+    if(!currentProject){
+
+        toast(
+            "Open or generate a script first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    if(!text.trim()){
+
+        toast(
+            "There is no script to edit.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const providerId =
+        document.getElementById("quickProvider").value;
+
+    if(providerId === "demo"){
+
+        toast(
+            "AI editing requires a connected AI provider.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === providerId
+        );
+
+    if(!provider){
+
+        toast(
+            "Please configure an AI provider first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    toast(
+        "AI is editing your script...",
+        "success"
+    );
+
+    try{
+
+        const prompt = `
+
+You are an expert script editor.
+
+Here is the current video script:
+
+--- SCRIPT START ---
+${text}
+--- SCRIPT END ---
+
+USER REQUEST:
+${instruction}
+
+Return only the improved full script.
+Preserve the original language.
+Do not add explanations.
+
+        `;
+
+        const result =
+            await callAI(
+                provider,
+                prompt
+            );
+
+        document.getElementById("scriptEditor").value =
+            result;
+
+        currentProject.content =
+            result;
+
+        currentProject.updatedAt =
+            new Date().toISOString();
+
+        saveProjects();
+
+        updateEditorStats();
+
+        generateChapters(result);
+
+        toast(
+            "Script updated.",
+            "success"
+        );
+
+    }catch(error){
+
+        toast(
+            error.message ||
+            "AI editing failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* -----------------------------
+   ANALYZE
+----------------------------- */
+
+async function analyzeScript(){
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    if(!text.trim()){
+
+        toast(
+            "Write or generate a script first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const words =
+        countWords(text);
+
+    let score = 70;
+
+    if(words > 200){
+        score += 5;
+    }
+
+    if(text.includes("?")){
+        score += 5;
+    }
+
+    if(
+        /hook|welcome|imagine|today/i.test(text)
+    ){
+        score += 5;
+    }
+
+    if(
+        /thanks|thank you|subscribe|follow/i.test(text)
+    ){
+        score += 5;
+    }
+
+    score =
+        Math.min(
+            98,
+            score
+        );
+
+    document.getElementById("qualityScore").textContent =
+        score + "/100";
+
+    toast(
+        `Script quality score: ${score}/100`,
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   TRANSLATE
+----------------------------- */
+
+async function translateScript(){
+
+    if(!currentProject){
+
+        toast(
+            "Open a project first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const providerId =
+        document.getElementById("quickProvider").value;
+
+    if(providerId === "demo"){
+
+        toast(
+            "Translation requires an AI provider.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === providerId
+        );
+
+    if(!provider){
+        toast(
+            "Configure an AI provider first.",
+            "error"
+        );
+        return;
+    }
+
+    const target =
+        prompt(
+            "Translate this script to which language?",
+            "English"
+        );
+
+    if(!target){
+        return;
+    }
+
+    const text =
+        document.getElementById("scriptEditor").value;
+
+    try{
+
+        const result =
+            await callAI(
+                provider,
+                `
+Translate the following video script into ${target}.
+
+Preserve:
+- speaker names
+- structure
+- meaning
+- tone
+- visual notes
+
+Return only the translated script.
+
+SCRIPT:
+
+${text}
+                `
+            );
+
+        document.getElementById("scriptEditor").value =
+            result;
+
+        currentProject.content =
+            result;
+
+        currentProject.updatedAt =
+            new Date().toISOString();
+
+        saveProjects();
+
+        updateEditorStats();
+
+        toast(
+            "Translation complete.",
+            "success"
+        );
+
+    }catch(error){
+
+        toast(
+            error.message ||
+            "Translation failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* -----------------------------
+   TEXT FORMAT
+----------------------------- */
+
+function formatText(type){
+
+    const editor =
+        document.getElementById("scriptEditor");
+
+    const start =
+        editor.selectionStart;
+
+    const end =
+        editor.selectionEnd;
+
+    if(start === end){
+
+        toast(
+            "Select some text first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const selected =
+        editor.value.substring(
+            start,
+            end
+        );
+
+    let replacement;
+
+    if(type === "bold"){
+        replacement = `**${selected}**`;
+    }
+
+    if(type === "italic"){
+        replacement = `*${selected}*`;
+    }
+
+    editor.setRangeText(
+        replacement,
+        start,
+        end,
+        "end"
+    );
+
+    updateEditorStats();
+
+}
+
+
+/* -----------------------------
+   SAVE
+----------------------------- */
+
+function saveCurrentProject(showToast=true){
+
+    if(!currentProject){
+
+        if(showToast){
+            toast(
+                "No active project.",
+                "error"
+            );
+        }
+
+        return;
+
+    }
+
+    currentProject.content =
+        document.getElementById("scriptEditor").value;
+
+    currentProject.updatedAt =
+        new Date().toISOString();
+
+    const index =
+        projects.findIndex(
+            p => p.id === currentProject.id
+        );
+
+    if(index >= 0){
+        projects[index] =
+            currentProject;
+    }else{
+        projects.unshift(
+            currentProject
+        );
+    }
+
+    saveProjects();
+
+    if(showToast){
+        toast(
+            "Project saved.",
+            "success"
+        );
+    }
+
+    renderProjects();
+
+    updateStats();
+
+}
+
+
+function saveProjects(){
+
+    localStorage.setItem(
+        STORAGE.projects,
+        JSON.stringify(projects)
+    );
+
+}
+
+
+function saveSettings(){
+
+    localStorage.setItem(
+        STORAGE.settings,
+        JSON.stringify(settings)
+    );
+
+}
+
+
+/* -----------------------------
+   PROJECTS
+----------------------------- */
+
+function renderProjects(){
+
+    const container =
+        document.getElementById("allProjects");
+
+    if(!projects.length){
+
+        container.innerHTML = `
+            <div class="empty" style="grid-column:1/-1;">
+                <div class="empty-icon">✦</div>
+                <div>No projects yet.</div>
+                <br>
+                <button
+                    class="btn btn-primary"
+                    onclick="showPage('create')"
+                >
+                    Create your first script
+                </button>
+            </div>
+        `;
+
+        renderRecentProjects();
+
+        return;
+
+    }
+
+    container.innerHTML =
+        projects
+            .map(projectCard)
+            .join("");
+
+    renderRecentProjects();
+
+}
+
+
+function renderRecentProjects(){
+
+    const container =
+        document.getElementById("recentProjects");
+
+    const recent =
+        projects.slice(0,3);
+
+    if(!recent.length){
+
+        container.innerHTML = `
+            <div class="empty" style="grid-column:1/-1;">
+                <div class="empty-icon">✦</div>
+                Create your first AI script.
+            </div>
+        `;
+
+        return;
+
+    }
+
+    container.innerHTML =
+        recent
+            .map(projectCard)
+            .join("");
+
+}
+
+
+function projectCard(project){
+
+    const date =
+        new Date(
+            project.updatedAt ||
+            project.createdAt
+        );
+
+    const words =
+        countWords(
+            project.content || ""
+        );
+
+    return `
+
+        <div
+            class="project"
+            onclick="openProject(${project.id})"
+        >
+
+            <div class="project-title">
+                ${escapeHtml(project.title)}
+            </div>
+
+            <div class="project-meta">
+
+                <span class="badge">
+                    ${escapeHtml(project.format || "Video")}
+                </span>
+
+                <span class="badge">
+                    ${escapeHtml(project.language || "English")}
+                </span>
+
+                <span class="badge">
+                    ${words.toLocaleString()} words
+                </span>
+
+                <span>
+                    ${date.toLocaleDateString()}
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function openProject(id){
+
+    const project =
+        projects.find(
+            p => p.id === id
+        );
+
+    if(!project){
+        return;
+    }
+
+    loadProjectIntoEditor(project);
+
+    showPage("editor");
+
+}
+
+
+/* -----------------------------
+   STATS
+----------------------------- */
+
+function updateStats(){
+
+    document.getElementById("statProjects").textContent =
+        projects.length;
+
+    document.getElementById("statScripts").textContent =
+        projects.length;
+
+    const words =
+        projects.reduce(
+            (total,p) =>
+                total +
+                countWords(p.content || ""),
+            0
+        );
+
+    document.getElementById("statWords").textContent =
+        words.toLocaleString();
+
+    document.getElementById("statLanguage").textContent =
+        settings.defaultScriptLanguage || "English";
+
+}
+
+
+/* -----------------------------
+   PROVIDERS
+----------------------------- */
+
+function renderProviders(){
+
+    const container =
+        document.getElementById("providerGrid");
+
+    if(!providers.length){
+
+        container.innerHTML = `
+
+            <div class="provider-card">
+
+                <h3>Demo Generator</h3>
+
+                <p>
+                    Built-in offline demo generator.
+                    No API key required.
+                </p>
+
+                <div class="provider-status">
+                    ● Available
+                </div>
+
+                <button class="btn btn-success btn-sm">
+                    Active
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+    container.innerHTML =
+        providers.map(provider => `
+
+            <div class="provider-card">
+
+                <h3>
+                    ${escapeHtml(provider.name)}
+                </h3>
+
+                <p>
+                    ${escapeHtml(provider.model)}
+                </p>
+
+                <div
+                    class="provider-status"
+                    id="status-${provider.id}"
+                >
+                    ● Configured
+                </div>
+
+                <div style="display:flex;gap:7px;">
+
+                    <button
+                        class="btn btn-sm"
+                        onclick="testProvider('${provider.id}')"
+                    >
+                        Test Connection
+                    </button>
+
+                    <button
+                        class="btn btn-sm btn-danger"
+                        onclick="deleteProvider('${provider.id}')"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        `).join("");
+
+}
+
+
+function renderQuickProviders(){
+
+    const select =
+        document.getElementById("quickProvider");
+
+    select.innerHTML = `
+
+        <option value="demo">
+            Demo Generator
+        </option>
+
+    `;
+
+    providers.forEach(provider => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            provider.id;
+
+        option.textContent =
+            `${provider.name} · ${provider.model}`;
+
+        select.appendChild(option);
+
+    });
+
+    select.addEventListener(
+        "change",
+        updateActiveProvider
+    );
+
+    updateActiveProvider();
+
+}
+
+
+function updateActiveProvider(){
+
+    const id =
+        document.getElementById("quickProvider").value;
+
+    if(id === "demo"){
+
+        document.getElementById(
+            "activeProviderName"
+        ).textContent =
+            "Demo Generator";
+
+        document.getElementById(
+            "activeProviderStatus"
+        ).textContent =
+            "Local";
+
+        return;
+
+    }
+
+    const provider =
+        providers.find(
+            p => p.id === id
+        );
+
+    if(!provider){
+        return;
+    }
+
+    document.getElementById(
+        "activeProviderName"
+    ).textContent =
+        provider.name;
+
+    document.getElementById(
+        "activeProviderStatus"
+    ).textContent =
+        "Configured";
+
+}
+
+
+/* -----------------------------
+   PROVIDER MODAL
+----------------------------- */
+
+function openProviderModal(){
+
+    document
+        .getElementById("providerModal")
+        .classList.add("open");
+
+    document.getElementById("providerName").value = "";
+
+    document.getElementById("providerKey").value = "";
+
+    document.getElementById("providerModel").value = "";
+
+    document.getElementById("providerBaseUrl").value = "";
+
+    updateProviderDefaults();
+
+}
+
+
+function closeProviderModal(){
+
+    document
+        .getElementById("providerModal")
+        .classList.remove("open");
+
+}
+
+
+document
+    .getElementById("providerType")
+    .addEventListener(
+        "change",
+        updateProviderDefaults
+    );
+
+
+function updateProviderDefaults(){
+
+    const type =
+        document.getElementById("providerType").value;
+
+    const names = {
+
+        openai:"OpenAI",
+
+        anthropic:"Anthropic",
+
+        gemini:"Google Gemini",
+
+        openrouter:"OpenRouter",
+
+        deepseek:"DeepSeek",
+
+        groq:"Groq",
+
+        custom:"Custom Provider"
+
+    };
+
+    const models = {
+
+        openai:"gpt-5.6",
+
+        anthropic:"claude-sonnet",
+
+        gemini:"gemini-2.5-flash",
+
+        openrouter:"openai/gpt-5.6",
+
+        deepseek:"deepseek-chat",
+
+        groq:"llama-3.3-70b-versatile",
+
+        custom:"your-model"
+
+    };
+
+    if(
+        !document.getElementById("providerName").value
+    ){
+
+        document.getElementById(
+            "providerName"
+        ).value =
+            names[type];
+
+    }
+
+    document.getElementById(
+        "providerModel"
+    ).value =
+        models[type];
+
+    const baseUrls = {
+
+        openai:
+            "https://api.openai.com/v1",
+
+        anthropic:
+            "https://api.anthropic.com",
+
+        gemini:
+            "",
+
+        openrouter:
+            "https://openrouter.ai/api/v1",
+
+        deepseek:
+            "https://api.deepseek.com/v1",
+
+        groq:
+            "https://api.groq.com/openai/v1",
+
+        custom:
+            ""
+
+    };
+
+    document.getElementById(
+        "providerBaseUrl"
+    ).value =
+        baseUrls[type] || "";
+
+}
+
+
+function saveProvider(){
+
+    const type =
+        document.getElementById("providerType").value;
+
+    const name =
+        document.getElementById("providerName").value.trim();
+
+    const key =
+        document.getElementById("providerKey").value.trim();
+
+    const model =
+        document.getElementById("providerModel").value.trim();
+
+    const baseUrl =
+        document.getElementById("providerBaseUrl").value.trim();
+
+    if(!name || !key || !model){
+
+        toast(
+            "Please complete provider name, API key and model.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const provider = {
+
+        id:
+            "provider_" +
+            Date.now(),
+
+        type,
+
+        name,
+
+        key,
+
+        model,
+
+        baseUrl
+
+    };
+
+    providers.push(provider);
+
+    localStorage.setItem(
+        STORAGE.providers,
+        JSON.stringify(providers)
+    );
+
+    closeProviderModal();
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    toast(
+        "Provider added.",
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   TEST PROVIDER
+----------------------------- */
+
+async function testProvider(id){
+
+    const provider =
+        providers.find(
+            p => p.id === id
+        );
+
+    if(!provider){
+        return;
+    }
+
+    const status =
+        document.getElementById(
+            "status-" + id
+        );
+
+    status.textContent =
+        "● Testing...";
+
+    try{
+
+        const result =
+            await callAI(
+                provider,
+                "Reply with exactly: CONNECTION_OK"
+            );
+
+        if(result){
+
+            status.textContent =
+                "● Connection successful";
+
+            status.style.color =
+                "var(--success)";
+
+            toast(
+                `${provider.name} connection successful.`,
+                "success"
+            );
+
+        }else{
+
+            throw new Error(
+                "Empty response."
+            );
+
+        }
+
+    }catch(error){
+
+        status.textContent =
+            "● Connection failed";
+
+        status.style.color =
+            "var(--danger)";
+
+        toast(
+            error.message ||
+            "Connection failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+function deleteProvider(id){
+
+    if(
+        !confirm(
+            "Delete this provider and its API key?"
+        )
+    ){
+        return;
+    }
+
+    providers =
+        providers.filter(
+            p => p.id !== id
+        );
+
+    localStorage.setItem(
+        STORAGE.providers,
+        JSON.stringify(providers)
+    );
+
+    renderProviders();
+
+    renderQuickProviders();
+
+    toast(
+        "Provider deleted.",
+        "success"
+    );
+
+}
+
+
+/* -----------------------------
+   EXPORT
+----------------------------- */
+
+function downloadFile(
+    filename,
+    content,
+    mime
+){
+
+    const blob =
+        new Blob(
+            [content],
+            {type:mime}
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download = filename;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+function exportTXT(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".txt",
+        currentProject.content,
+        "text/plain;charset=utf-8"
+    );
+
+}
+
+
+function exportMarkdown(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    const content = `# ${currentProject.title}
+
+**Format:** ${currentProject.format}
+
+**Language:** ${currentProject.language}
+
+**Duration:** ${currentProject.duration} minutes
+
+---
+
+${currentProject.content}
+`;
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".md",
+        content,
+        "text/markdown;charset=utf-8"
+    );
+
+}
+
+
+function exportHTML(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    const content = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml(currentProject.title)}</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+max-width:900px;
+margin:50px auto;
+padding:20px;
+line-height:1.8;
+}
+h1{margin-bottom:5px}
+.meta{color:#666;margin-bottom:30px}
+pre{
+white-space:pre-wrap;
+font-family:inherit;
+}
 </style>
 </head>
 <body>
-<div class="app">
-<aside class="sidebar" id="sidebar">
-  <div class="logo"><div class="logo-mark">S</div><span>ScriptForge AI</span></div>
-  <nav class="nav">
-    <button class="active" data-page="generator"><span class="nav-icon">✦</span><span data-i18n="navGenerator">脚本生成</span></button>
-    <button data-page="editor"><span class="nav-icon">✎</span><span data-i18n="navEditor">脚本编辑器</span></button>
-    <button data-page="library"><span class="nav-icon">▤</span><span data-i18n="navLibrary">我的脚本</span></button>
-    <button data-page="settings"><span class="nav-icon">⚙</span><span data-i18n="navSettings">设置</span></button>
-  </nav>
-  <div class="sidebar-bottom">
-    <select id="languageSelect" class="language-mini">
-      <option value="zh">中文</option>
-      <option value="en">English</option>
-      <option value="hi">हिन्दी</option>
-    </select>
-    <div style="height:10px"></div>
-    <div class="status"><span class="dot" id="firebaseDot"></span><span id="firebaseStatus">本地模式</span></div>
-  </div>
-</aside>
-<main class="main">
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="icon-btn mobile-menu" id="mobileMenu">☰</button>
-      <div class="topbar-title" id="pageTitle">脚本生成</div>
-    </div>
-    <div class="top-actions">
-      <button class="icon-btn" id="themeBtn" title="主题">☾</button>
-      <button class="btn btn-primary btn-small" id="quickSettingsBtn">⚙ <span data-i18n="quickSettings">AI 配置</span></button>
-    </div>
-  </header>
-  <div class="content">
-<!-- GENERATOR PAGE -->
-<section class="page active" id="page-generator">
-  <div class="hero">
-    <h1 data-i18n="heroTitle">把你的想法变成自然、有温度的视频脚本。</h1>
-    <p data-i18n="heroDescription">告诉 AI 你的视频想表达什么，选择视频形式和时长。ScriptForge 会按照正常说话速度生成适合口播的视频脚本，让内容听起来更像真人，而不是 AI。</p>
-  </div>
-  <div class="generator-layout">
-    <div>
-      <div class="card" style="margin-bottom:18px">
-        <div class="card-header"><h3 data-i18n="ideaTitle">你的视频想法</h3><p data-i18n="ideaDescription">自然地写就可以，几句话也足够。</p></div>
-        <div class="card-body">
-          <div class="field">
-            <label data-i18n="topicLabel">主题 / 想法</label>
-            <textarea id="ideaInput" class="big-input" data-i18n-placeholder="ideaPlaceholder" placeholder="例如：我想做一个关于人生变化的视频，讲讲别人如何评价我们，以及为什么即使生活很困难，我们依然应该继续向前。"></textarea>
-          </div>
-          <div class="field">
-            <label data-i18n="durationLabel">视频时长</label>
-            <div class="range-wrap">
-              <input type="range" id="durationRange" min="1" max="60" value="5">
-              <div class="range-value"><span id="durationValue">5</span><span> 分钟</span></div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="field">
-              <label data-i18n="formatLabel">视频形式</label>
-              <select id="formatSelect">
-                <option value="monologue" data-i18n="formatMonologue">单人独白</option>
-                <option value="podcast2" data-i18n="formatPodcast2">双人播客</option>
-                <option value="podcast3" data-i18n="formatPodcast3">三人播客</option>
-                <option value="documentary" data-i18n="formatDocumentary">纪录片</option>
-                <option value="storytelling" data-i18n="formatStorytelling">故事叙述</option>
-                <option value="educational" data-i18n="formatEducational">教育科普</option>
-                <option value="motivational" data-i18n="formatMotivational">励志激励</option>
-                <option value="commentary" data-i18n="formatCommentary">新闻评论</option>
-                <option value="shortform" data-i18n="formatShortform">短视频</option>
-              </select>
-            </div>
-            <div class="field">
-              <label data-i18n="languageLabel">脚本语言</label>
-              <select id="scriptLanguage">
-                <option value="zh">中文</option>
-                <option value="en">English</option>
-                <option value="hi">हिन्दी</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:18px">
-        <div class="card-header"><h3 data-i18n="styleTitle">选择写作风格</h3><p data-i18n="styleDescription">不同风格会改变 AI 的表达方式。</p></div>
-        <div class="card-body">
-          <div class="preset-grid">
-            <button class="preset selected" data-style="natural"><strong data-i18n="styleNaturalName">自然真实</strong><span data-i18n="styleNaturalDesc">像真人说话一样</span></button>
-            <button class="preset" data-style="emotional"><strong data-i18n="styleEmotionalName">情感充沛</strong><span data-i18n="styleEmotionalDesc">个人化、有脆弱感</span></button>
-            <button class="preset" data-style="cinematic"><strong data-i18n="styleCinematicName">电影感</strong><span data-i18n="styleCinematicDesc">视觉化、有氛围</span></button>
-            <button class="preset" data-style="professional"><strong data-i18n="styleProfessionalName">专业清晰</strong><span data-i18n="styleProfessionalDesc">条理分明、打磨精细</span></button>
-            <button class="preset" data-style="casual"><strong data-i18n="styleCasualName">轻松随意</strong><span data-i18n="styleCasualDesc">放松的对话感</span></button>
-            <button class="preset" data-style="deep"><strong data-i18n="styleDeepName">深度思考</strong><span data-i18n="styleDeepDesc">有哲思、引人反思</span></button>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3 data-i18n="charactersTitle">角色 / 主播</h3><p data-i18n="charactersDescription">如果使用播客或对话形式，可以添加不同的说话角色。</p></div>
-        <div class="card-body">
-          <div class="characters" id="characters"></div>
-          <button class="btn btn-small" id="addCharacter" style="margin-top:12px" data-i18n="addSpeaker">+ 添加主播</button>
-        </div>
-      </div>
-    </div>
-    <div class="generate-box">
-      <div class="card">
-        <div class="card-header"><h3 data-i18n="readyTitle">准备开始</h3><p data-i18n="readyDescription">脚本长度会根据你选择的视频时长自动计算。</p></div>
-        <div class="card-body">
-          <div class="summary">
-            <div class="summary-row"><span data-i18n="estimatedWords">预计字数</span><span id="estimatedWords">650</span></div>
-            <div class="summary-row"><span data-i18n="speakingSpeed">语速</span><span>130 WPM</span></div>
-            <div class="summary-row"><span data-i18n="formatSummary">形式</span><span id="formatSummary">单人</span></div>
-            <div class="summary-row"><span data-i18n="selectedStyle">风格</span><span id="styleSummary">自然</span></div>
-          </div>
-          <button class="btn btn-primary full" id="generateBtn" style="padding:14px">✦ <span data-i18n="generate">生成脚本</span></button>
-          <div style="height:9px"></div>
-          <button class="btn full" id="openEditorAfter" data-i18n="openEditor">打开编辑器</button>
-          <div style="height:13px"></div>
-          <div class="small muted"><span data-i18n="aiNote">提示：如果你告诉 AI 更具体的经历、情绪和你真正想表达的信息，生成的内容通常会更加真实。</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- EDITOR PAGE -->
-<section class="page" id="page-editor">
-  <div class="hero"><h1 data-i18n="editorTitle">脚本编辑器</h1><p data-i18n="editorDescription">可以自己修改脚本，也可以让 AI 帮你重新表达。</p></div>
-  <div class="editor-layout">
-    <div class="card editor-card">
-      <div class="editor-toolbar">
-        <button class="btn" data-ai-action="natural">✨ <span data-i18n="toolbarNatural">更自然</span></button>
-        <button class="btn" data-ai-action="rewrite">↻ <span data-i18n="toolbarRewrite">重写</span></button>
-        <button class="btn" data-ai-action="shorten">↓ <span data-i18n="toolbarShorten">精简</span></button>
-        <button class="btn" data-ai-action="expand">↑ <span data-i18n="toolbarExpand">扩展</span></button>
-        <button class="btn" data-ai-action="hook">⚡ <span data-i18n="toolbarHook">优化开头</span></button>
-        <button class="btn" data-ai-action="grammar">✓ <span data-i18n="toolbarGrammar">修正语法</span></button>
-        <button class="btn" id="saveScriptBtn">💾 <span data-i18n="toolbarSave">保存</span></button>
-        <button class="btn" id="readerBtn">⛶ <span data-i18n="toolbarFullscreen">全屏</span></button>
-        <button class="btn" id="copyBtn">⧉ <span data-i18n="toolbarCopy">复制</span></button>
-      </div>
-      <textarea id="scriptEditor" class="script-editor" placeholder="生成的脚本会显示在这里..."></textarea>
-    </div>
-    <aside class="editor-sidebar">
-      <div class="card">
-        <div class="card-header"><h3 data-i18n="scriptStats">脚本统计</h3></div>
-        <div class="card-body">
-          <div class="word-count">
-            <div class="stat"><strong id="wordCount">0</strong><span data-i18n="words">字数</span></div>
-            <div class="stat"><strong id="charCount">0</strong><span data-i18n="characters">字符</span></div>
-            <div class="stat"><strong id="estimatedTime">0:00</strong><span data-i18n="readTime">口播时间</span></div>
-            <div class="stat"><strong id="paragraphCount">0</strong><span data-i18n="paragraphs">段落</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3 data-i18n="exportTitle">导出</h3></div>
-        <div class="card-body">
-          <button class="btn full" id="exportTxt">TXT</button>
-          <div style="height:8px"></div>
-          <button class="btn full" id="exportMarkdown">Markdown</button>
-          <div style="height:8px"></div>
-          <button class="btn btn-dark full" id="exportPdf"><span data-i18n="exportPdf">PDF / 打印</span></button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3 data-i18n="aiEditorTitle">AI 编辑器</h3><p data-i18n="aiEditorDesc">使用 AI 功能前先在编辑器中选中文本。如果没有选中，将处理整个脚本。</p></div>
-      </div>
-    </aside>
-  </div>
-</section>
-<!-- LIBRARY PAGE -->
-<section class="page" id="page-library">
-  <div class="hero"><h1 data-i18n="libraryTitle">我的脚本</h1><p data-i18n="libraryDescription">保存的脚本会保存在本地；连接 Firebase 后也会同步到云端。</p></div>
-  <div class="library-list" id="libraryList"></div>
-</section>
-<!-- SETTINGS PAGE -->
-<section class="page" id="page-settings">
-  <div class="hero"><h1 data-i18n="settingsTitle">设置</h1><p data-i18n="settingsDescription">尽量保持简单：选择一个 AI 服务商，填写 API Key，然后测试连接。</p></div>
-  <div class="settings">
-    <div class="card setting-section">
-      <div class="card-header"><h3 data-i18n="aiProviderTitle">AI 服务商</h3><p data-i18n="aiProviderDescription">选择你想用于生成脚本的 AI。支持国内外主流服务商。</p></div>
-      <div class="card-body">
-        <div class="field">
-          <label data-i18n="providerLabel">服务商</label>
-          <select id="providerSelect">
-            <option value="openai">OpenAI</option>
-            <option value="deepseek">DeepSeek（深度求索）</option>
-            <option value="zhipu">智谱 GLM</option>
-            <option value="qwen">通义千问（阿里云）</option>
-            <option value="kimi">Kimi（月之暗面）</option>
-            <option value="ernie">百度文心</option>
-            <option value="gemini">Google Gemini</option>
-            <option value="anthropic">Anthropic Claude</option>
-          </select>
-        </div>
-        <div class="provider-card">
-          <div class="provider-head">
-            <div class="provider-name" id="providerLabel">OpenAI</div>
-            <div class="status"><span class="dot" id="aiDot"></span><span id="aiStatus">未测试</span></div>
-          </div>
-          <div class="field"><label data-i18n="apiKeyLabel">API Key</label><input type="password" id="apiKey" placeholder="粘贴你的 API Key" class="api-hidden"></div>
-          <div class="field" id="endpointField"><label data-i18n="endpointLabel">API Endpoint</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions"></div>
-          <div class="field"><label data-i18n="modelLabel">模型</label><input type="text" id="modelName" placeholder="gpt-4.1-mini"></div>
-          <div class="row">
-            <button class="btn btn-success" id="testAiBtn" data-i18n="testConnection">测试连接</button>
-            <button class="btn btn-primary" id="saveAiBtn" data-i18n="saveAiSetup">保存 AI 配置</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card setting-section">
-      <div class="card-header"><h3 data-i18n="languageSettings">语言</h3></div>
-      <div class="card-body">
-        <div class="field"><label data-i18n="interfaceLanguage">界面语言</label><select id="settingsLanguage"><option value="zh">中文</option><option value="en">English</option><option value="hi">हिन्दी</option></select></div>
-      </div>
-    </div>
-    <div class="card setting-section">
-      <div class="card-header"><h3 data-i18n="appearance">外观</h3></div>
-      <div class="card-body">
-        <div class="toggle">
-          <div><strong data-i18n="darkMode">深色模式</strong><div class="small muted"><span data-i18n="darkModeDescription">使用深色界面。</span></div></div>
-          <label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label>
-        </div>
-      </div>
-    </div>
-    <div class="card setting-section">
-      <div class="card-header"><h3 data-i18n="cloudStorage">云存储</h3><p data-i18n="cloudStorageDesc">Firebase 用于保存你的 AI 配置和脚本。</p></div>
-      <div class="card-body">
-        <div class="status"><span class="dot" id="firebaseDot2"></span><span id="firebaseStatus2">连接中...</span></div>
-        <p class="small muted" style="margin-top:12px" data-i18n="firebaseNote">本应用使用 Firebase 匿名认证，无需注册登录。</p>
-      </div>
-    </div>
-  </div>
-</section>
-  </div>
-</main>
+
+<h1>${escapeHtml(currentProject.title)}</h1>
+
+<div class="meta">
+${escapeHtml(currentProject.format)}
+ ·
+${escapeHtml(currentProject.language)}
+ ·
+${currentProject.duration} minutes
 </div>
-<!-- READER MODAL -->
-<div class="modal" id="readerModal">
-  <div class="modal-box reader">
-    <div class="modal-head">
-      <div><h2 id="readerTitle">脚本</h2></div>
-      <div class="reader-actions" style="display:flex;gap:7px">
-        <button class="btn btn-small" id="readerCopy" data-i18n="toolbarCopy">复制</button>
-        <button class="btn btn-dark btn-small" id="readerPrint" data-i18n="exportPdf">PDF</button>
-        <button class="icon-btn" id="readerClose">×</button>
-      </div>
-    </div>
-    <div class="reader-content">
-      <div class="pdf-header"><h1 id="pdfTitle">ScriptForge AI</h1><p id="pdfMeta"></p></div>
-      <div id="readerText"></div>
-    </div>
-  </div>
-</div>
-<!-- QUICK AI SETUP MODAL -->
-<div class="modal" id="quickModal">
-  <div class="modal-box">
-    <div class="modal-head"><h2 data-i18n="quickSettings">AI 配置</h2><button class="icon-btn" id="quickClose">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label data-i18n="providerLabel">服务商</label>
-        <select id="quickProvider">
-          <option value="openai">OpenAI</option>
-          <option value="deepseek">DeepSeek（深度求索）</option>
-          <option value="zhipu">智谱 GLM</option>
-          <option value="qwen">通义千问（阿里云）</option>
-          <option value="kimi">Kimi（月之暗面）</option>
-          <option value="ernie">百度文心</option>
-          <option value="gemini">Google Gemini</option>
-          <option value="anthropic">Anthropic Claude</option>
-        </select>
-      </div>
-      <div class="field"><label data-i18n="apiKeyLabel">API Key</label><input type="password" id="quickApiKey" placeholder="粘贴 API Key"></div>
-      <div class="field"><label data-i18n="modelLabel">模型</label><input type="text" id="quickModel" placeholder="gpt-4.1-mini"></div>
-      <div class="field"><label data-i18n="endpointLabel">Endpoint</label><input type="text" id="quickEndpoint" placeholder="仅 OpenAI 兼容 API 需要"></div>
-      <div class="row"><button class="btn btn-success" id="quickTest" data-i18n="testConnection">测试连接</button><button class="btn btn-primary" id="quickSave" data-i18n="saveBtn">保存</button></div>
-    </div>
-  </div>
-</div>
-<!-- LOADING -->
-<div class="loading" id="loading"><div class="loading-box"><div class="spinner"></div><strong id="loadingText">正在生成脚本...</strong></div></div>
-<div class="toast" id="toast"></div>
 
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import{getAuth,signInAnonymously,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,setDoc,doc,getDoc,getDocs,deleteDoc,query,orderBy,limit}from"https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+<pre>${escapeHtml(currentProject.content)}</pre>
 
-const firebaseConfig={apiKey:"AIzaSyD765DnPTLqSMnziFIsyatKqJ9yS_7ayog",authDomain:"page-99350.firebaseapp.com",projectId:"page-99350",storageBucket:"page-99350.firebasestorage.app",messagingSenderId:"1017475806028",appId:"1:1017475806028:web:5618c25e716b44f694d5e9"};
+</body>
+</html>`;
 
-let firebaseApp=null,auth=null,db=null,currentUser=null;
-try{
-  firebaseApp=initializeApp(firebaseConfig);
-  auth=getAuth(firebaseApp);
-  db=getFirestore(firebaseApp);
-  signInAnonymously(auth).catch(e=>{console.warn("Anonymous auth unavailable:",e);setFirebaseStatus(false,"本地模式");});
-  onAuthStateChanged(auth,user=>{
-    currentUser=user||null;
-    if(user){setFirebaseStatus(true,"云端已连接");loadCloudSettings();}
-    else{setFirebaseStatus(false,"本地模式");}
-  });
-}catch(e){console.error(e);setFirebaseStatus(false,"本地模式");}
+    downloadFile(
+        safeFilename(currentProject.title) + ".html",
+        content,
+        "text/html;charset=utf-8"
+    );
 
-const state={
-  language:localStorage.getItem("sf_language")||"zh",
-  theme:localStorage.getItem("sf_theme")||"light",
-  style:localStorage.getItem("sf_style")||"natural",
-  duration:Number(localStorage.getItem("sf_duration"))||5,
-  currentScript:localStorage.getItem("sf_current_script")||"",
-  provider:localStorage.getItem("sf_provider")||"openai",
-  apiKey:localStorage.getItem("sf_api_key")||"",
-  endpoint:localStorage.getItem("sf_endpoint")||"",
-  model:localStorage.getItem("sf_model")||"",
-  scriptLanguage:localStorage.getItem("sf_script_language")||"zh"
-};
-
-const translations={
-zh:{
-navGenerator:"脚本生成",navEditor:"脚本编辑器",navLibrary:"我的脚本",navSettings:"设置",quickSettings:"AI 配置",
-heroTitle:"把你的想法变成自然、有温度的视频脚本。",
-heroDescription:"告诉 AI 你的视频想表达什么，选择视频形式和时长。ScriptForge 会按照正常说话速度生成适合口播的视频脚本，让内容听起来更像真人，而不是 AI。",
-ideaTitle:"你的视频想法",ideaDescription:"自然地写就可以，几句话也足够。",topicLabel:"主题 / 想法",
-ideaPlaceholder:"例如：我想做一个关于人生变化的视频，讲讲别人如何评价我们，以及为什么即使生活很困难，我们依然应该继续向前。",
-durationLabel:"视频时长",formatLabel:"视频形式",languageLabel:"脚本语言",
-styleTitle:"选择写作风格",styleDescription:"不同风格会改变 AI 的表达方式。",
-charactersTitle:"角色 / 主播",charactersDescription:"如果使用播客或对话形式，可以添加不同的说话角色。",
-readyTitle:"准备开始",readyDescription:"脚本长度会根据你选择的视频时长自动计算。",
-estimatedWords:"预计字数",speakingSpeed:"语速",formatSummary:"形式",selectedStyle:"风格",
-generate:"生成脚本",openEditor:"打开编辑器",
-aiNote:"提示：如果你告诉 AI 更具体的经历、情绪和你真正想表达的信息，生成的内容通常会更加真实。",
-editorTitle:"脚本编辑器",editorDescription:"可以自己修改脚本，也可以让 AI 帮你重新表达。",
-scriptStats:"脚本统计",words:"字数",characters:"字符",readTime:"口播时间",paragraphs:"段落",exportTitle:"导出",
-libraryTitle:"我的脚本",libraryDescription:"保存的脚本会保存在本地；连接 Firebase 后也会同步到云端。",
-settingsTitle:"设置",settingsDescription:"尽量保持简单：选择一个 AI 服务商，填写 API Key，然后测试连接。",
-aiProviderTitle:"AI 服务商",aiProviderDescription:"选择你想用于生成脚本的 AI。支持国内外主流服务商。",
-languageSettings:"语言",interfaceLanguage:"界面语言",appearance:"外观",darkMode:"深色模式",darkModeDescription:"使用深色界面。",
-providerLabel:"服务商",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"模型",
-testConnection:"测试连接",saveAiSetup:"保存 AI 配置",saveBtn:"保存",
-cloudStorage:"云存储",cloudStorageDesc:"Firebase 用于保存你的 AI 配置和脚本。",
-firebaseNote:"本应用使用 Firebase 匿名认证，无需注册登录。",
-addSpeaker:"+ 添加主播",
-formatMonologue:"单人独白",formatPodcast2:"双人播客",formatPodcast3:"三人播客",formatDocumentary:"纪录片",
-formatStorytelling:"故事叙述",formatEducational:"教育科普",formatMotivational:"励志激励",formatCommentary:"新闻评论",formatShortform:"短视频",
-styleNaturalName:"自然真实",styleNaturalDesc:"像真人说话一样",styleEmotionalName:"情感充沛",styleEmotionalDesc:"个人化、有脆弱感",
-styleCinematicName:"电影感",styleCinematicDesc:"视觉化、有氛围",styleProfessionalName:"专业清晰",styleProfessionalDesc:"条理分明、打磨精细",
-styleCasualName:"轻松随意",styleCasualDesc:"放松的对话感",styleDeepName:"深度思考",styleDeepDesc:"有哲思、引人反思",
-toolbarNatural:"更自然",toolbarRewrite:"重写",toolbarShorten:"精简",toolbarExpand:"扩展",toolbarHook:"优化开头",toolbarGrammar:"修正语法",
-toolbarSave:"保存",toolbarFullscreen:"全屏",toolbarCopy:"复制",exportPdf:"PDF / 打印",
-aiEditorTitle:"AI 编辑器",aiEditorDesc:"使用 AI 功能前先在编辑器中选中文本。如果没有选中，将处理整个脚本。",
-noScriptsYet:"还没有保存的脚本。",
-untitledScript:"未命名脚本",
-localMode:"本地模式",cloudConnected:"云端已连接",notTested:"未测试",testing:"测试中...",connected:"已连接",connectionFailed:"连接失败",
-generatingScript:"AI 正在创作你的脚本...",editingScript:"AI 正在优化你的脚本...",
-enterIdeaFirst:"请先输入你的视频想法。",addApiKeyFirst:"请先添加你的 AI API Key。",
-scriptGenerated:"脚本生成完成",aiEditComplete:"AI 编辑完成",scriptSaved:"脚本已保存。",copiedClipboard:"已复制到剪贴板。",copied:"已复制。",
-scriptDeleted:"脚本已删除。",nothingToExport:"没有可导出的内容。",noScriptToRead:"没有可读取的脚本。",
-aiConnectionSuccess:"AI 连接成功。",aiConnectionFailed:"AI 连接失败。",aiReturnedEmpty:"AI 返回了空响应。",aiRequestFailed:"AI 请求失败。",
-emptyResponse:"空响应。",unsupportedProvider:"不支持的 AI 服务商。",pleaseEnterApiKey:"请输入 API Key。",
-scriptForgeTitle:"ScriptForge AI",
-formatMapSolo:"单人",formatMapPodcast2:"双人播客",formatMapPodcast3:"三人播客",formatMapDocumentary:"纪录片",
-formatMapStorytelling:"故事",formatMapEducational:"教育",formatMapMotivational:"励志",formatMapCommentary:"评论",formatMapShortform:"短视频",
-styleMapNatural:"自然",styleMapEmotional:"情感",styleMapCinematic:"电影感",styleMapProfessional:"专业",styleMapCasual:"轻松",styleMapDeep:"深度",
-defaultHostName:"主持人",defaultHostRole:"主持人",defaultGuestName:"嘉宾",defaultGuestRole:"嘉宾",
-defaultGuest2Name:"嘉宾二",defaultGuest2Role:"嘉宾",
-minutesUnit:"分钟",
-savingToCloud:"AI 配置已保存到 Firebase。",savingLocal:"AI 配置已保存在本地。",
-testingAi:"正在测试 AI 连接...",aiReturnedNoResponse:"AI 没有返回响应。"
-},
-en:{
-navGenerator:"Script Generator",navEditor:"Script Editor",navLibrary:"My Scripts",navSettings:"Settings",quickSettings:"AI Setup",
-heroTitle:"Turn your idea into a natural video script.",
-heroDescription:"Tell the AI what your video is about. Choose the format and duration. ScriptForge will create a spoken script designed to sound human, conversational and emotionally real.",
-ideaTitle:"Your video idea",ideaDescription:"Write naturally. A few sentences are enough.",topicLabel:"Topic / idea",
-ideaPlaceholder:"Example: I want to make a personal video about how life changes, how people judge us, and why we should keep moving forward even when things become difficult.",
-durationLabel:"Video duration",formatLabel:"Video format",languageLabel:"Script language",
-styleTitle:"Choose a style",styleDescription:"These presets influence the writing voice.",
-charactersTitle:"Characters / speakers",charactersDescription:"Add voices when using podcast or dialogue formats.",
-readyTitle:"Ready to create",readyDescription:"Your script length will automatically match the selected duration.",
-estimatedWords:"Estimated words",speakingSpeed:"Speaking speed",formatSummary:"Format",selectedStyle:"Style",
-generate:"Generate Script",openEditor:"Open Editor",
-aiNote:"Tip: Natural scripts often work better when your idea is specific about the emotion, experience or message you want to share.",
-editorTitle:"Script Editor",editorDescription:"Edit your script manually or ask AI to improve selected writing.",
-scriptStats:"Script stats",words:"Words",characters:"Characters",readTime:"Speaking time",paragraphs:"Paragraphs",exportTitle:"Export",
-libraryTitle:"My Scripts",libraryDescription:"Your saved scripts are stored locally and in Firebase when available.",
-settingsTitle:"Settings",settingsDescription:"Keep setup simple. Choose one AI provider, add your key and test it.",
-aiProviderTitle:"AI Provider",aiProviderDescription:"Choose the provider you want to use for script generation.",
-languageSettings:"Language",interfaceLanguage:"Interface language",appearance:"Appearance",darkMode:"Dark mode",darkModeDescription:"Use a darker interface.",
-providerLabel:"Provider",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"Model",
-testConnection:"Test Connection",saveAiSetup:"Save AI Setup",saveBtn:"Save",
-cloudStorage:"Cloud Storage",cloudStorageDesc:"Firebase is used to keep your AI configuration and saved scripts.",
-firebaseNote:"This app uses Firebase Anonymous Authentication, so no visible account or login is required.",
-addSpeaker:"+ Add speaker",
-formatMonologue:"Solo Monologue",formatPodcast2:"Two-Person Podcast",formatPodcast3:"Three-Person Podcast",formatDocumentary:"Documentary",
-formatStorytelling:"Storytelling",formatEducational:"Educational",formatMotivational:"Motivational",formatCommentary:"News/Commentary",formatShortform:"Short-form/Reel",
-styleNaturalName:"Natural & Real",styleNaturalDesc:"Like a real person talking",styleEmotionalName:"Emotional",styleEmotionalDesc:"Personal and vulnerable",
-styleCinematicName:"Cinematic",styleCinematicDesc:"Visual and atmospheric",styleProfessionalName:"Professional",styleProfessionalDesc:"Clear and polished",
-styleCasualName:"Casual",styleCasualDesc:"Relaxed conversation",styleDeepName:"Deep & Reflective",styleDeepDesc:"Thoughtful and philosophical",
-toolbarNatural:"Make Natural",toolbarRewrite:"Rewrite",toolbarShorten:"Shorten",toolbarExpand:"Expand",toolbarHook:"Improve Hook",toolbarGrammar:"Fix Grammar",
-toolbarSave:"Save",toolbarFullscreen:"Fullscreen",toolbarCopy:"Copy",exportPdf:"PDF / Print",
-aiEditorTitle:"AI Editor",aiEditorDesc:"Select text in the editor before using an AI action. If nothing is selected, the whole script will be processed.",
-noScriptsYet:"No saved scripts yet.",
-untitledScript:"Untitled Script",
-localMode:"Local mode",cloudConnected:"Cloud connected",notTested:"Not tested",testing:"Testing...",connected:"Connected",connectionFailed:"Connection failed",
-generatingScript:"Creating your script...",editingScript:"AI is improving your script...",
-enterIdeaFirst:"Please enter your video idea first.",addApiKeyFirst:"Add your AI API key first.",
-scriptGenerated:"Script generated successfully",aiEditComplete:"AI editing complete.",scriptSaved:"Script saved.",copiedClipboard:"Copied to clipboard.",copied:"Copied.",
-scriptDeleted:"Script deleted.",nothingToExport:"Nothing to export.",noScriptToRead:"There is no script to read.",
-aiConnectionSuccess:"AI connection successful.",aiConnectionFailed:"AI connection failed.",aiReturnedEmpty:"The AI returned an empty response.",aiRequestFailed:"AI request failed.",
-emptyResponse:"Empty response.",unsupportedProvider:"Unsupported AI provider.",pleaseEnterApiKey:"Please enter an API key.",
-scriptForgeTitle:"ScriptForge AI",
-formatMapSolo:"Solo",formatMapPodcast2:"2-Person Podcast",formatMapPodcast3:"3-Person Podcast",formatMapDocumentary:"Documentary",
-formatMapStorytelling:"Storytelling",formatMapEducational:"Educational",formatMapMotivational:"Motivational",formatMapCommentary:"Commentary",formatMapShortform:"Short-form",
-styleMapNatural:"Natural",styleMapEmotional:"Emotional",styleMapCinematic:"Cinematic",styleMapProfessional:"Professional",styleMapCasual:"Casual",styleMapDeep:"Deep",
-defaultHostName:"Alex",defaultHostRole:"Host",defaultGuestName:"Sam",defaultGuestRole:"Guest",
-defaultGuest2Name:"Jordan",defaultGuest2Role:"Guest",
-minutesUnit:"min",
-savingToCloud:"AI setup saved to Firebase.",savingLocal:"AI setup saved locally.",
-testingAi:"Testing AI connection...",aiReturnedNoResponse:"AI returned no response."
-},
-hi:{
-navGenerator:"स्क्रिप्ट जनरेटर",navEditor:"स्क्रिप्ट एडिटर",navLibrary:"मेरी स्क्रिप्ट",navSettings:"सेटिंग्स",quickSettings:"AI सेटअप",
-heroTitle:"अपने आइडिया को एक प्राकृतिक वीडियो स्क्रिप्ट में बदलें।",
-heroDescription:"AI को बताएं कि आपका वीडियो किस बारे में है। फॉर्मेट और अवधि चुनें। ScriptForge एक ऐसा बोलने वाला स्क्रिप्ट बनाएगा जो इंसान की बातचीत जैसा स्वाभाविक लगे।",
-ideaTitle:"आपका वीडियो आइडिया",ideaDescription:"स्वाभाविक रूप से लिखें। कुछ वाक्य भी पर्याप्त हैं।",topicLabel:"विषय / आइडिया",
-ideaPlaceholder:"उदाहरण: मैं जीवन में बदलाव, लोगों की राय और मुश्किल समय में भी आगे बढ़ते रहने पर एक व्यक्तिगत वीडियो बनाना चाहता हूँ।",
-durationLabel:"वीडियो अवधि",formatLabel:"वीडियो फॉर्मेट",languageLabel:"स्क्रिप्ट भाषा",
-styleTitle:"स्टाइल चुनें",styleDescription:"यह विकल्प AI की लेखन शैली को बदलता है।",
-charactersTitle:"किरदार / स्पीकर",charactersDescription:"पॉडकास्ट या बातचीत वाले फॉर्मेट के लिए अलग-अलग स्पीकर जोड़ें।",
-readyTitle:"बनाने के लिए तैयार",readyDescription:"स्क्रिप्ट की लंबाई आपके चुने हुए वीडियो समय के अनुसार होगी।",
-estimatedWords:"अनुमानित शब्द",speakingSpeed:"बोलने की गति",formatSummary:"फॉर्मेट",selectedStyle:"स्टाइल",
-generate:"स्क्रिप्ट बनाएं",openEditor:"एडिटर खोलें",
-aiNote:"टिप: अपने अनुभव, भावना और असली संदेश के बारे में जितना स्पष्ट लिखेंगे, स्क्रिप्ट उतनी ही प्राकृतिक बनेगी।",
-editorTitle:"स्क्रिप्ट एडिटर",editorDescription:"स्क्रिप्ट को खुद बदलें या AI से चुने हुए हिस्से को बेहतर करवाएं।",
-scriptStats:"स्क्रिप्ट आंकड़े",words:"शब्द",characters:"कैरेक्टर",readTime:"बोलने का समय",paragraphs:"पैराग्राफ",exportTitle:"एक्सपोर्ट",
-libraryTitle:"मेरी स्क्रिप्ट",libraryDescription:"सेव की गई स्क्रिप्ट स्थानीय रूप से और Firebase उपलब्ध होने पर क्लाउड में रखी जाती हैं।",
-settingsTitle:"सेटिंग्स",settingsDescription:"सेटअप को आसान रखें: एक AI provider चुनें, API key डालें और कनेक्शन टेस्ट करें।",
-aiProviderTitle:"AI Provider",aiProviderDescription:"स्क्रिप्ट बनाने के लिए अपना AI provider चुनें।",
-languageSettings:"भाषा",interfaceLanguage:"इंटरफेस भाषा",appearance:"दिखावट",darkMode:"डार्क मोड",darkModeDescription:"डार्क इंटरफेस इस्तेमाल करें।",
-providerLabel:"Provider",apiKeyLabel:"API Key",endpointLabel:"API Endpoint",modelLabel:"मॉडल",
-testConnection:"कनेक्शन टेस्ट",saveAiSetup:"AI सेटअप सेव करें",saveBtn:"सेव करें",
-cloudStorage:"क्लाउड स्टोरेज",cloudStorageDesc:"Firebase आपकी AI सेटिंग्स और स्क्रिप्ट रखने के लिए है।",
-firebaseNote:"यह ऐप Firebase Anonymous Authentication का उपयोग करता है, कोई लॉगिन आवश्यक नहीं।",
-addSpeaker:"+ स्पीकर जोड़ें",
-formatMonologue:"एकल मोनोलॉग",formatPodcast2:"दो-व्यक्ति पॉडकास्ट",formatPodcast3:"तीन-व्यक्ति पॉडकास्ट",formatDocumentary:"डॉक्यूमेंट्री",
-formatStorytelling:"कहानी",formatEducational:"शैक्षिक",formatMotivational:"प्रेरक",formatCommentary:"समाचार/टिप्पणी",formatShortform:"शॉर्ट-फॉर्म",
-styleNaturalName:"प्राकृतिक और वास्तविक",styleNaturalDesc:"असली व्यक्ति की तरह",styleEmotionalName:"भावनात्मक",styleEmotionalDesc:"व्यक्तिगत और संवेदनशील",
-styleCinematicName:"सिनेमाई",styleCinematicDesc:"दृश्य और वातावरण",styleProfessionalName:"पेशेवर",styleProfessionalDesc:"स्पष्ट और परिष्कृत",
-styleCasualName:"आकस्मिक",styleCasualDesc:"आरामदायक बातचीत",styleDeepName:"गहन और चिंतनशील",styleDeepDesc:"विचारशील और दार्शनिक",
-toolbarNatural:"प्राकृतिक बनाएं",toolbarRewrite:"फिर से लिखें",toolbarShorten:"छोटा करें",toolbarExpand:"विस्तार करें",toolbarHook:"हुक सुधारें",toolbarGrammar:"व्याकरण ठीक करें",
-toolbarSave:"सेव करें",toolbarFullscreen:"फुलस्क्रीन",toolbarCopy:"कॉपी",exportPdf:"PDF / प्रिंट",
-aiEditorTitle:"AI एडिटर",aiEditorDesc:"AI एक्शन से पहले एडिटर में टेक्स्ट चुनें। कुछ न चुनने पर पूरी स्क्रिप्ट प्रोसेस होगी।",
-noScriptsYet:"अभी कोई स्क्रिप्ट सेव नहीं है।",
-untitledScript:"अनाम स्क्रिप्ट",
-localMode:"लोकल मोड",cloudConnected:"क्लाउड कनेक्टेड",notTested:"टेस्ट नहीं हुआ",testing:"टेस्टिंग...",connected:"कनेक्टेड",connectionFailed:"कनेक्शन विफल",
-generatingScript:"AI आपकी स्क्रिप्ट बना रहा है...",editingScript:"AI स्क्रिप्ट सुधार रहा है...",
-enterIdeaFirst:"कृपया पहले अपना वीडियो आइडिया लिखें।",addApiKeyFirst:"पहले अपनी AI API key जोड़ें।",
-scriptGenerated:"स्क्रिप्ट तैयार है",aiEditComplete:"AI एडिटिंग पूरी हुई।",scriptSaved:"स्क्रिप्ट सेव हो गई।",copiedClipboard:"क्लिपबोर्ड पर कॉपी हुआ।",copied:"कॉपी हुआ।",
-scriptDeleted:"स्क्रिप्ट हटाई गई।",nothingToExport:"एक्सपोर्ट करने के लिए कुछ नहीं।",noScriptToRead:"पढ़ने के लिए कोई स्क्रिप्ट नहीं।",
-aiConnectionSuccess:"AI कनेक्शन सफल।",aiConnectionFailed:"AI कनेक्शन विफल।",aiReturnedEmpty:"AI ने खाली रिस्पॉन्स दिया।",aiRequestFailed:"AI अनुरोध विफल।",
-emptyResponse:"खाली रिस्पॉन्स।",unsupportedProvider:"असमर्थित AI प्रदाता।",pleaseEnterApiKey:"कृपया API key डालें।",
-scriptForgeTitle:"ScriptForge AI",
-formatMapSolo:"एकल",formatMapPodcast2:"2-व्यक्ति पॉडकास्ट",formatMapPodcast3:"3-व्यक्ति पॉडकास्ट",formatMapDocumentary:"डॉक्यूमेंट्री",
-formatMapStorytelling:"कहानी",formatMapEducational:"शैक्षिक",formatMapMotivational:"प्रेरक",formatMapCommentary:"टिप्पणी",formatMapShortform:"शॉर्ट-फॉर्म",
-styleMapNatural:"प्राकृतिक",styleMapEmotional:"भावनात्मक",styleMapCinematic:"सिनेमाई",styleMapProfessional:"पेशेवर",styleMapCasual:"आकस्मिक",styleMapDeep:"गहन",
-defaultHostName:"अमन",defaultHostRole:"होस्ट",defaultGuestName:"प्रिया",defaultGuestRole:"अतिथि",
-defaultGuest2Name:"राहुल",defaultGuest2Role:"अतिथि",
-minutesUnit:"मिनट",
-savingToCloud:"AI सेटअप Firebase में सेव हुआ।",savingLocal:"AI सेटअप लोकल सेव हुआ।",
-testingAi:"AI कनेक्शन टेस्ट हो रहा है...",aiReturnedNoResponse:"AI ने कोई रिस्पॉन्स नहीं दिया।"
-}
-};
-
-const $=id=>document.getElementById(id);
-function t(key){const lang=translations[state.language]||translations.zh;return lang[key]||translations.zh[key]||key;}
-function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
-function loading(show,text){$("loadingText").textContent=text||t('generatingScript');$("loading").classList.toggle("show",show);}
-function setFirebaseStatus(ok,text){
-  ["firebaseDot","firebaseDot2"].forEach(id=>{const el=$(id);if(el)el.className="dot "+(ok?"ok":"");});
-  ["firebaseStatus","firebaseStatus2"].forEach(id=>{const el=$(id);if(el)el.textContent=text;});
 }
 
-function applyLanguage(){
-  const lang=translations[state.language]?state.language:"zh";
-  document.documentElement.lang=lang;
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key=el.dataset.i18n;
-    if(translations[lang][key])el.textContent=translations[lang][key];
-  });
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-    const key=el.dataset.i18nPlaceholder;
-    if(translations[lang][key])el.placeholder=translations[lang][key];
-  });
-  $("languageSelect").value=lang;
-  $("settingsLanguage").value=lang;
-  // Update format select options
-  document.querySelectorAll("#formatSelect option").forEach(opt=>{
-    const key="format"+opt.value.charAt(0).toUpperCase()+opt.value.slice(1);
-    if(translations[lang][key])opt.textContent=translations[lang][key];
-  });
-  // Update script language select
-  document.querySelectorAll("#scriptLanguage option").forEach(opt=>{
-    if(opt.value==="zh")opt.textContent="中文";
-    else if(opt.value==="en")opt.textContent="English";
-    else if(opt.value==="hi")opt.textContent="हिन्दी";
-  });
-  localStorage.setItem("sf_language",lang);
-  // Update page title
-  const page=document.querySelector(".page.active");
-  if(page){
-    const pid=page.id.replace("page-","");
-    const keys={generator:"navGenerator",editor:"navEditor",library:"navLibrary",settings:"navSettings"};
-    $("pageTitle").textContent=t(keys[pid]||"navGenerator");
-  }
-  // Update default characters if empty
-  const chars=getCharactersRaw();
-  if(chars.length===0||(chars.length===1&&!chars[0].name&&!chars[0].role)){
-    defaultCharacters();
-  }
-  // Update duration unit
-  updateDuration();
-  // Update format summary
-  updateFormatSummary();
-  // Update style summary
-  updateStyleSummaryLabel();
-}
 
-function applyTheme(){
-  const dark=state.theme==="dark";
-  document.documentElement.classList.toggle("dark",dark);
-  $("darkModeToggle").checked=dark;
-  $("themeBtn").textContent=dark?"☀":"☾";
-}
+function exportJSON(){
 
-function showPage(page){
-  document.querySelectorAll(".page").forEach(el=>el.classList.remove("active"));
-  $("page-"+page).classList.add("active");
-  document.querySelectorAll(".nav button").forEach(btn=>btn.classList.toggle("active",btn.dataset.page===page));
-  const keys={generator:"navGenerator",editor:"navEditor",library:"navLibrary",settings:"navSettings"};
-  $("pageTitle").textContent=t(keys[page]||"navGenerator");
-  if(page==="library")loadLibrary();
-  $("sidebar").classList.remove("open");
-}
-
-function updateDuration(){
-  state.duration=Number($("durationRange").value);
-  $("durationValue").textContent=state.duration;
-  const wpm=130;
-  const words=Math.round(state.duration*wpm);
-  $("estimatedWords").textContent=words.toLocaleString();
-  localStorage.setItem("sf_duration",state.duration);
-}
-
-function updateFormatSummary(){
-  const value=$("formatSelect").value;
-  const mapKey="formatMap"+value.charAt(0).toUpperCase()+value.slice(1);
-  $("formatSummary").textContent=t(mapKey)||value;
-}
-
-function updateStyle(style){
-  state.style=style;
-  document.querySelectorAll(".preset").forEach(el=>el.classList.toggle("selected",el.dataset.style===style));
-  updateStyleSummaryLabel();
-  localStorage.setItem("sf_style",style);
-}
-
-function updateStyleSummaryLabel(){
-  const mapKey="styleMap"+state.style.charAt(0).toUpperCase()+state.style.slice(1);
-  $("styleSummary").textContent=t(mapKey)||state.style;
-}
-
-function getCharactersRaw(){
-  return [...document.querySelectorAll(".character")].map(row=>({
-    name:row.querySelector("[data-character-name]")?.value.trim()||"",
-    role:row.querySelector("[data-character-role]")?.value.trim()||""
-  }));
-}
-function getCharacters(){return getCharactersRaw();}
-
-function defaultCharacters(){
-  const format=$("formatSelect").value;
-  const hostName=t("defaultHostName"),hostRole=t("defaultHostRole");
-  const guestName=t("defaultGuestName"),guestRole=t("defaultGuestRole");
-  const guest2Name=t("defaultGuest2Name"),guest2Role=t("defaultGuest2Role");
-  let list=[{name:hostName,role:hostRole}];
-  if(format==="podcast2")list=[{name:hostName,role:hostRole},{name:guestName,role:guestRole}];
-  if(format==="podcast3")list=[{name:hostName,role:hostRole},{name:guestName,role:guestRole},{name:guest2Name,role:guest2Role}];
-  renderCharacters(list);
-}
-
-function renderCharacters(list){
-  const box=$("characters");
-  box.innerHTML="";
-  list.forEach((ch,index)=>{
-    const row=document.createElement("div");
-    row.className="character";
-    row.innerHTML=`<input value="${escapeHtml(ch.name)}" placeholder="${t('defaultHostName')}" data-character-name><input value="${escapeHtml(ch.role)}" placeholder="${t('defaultHostRole')}" data-character-role><button class="btn btn-small" data-remove-character="${index}">×</button>`;
-    box.appendChild(row);
-  });
-}
-
-function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
-
-const providerEndpoints={
-  openai:"https://api.openai.com/v1/chat/completions",
-  deepseek:"https://api.deepseek.com/v1/chat/completions",
-  zhipu:"https://open.bigmodel.cn/api/paas/v4/chat/completions",
-  qwen:"https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-  kimi:"https://api.moonshot.cn/v1/chat/completions",
-  ernie:"https://qianfan.baidubce.com/v2/chat/completions"
-};
-const providerDefaultModels={
-  openai:"gpt-4.1-mini",
-  deepseek:"deepseek-chat",
-  zhipu:"glm-4-flash",
-  qwen:"qwen-turbo",
-  kimi:"moonshot-v1-8k",
-  ernie:"ernie-4.0-turbo-8k",
-  gemini:"gemini-2.5-flash",
-  anthropic:"claude-sonnet-4-20250514"
-};
-const openAICompatibleProviders=["openai","deepseek","zhipu","qwen","kimi","ernie"];
-
-function saveAiLocal(){
-  state.provider=$("providerSelect").value;
-  state.apiKey=$("apiKey").value.trim();
-  state.endpoint=$("apiEndpoint").value.trim();
-  state.model=$("modelName").value.trim();
-  localStorage.setItem("sf_provider",state.provider);
-  localStorage.setItem("sf_api_key",state.apiKey);
-  localStorage.setItem("sf_endpoint",state.endpoint);
-  localStorage.setItem("sf_model",state.model);
-}
-
-function loadAiUI(){
-  $("providerSelect").value=state.provider;
-  $("apiKey").value=state.apiKey;
-  $("apiEndpoint").value=state.endpoint||providerEndpoints[state.provider]||"";
-  $("modelName").value=state.model||providerDefaultModels[state.provider]||"";
-  updateProviderUI();
-}
-
-function updateProviderUI(){
-  const provider=$("providerSelect").value;
-  const labels={openai:"OpenAI",deepseek:"DeepSeek（深度求索）",zhipu:"智谱 GLM",qwen:"通义千问（阿里云）",kimi:"Kimi（月之暗面）",ernie:"百度文心",gemini:"Google Gemini",anthropic:"Anthropic Claude"};
-  $("providerLabel").textContent=labels[provider]||provider;
-  if(openAICompatibleProviders.includes(provider)){
-    $("endpointField").style.display="block";
-    if(!$("apiEndpoint").value)$("apiEndpoint").value=providerEndpoints[provider]||"";
-    if(!$("modelName").value)$("modelName").value=providerDefaultModels[provider]||"";
-  }else{
-    $("endpointField").style.display="none";
-    if(!$("modelName").value)$("modelName").value=providerDefaultModels[provider]||"";
-  }
-}
-
-function userRef(){return db&&currentUser?doc(db,"users",currentUser.uid):null;}
-
-async function saveCloudSettings(){
-  if(!db||!currentUser)return false;
-  try{
-    await setDoc(doc(db,"users",currentUser.uid,"settings","ai"),{
-      provider:state.provider,apiKey:state.apiKey,endpoint:state.endpoint,model:state.model,
-      language:state.language,scriptLanguage:state.scriptLanguage,updatedAt:Date.now()
-    });
-    return true;
-  }catch(e){console.error(e);return false;}
-}
-
-async function loadCloudSettings(){
-  if(!db||!currentUser)return;
-  try{
-    const ref=doc(db,"users",currentUser.uid,"settings","ai");
-    const snap=await getDoc(ref);
-    if(snap.exists()){
-      const d=snap.data();
-      state.provider=d.provider||state.provider;
-      state.apiKey=d.apiKey||state.apiKey;
-      state.endpoint=d.endpoint||state.endpoint;
-      state.model=d.model||state.model;
-      state.language=d.language||state.language;
-      state.scriptLanguage=d.scriptLanguage||state.scriptLanguage;
-      saveAiLocal();
-      loadAiUI();
-      applyLanguage();
-      $("scriptLanguage").value=state.scriptLanguage;
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
     }
-    await loadLibrary();
-  }catch(e){console.warn("Cloud settings load failed:",e);}
+
+    downloadFile(
+        safeFilename(currentProject.title) + ".json",
+        JSON.stringify(
+            currentProject,
+            null,
+            2
+        ),
+        "application/json;charset=utf-8"
+    );
+
 }
 
-async function callAI(messages){
-  if(!state.apiKey)throw new Error(t("addApiKeyFirst"));
-  const provider=state.provider;
-  if(openAICompatibleProviders.includes(provider)){
-    const endpoint=state.endpoint||providerEndpoints[provider]||providerEndpoints.openai;
-    const model=state.model||providerDefaultModels[provider]||"gpt-4.1-mini";
-    const response=await fetch(endpoint,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":"Bearer "+state.apiKey},
-      body:JSON.stringify({model:model,messages:messages,temperature:.82})
-    });
-    const data=await response.json();
-    if(!response.ok)throw new Error(data?.error?.message||data?.message||t("aiRequestFailed"));
-    return data?.choices?.[0]?.message?.content||"";
-  }
-  if(provider==="gemini"){
-    const model=state.model||"gemini-2.5-flash";
-    const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(state.apiKey);
-    const system=messages.filter(m=>m.role==="system").map(m=>m.content).join("\n\n");
-    const user=messages.filter(m=>m.role!=="system").map(m=>m.content).join("\n\n");
-    const response=await fetch(url,{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        systemInstruction:{parts:[{text:system}]},
-        contents:[{role:"user",parts:[{text:user}]}],
-        generationConfig:{temperature:.82}
-      })
-    });
-    const data=await response.json();
-    if(!response.ok)throw new Error(data?.error?.message||t("aiRequestFailed"));
-    return data?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("")||"";
-  }
-  if(provider==="anthropic"){
-    const response=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":state.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({
-        model:state.model||"claude-sonnet-4-20250514",
-        max_tokens:12000,
-        system:messages.filter(m=>m.role==="system").map(m=>m.content).join("\n\n"),
-        messages:messages.filter(m=>m.role!=="system").map(m=>({role:m.role==="assistant"?"assistant":"user",content:m.content}))
-      })
-    });
-    const data=await response.json();
-    if(!response.ok)throw new Error(data?.error?.message||t("aiRequestFailed"));
-    return data?.content?.map(x=>x.text||"").join("")||"";
-  }
-  throw new Error(t("unsupportedProvider"));
+
+function exportWorkspace(){
+
+    downloadFile(
+        "scriptforge-workspace.json",
+        JSON.stringify(
+            {
+                projects,
+                settings
+            },
+            null,
+            2
+        ),
+        "application/json;charset=utf-8"
+    );
+
+    toast(
+        "Workspace exported.",
+        "success"
+    );
+
 }
 
-function buildScriptPrompt(){
-  const idea=$("ideaInput").value.trim();
-  const minutes=Number($("durationRange").value);
-  const format=$("formatSelect").value;
-  const language=$("scriptLanguage").value;
-  const characters=getCharacters();
-  const style=state.style;
-  const targetWords=Math.round(minutes*130);
-  const languageName={zh:"Chinese",en:"English",hi:"Hindi"}[language]||"English";
-  const formatName={
-    monologue:"single-person monologue",podcast2:"two-person podcast",podcast3:"three-person podcast",
-    documentary:"documentary narration",storytelling:"storytelling",educational:"educational explanation",
-    motivational:"motivational personal talk",commentary:"news/commentary",shortform:"short-form social video"
-  }[format];
-  return `You are an experienced human video writer.
-Create a ${minutes}-minute ${formatName} in ${languageName}.
-USER'S IDEA:
-${idea}
-WRITING STYLE:
-${style}
-TARGET LENGTH:
-Approximately ${targetWords} spoken words.
-SPEAKERS:
-${JSON.stringify(characters)}
-IMPORTANT:
-This must NOT sound like generic AI writing.
-Write like a real person who has actually thought about this subject.
-Avoid: generic phrases, clichés, corporate language, artificial inspirational quotes, perfectly symmetrical sentences, unnecessary summaries, over-explaining.
-Instead: use natural spoken language, vary sentence length, use contractions, include emotional tension, make observations that feel specific, create a strong opening, use understated emotion.
-STRUCTURE: strong hook → situation → development with examples → tension → meaningful realization → memorable closing.
-For podcast formats, make each speaker distinct. Do NOT force mechanical turn-taking.
-Return ONLY the finished script. No explanations.`;
+
+function printScript(){
+
+    if(!currentProject){
+        toast("Open a project first.","error");
+        return;
+    }
+
+    window.print();
+
 }
 
-async function generateScript(){
-  const idea=$("ideaInput").value.trim();
-  if(!idea){toast(t("enterIdeaFirst"));$("ideaInput").focus();return;}
-  try{
-    saveAiLocal();
-    if(!state.apiKey){$("quickModal").classList.add("show");toast(t("addApiKeyFirst"));return;}
-    loading(true,t("generatingScript"));
-    const result=await callAI([{role:"system",content:"You are a professional human video scriptwriter."},{role:"user",content:buildScriptPrompt()}]);
-    if(!result)throw new Error(t("aiReturnedEmpty"));
-    state.currentScript=result.trim();
-    localStorage.setItem("sf_current_script",state.currentScript);
-    $("scriptEditor").value=state.currentScript;
-    updateEditorStats();
-    showPage("editor");
-    await saveScriptToCloud();
-    toast(t("scriptGenerated"));
-  }catch(e){console.error(e);toast(e.message||t("aiRequestFailed"));}
-  finally{loading(false);}
+
+function safeFilename(name){
+
+    return name
+        .replace(/[<>:"/\\|?*]+/g,"")
+        .trim()
+        .replace(/\s+/g,"-")
+        .substring(0,100)
+        || "script";
+
 }
 
-async function aiEdit(action){
-  const editor=$("scriptEditor");
-  const full=editor.value.trim();
-  if(!full){toast(t("noScriptToRead"));return;}
-  let selected="";
-  const start=editor.selectionStart,end=editor.selectionEnd;
-  if(start!==end)selected=editor.value.substring(start,end);else selected=full;
-  const instructions={
-    natural:"Rewrite this so it sounds more like a real person speaking naturally. Remove AI-like phrasing and clichés.",
-    rewrite:"Rewrite this section with stronger wording, better rhythm and clearer storytelling.",
-    shorten:"Make this shorter and tighter. Remove repetition and filler.",
-    expand:"Expand this naturally with useful detail or emotional context.",
-    hook:"Rewrite this as a much stronger opening hook.",
-    grammar:"Fix grammar and awkward phrasing while preserving natural voice."
-  };
-  try{
-    loading(true,t("editingScript"));
-    const result=await callAI([{role:"system",content:"You are a professional human editor. Preserve personality and natural spoken rhythm."},{role:"user",content:instructions[action]+"\n\nTEXT:\n"+selected+"\n\nReturn only the improved text."}]);
-    if(!result)throw new Error(t("emptyResponse"));
-    if(start!==end)editor.value=editor.value.substring(0,start)+result.trim()+editor.value.substring(end);
-    else editor.value=result.trim();
-    state.currentScript=editor.value;
-    localStorage.setItem("sf_current_script",state.currentScript);
-    updateEditorStats();
-    toast(t("aiEditComplete"));
-  }catch(e){console.error(e);toast(e.message||t("aiRequestFailed"));}
-  finally{loading(false);}
+
+/* -----------------------------
+   SETTINGS UI
+----------------------------- */
+
+function loadSettingsUI(){
+
+    document.getElementById(
+        "appearance"
+    ).value =
+        settings.appearance;
+
+    document.getElementById(
+        "uiLanguage"
+    ).value =
+        settings.uiLanguage;
+
+    document.getElementById(
+        "defaultScriptLanguage"
+    ).value =
+        settings.defaultScriptLanguage;
+
+    document.getElementById(
+        "defaultWpm"
+    ).value =
+        settings.defaultWpm;
+
+    document.getElementById(
+        "autoSave"
+    ).checked =
+        settings.autoSave;
+
+    document.getElementById(
+        "scriptLanguage"
+    ).value =
+        settings.defaultScriptLanguage;
+
 }
 
-function updateEditorStats(){
-  const text=$("scriptEditor").value;
-  const words=text.trim()?text.trim().split(/\s+/).length:0;
-  const chars=text.length;
-  const paragraphs=text.trim()?text.split(/\n\s*\n/).filter(Boolean).length:0;
-  const seconds=words/130*60;
-  const minutes=Math.floor(seconds/60);
-  const secs=Math.round(seconds%60);
-  $("wordCount").textContent=words.toLocaleString();
-  $("charCount").textContent=chars.toLocaleString();
-  $("paragraphCount").textContent=paragraphs;
-  $("estimatedTime").textContent=`${minutes}:${String(secs).padStart(2,"0")}`;
+
+/* -----------------------------
+   TRANSLATION
+----------------------------- */
+
+function applyTranslations(){
+
+    const lang =
+        translations[
+            settings.uiLanguage
+        ] ||
+        translations.English;
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+            const key =
+                element.dataset.i18n;
+
+            if(lang[key]){
+                element.textContent =
+                    lang[key];
+            }
+
+        });
+
 }
 
-function getTitleFromScript(text){
-  const first=text.split("\n").map(x=>x.trim()).find(Boolean);
-  if(!first)return t("untitledScript");
-  return first.length>70?first.slice(0,70)+"...":first;
+
+/* -----------------------------
+   CLEAR DATA
+----------------------------- */
+
+function clearData(){
+
+    if(
+        !confirm(
+            "This will delete all projects, providers and settings from this browser. Continue?"
+        )
+    ){
+        return;
+    }
+
+    localStorage.removeItem(
+        STORAGE.projects
+    );
+
+    localStorage.removeItem(
+        STORAGE.providers
+    );
+
+    localStorage.removeItem(
+        STORAGE.settings
+    );
+
+    projects = [];
+
+    providers = [];
+
+    currentProject = null;
+
+    location.reload();
+
 }
 
-async function saveScriptToCloud(){
-  const text=$("scriptEditor").value.trim();
-  if(!text)return;
-  const title=getTitleFromScript(text);
-  const scriptData={title,content:text,language:$("scriptLanguage").value,format:$("formatSelect").value,duration:Number($("durationRange").value),style:state.style,createdAt:Date.now()};
-  const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
-  local.unshift({id:"local-"+Date.now(),...scriptData});
-  localStorage.setItem("sf_scripts",JSON.stringify(local.slice(0,50)));
-  if(db&&currentUser){
-    try{await addDoc(collection(db,"users",currentUser.uid,"scripts"),scriptData);}catch(e){console.warn("Cloud save failed:",e);}
-  }
+
+/* -----------------------------
+   UTILITY
+----------------------------- */
+
+function delay(ms){
+
+    return new Promise(
+        resolve =>
+            setTimeout(resolve,ms)
+    );
+
 }
 
-async function loadLibrary(){
-  const box=$("libraryList");
-  box.innerHTML="";
-  let items=[];
-  const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
-  items.push(...local);
-  if(db&&currentUser){
-    try{
-      const q=query(collection(db,"users",currentUser.uid,"scripts"),orderBy("createdAt","desc"),limit(50));
-      const snap=await getDocs(q);
-      snap.forEach(docSnap=>items.push({id:docSnap.id,cloud:true,...docSnap.data()}));
-    }catch(e){console.warn("Library cloud load failed:",e);}
-  }
-  const map=new Map();
-  items.forEach(item=>{const key=item.content||item.id;if(!map.has(key))map.set(key,item);});
-  items=[...map.values()].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(!items.length){
-    box.innerHTML=`<div class="card"><div class="card-body muted">${t("noScriptsYet")}</div></div>`;
-    return;
-  }
-  items.forEach(item=>{
-    const el=document.createElement("div");
-    el.className="script-item";
-    const date=item.createdAt?new Date(item.createdAt).toLocaleString():"";
-    el.innerHTML=`<div><h4>${escapeHtml(item.title||t("untitledScript"))}</h4><p>${escapeHtml(date)} · ${escapeHtml(item.language||"zh")} · ${escapeHtml(String(item.duration||""))} ${t("minutesUnit")}</p></div><div class="script-actions"><button class="btn btn-small" data-open-script>${t("openEditor")}</button><button class="btn btn-small" data-delete-script>${t("toolbarShorten")}</button></div>`;
-    el.querySelector("[data-open-script]").onclick=()=>{
-      state.currentScript=item.content;
-      $("scriptEditor").value=item.content;
-      localStorage.setItem("sf_current_script",item.content);
-      updateEditorStats();
-      showPage("editor");
-    };
-    el.querySelector("[data-delete-script]").onclick=async()=>{
-      if(item.cloud&&db&&currentUser){try{await deleteDoc(doc(db,"users",currentUser.uid,"scripts",item.id));}catch(e){console.warn(e);}}
-      const local=JSON.parse(localStorage.getItem("sf_scripts")||"[]");
-      localStorage.setItem("sf_scripts",JSON.stringify(local.filter(x=>x.content!==item.content)));
-      await loadLibrary();
-      toast(t("scriptDeleted"));
-    };
-    box.appendChild(el);
-  });
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
 }
 
-async function testAI(){
-  saveAiLocal();
-  if(!state.apiKey){toast(t("pleaseEnterApiKey"));return;}
-  $("aiStatus").textContent=t("testing");
-  $("aiDot").className="dot";
-  try{
-    const result=await callAI([{role:"system",content:"Reply with exactly: Connection successful."},{role:"user",content:"Test connection."}]);
-    if(!result)throw new Error(t("emptyResponse"));
-    $("aiStatus").textContent=t("connected");
-    $("aiDot").className="dot ok";
-    toast(t("aiConnectionSuccess"));
-  }catch(e){
-    $("aiStatus").textContent=t("connectionFailed");
-    $("aiDot").className="dot error";
-    toast(e.message||t("aiConnectionFailed"));
-  }
+
+/* -----------------------------
+   TOAST
+----------------------------- */
+
+function toast(message,type="success"){
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "toast " + type;
+
+    div.textContent =
+        message;
+
+    container.appendChild(div);
+
+    setTimeout(() => {
+
+        div.remove();
+
+    },3500);
+
 }
 
-async function saveAiSetup(){
-  saveAiLocal();
-  const cloud=await saveCloudSettings();
-  toast(cloud?t("savingToCloud"):t("savingLocal"));
+
+/* -----------------------------
+   KEYBOARD SHORTCUTS
+----------------------------- */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if(
+            (e.ctrlKey || e.metaKey) &&
+            e.key.toLowerCase() === "s"
+        ){
+
+            e.preventDefault();
+
+            saveCurrentProject();
+
+        }
+
+    }
+);
+
+
+/* -----------------------------
+   PROVIDER MODAL CLICK OUTSIDE
+----------------------------- */
+
+document
+    .getElementById("providerModal")
+    .addEventListener(
+        "click",
+        e => {
+
+            if(
+                e.target.id ===
+                "providerModal"
+            ){
+                closeProviderModal();
+            }
+
+        }
+    );
+
+
+/* -----------------------------
+   EXPORT MENU
+----------------------------- */
+
+document
+    .getElementById("scriptEditor")
+    .addEventListener(
+        "contextmenu",
+        () => {}
+    );
+
+
+/* Add export buttons dynamically
+   to editor toolbar */
+
+const toolbar =
+    document.querySelector(".toolbar");
+
+if(toolbar){
+
+    const exportWrap =
+        document.createElement("div");
+
+    exportWrap.style.cssText =
+        "display:flex;gap:5px;margin-left:5px;";
+
+    exportWrap.innerHTML = `
+
+        <button onclick="exportTXT()">
+            TXT
+        </button>
+
+        <button onclick="exportMarkdown()">
+            MD
+        </button>
+
+        <button onclick="exportHTML()">
+            HTML
+        </button>
+
+        <button onclick="exportJSON()">
+            JSON
+        </button>
+
+    `;
+
+    toolbar.appendChild(
+        exportWrap
+    );
+
 }
 
-function syncQuickUI(){
-  $("quickProvider").value=state.provider;
-  $("quickApiKey").value=state.apiKey;
-  $("quickModel").value=state.model||providerDefaultModels[state.provider]||"";
-  $("quickEndpoint").value=state.endpoint||providerEndpoints[state.provider]||"";
+
+/* -----------------------------
+   SYSTEM THEME
+----------------------------- */
+
+if(window.matchMedia){
+
+    window
+        .matchMedia(
+            "(prefers-color-scheme: light)"
+        )
+        .addEventListener(
+            "change",
+            () => {
+
+                if(
+                    settings.appearance ===
+                    "system"
+                ){
+
+                    applyAppearance();
+
+                }
+
+            }
+        );
+
 }
 
-async function quickSave(){
-  state.provider=$("quickProvider").value;
-  state.apiKey=$("quickApiKey").value.trim();
-  state.model=$("quickModel").value.trim();
-  state.endpoint=$("quickEndpoint").value.trim();
-  loadAiUI();
-  await saveAiSetup();
-  $("quickModal").classList.remove("show");
-}
 
-function downloadFile(content,filename,type){
-  const blob=new Blob([content],{type});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();a.remove();
-  URL.revokeObjectURL(url);
-}
-function exportTxt(){
-  const text=$("scriptEditor").value;
-  if(!text.trim()){toast(t("nothingToExport"));return;}
-  downloadFile(text,"scriptforge-script.txt","text/plain;charset=utf-8");
-}
-function exportMarkdown(){
-  const text=$("scriptEditor").value;
-  if(!text.trim()){toast(t("nothingToExport"));return;}
-  const title=getTitleFromScript(text);
-  const md=`# ${title}\n\nGenerated with ScriptForge AI\n\n---\n\n${text}\n`;
-  downloadFile(md,"scriptforge-script.md","text/markdown;charset=utf-8");
-}
-function openReader(){
-  const text=$("scriptEditor").value.trim();
-  if(!text){toast(t("noScriptToRead"));return;}
-  const title=getTitleFromScript(text);
-  $("readerTitle").textContent=title;
-  $("pdfTitle").textContent=title;
-  $("pdfMeta").textContent=`ScriptForge AI · ${$("scriptLanguage").value} · ${$("durationRange").value} ${t("minutesUnit")}`;
-  $("readerText").textContent=text;
-  $("readerModal").classList.add("show");
-}
-function printReader(){openReader();setTimeout(()=>window.print(),250);}
+/* -----------------------------
+   INITIAL TRANSLATION
+----------------------------- */
 
-// Events
-document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
-$("mobileMenu").onclick=()=>$("sidebar").classList.toggle("open");
-$("themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";localStorage.setItem("sf_theme",state.theme);applyTheme();};
-$("darkModeToggle").onchange=()=>{state.theme=$("darkModeToggle").checked?"dark":"light";localStorage.setItem("sf_theme",state.theme);applyTheme();};
-$("languageSelect").onchange=()=>{state.language=$("languageSelect").value;applyLanguage();};
-$("settingsLanguage").onchange=()=>{state.language=$("settingsLanguage").value;applyLanguage();};
-$("scriptLanguage").onchange=()=>{state.scriptLanguage=$("scriptLanguage").value;localStorage.setItem("sf_script_language",state.scriptLanguage);};
-$("durationRange").oninput=updateDuration;
-$("formatSelect").onchange=()=>{updateFormatSummary();defaultCharacters();};
-document.querySelectorAll(".preset").forEach(btn=>{btn.onclick=()=>updateStyle(btn.dataset.style);});
-$("addCharacter").onclick=()=>{
-  const current=getCharacters();
-  current.push({name:t("defaultGuestName"),role:t("defaultGuestRole")});
-  renderCharacters(current);
-};
-$("characters").addEventListener("click",event=>{
-  const btn=event.target.closest("[data-remove-character]");
-  if(!btn)return;
-  const index=Number(btn.dataset.removeCharacter);
-  const current=getCharacters();
-  current.splice(index,1);
-  renderCharacters(current);
-});
-$("generateBtn").onclick=generateScript;
-$("openEditorAfter").onclick=()=>showPage("editor");
-$("scriptEditor").addEventListener("input",()=>{state.currentScript=$("scriptEditor").value;localStorage.setItem("sf_current_script",state.currentScript);updateEditorStats();});
-document.querySelectorAll("[data-ai-action]").forEach(btn=>{btn.onclick=()=>aiEdit(btn.dataset.aiAction);});
-$("saveScriptBtn").onclick=async()=>{await saveScriptToCloud();toast(t("scriptSaved"));};
-$("copyBtn").onclick=async()=>{await navigator.clipboard.writeText($("scriptEditor").value);toast(t("copiedClipboard"));};
-$("readerBtn").onclick=openReader;
-$("readerClose").onclick=()=>$("readerModal").classList.remove("show");
-$("readerCopy").onclick=async()=>{await navigator.clipboard.writeText($("readerText").textContent);toast(t("copied"));};
-$("readerPrint").onclick=()=>window.print();
-$("exportTxt").onclick=exportTxt;
-$("exportMarkdown").onclick=exportMarkdown;
-$("exportPdf").onclick=printReader;
-$("providerSelect").onchange=updateProviderUI;
-$("saveAiBtn").onclick=saveAiSetup;
-$("testAiBtn").onclick=testAI;
-$("quickSettingsBtn").onclick=()=>{syncQuickUI();$("quickModal").classList.add("show");};
-$("quickClose").onclick=()=>$("quickModal").classList.remove("show");
-$("quickProvider").onchange=()=>{
-  const p=$("quickProvider").value;
-  if(openAICompatibleProviders.includes(p)){
-    if(!$("quickModel").value)$("quickModel").value=providerDefaultModels[p]||"";
-    if(!$("quickEndpoint").value)$("quickEndpoint").value=providerEndpoints[p]||"";
-    $("quickEndpoint").style.display="block";
-  }else{
-    if(!$("quickModel").value)$("quickModel").value=providerDefaultModels[p]||"";
-  }
-};
-$("quickSave").onclick=quickSave;
-$("quickTest").onclick=async()=>{
-  state.provider=$("quickProvider").value;
-  state.apiKey=$("quickApiKey").value.trim();
-  state.model=$("quickModel").value.trim();
-  state.endpoint=$("quickEndpoint").value.trim();
-  try{
-    toast(t("testingAi"));
-    const result=await callAI([{role:"system",content:"Reply with exactly: OK"},{role:"user",content:"Connection test."}]);
-    toast(result?t("aiConnectionSuccess"):t("aiReturnedNoResponse"));
-  }catch(e){toast(e.message||t("aiConnectionFailed"));}
-};
-document.querySelectorAll(".modal").forEach(modal=>{
-  modal.addEventListener("click",event=>{if(event.target===modal)modal.classList.remove("show");});
-});
+applyTranslations();
 
-function init(){
-  $("durationRange").value=state.duration;
-  $("scriptLanguage").value=state.scriptLanguage;
-  $("scriptEditor").value=state.currentScript;
-  applyLanguage();
-  applyTheme();
-  loadAiUI();
-  updateDuration();
-  updateFormatSummary();
-  updateStyle(state.style);
-  defaultCharacters();
-  updateEditorStats();
-  loadLibrary();
-}
-init();
+
 </script>
+
 </body>
 </html>
