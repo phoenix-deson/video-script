@@ -1,237 +1,110 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek 爆款视频脚本生成器</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked.js 用于解析 Markdown 输出 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="AI video script studio powered by DeepSeek">
+<title>ScriptForge — AI Video Script Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+html{scroll-behavior:smooth}body{background:#f6f7fb}.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px)}.gradient-text{background:linear-gradient(90deg,#4f46e5,#7c3aed,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent}.hero-grid{background-image:linear-gradient(rgba(99,102,241,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.07) 1px,transparent 1px);background-size:28px 28px}.script-content h1,.script-content h2,.script-content h3{font-weight:800;margin:1.2rem 0 .6rem}.script-content table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}.script-content th,.script-content td{border:1px solid #e5e7eb;padding:.65rem;vertical-align:top}.script-content th{background:#f8fafc}.script-content blockquote{border-left:4px solid #6366f1;padding-left:1rem;color:#475569}.tab.active{background:#111827;color:white}.range-label{font-variant-numeric:tabular-nums}.toast{animation:toast .25s ease}@keyframes toast{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 font-sans">
+<body class="text-slate-900">
+<header class="sticky top-0 z-40 border-b border-slate-200/80 glass">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white grid place-items-center text-xl shadow-lg">✦</div><div><div class="font-black tracking-tight">ScriptForge</div><div class="text-[11px] text-slate-500" data-i18n="tagline">AI Video Script Studio</div></div></div>
+<div class="flex items-center gap-2"><button id="historyBtn" class="hidden sm:block px-3 py-2 text-sm rounded-lg hover:bg-slate-100" data-i18n="history">History</button><button id="langBtn" class="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white">中文</button></div>
+</div></header>
 
-    <!-- Header -->
-    <header class="bg-indigo-600 text-white py-6 shadow-md">
-        <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold flex items-center gap-2">
-                    🎬 爆款视频脚本 AI 生成器
-                </h1>
-                <p class="text-xs text-indigo-200 mt-1">基于 DeepSeek AI · 纯静态 GitHub Pages 部署</p>
-            </div>
-            <button onclick="toggleSettings()" class="bg-indigo-700 hover:bg-indigo-800 text-xs px-3 py-2 rounded-lg transition border border-indigo-500">
-                ⚙️ API 设置
-            </button>
-        </div>
-    </header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+<section class="hero-grid rounded-3xl p-7 sm:p-10 bg-white border border-slate-200 shadow-sm mb-6">
+<div class="max-w-4xl"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-4"><span>●</span><span data-i18n="badge">Built for creators</span></div><h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-[1.05]"><span data-i18n="hero1">Turn an idea into a</span> <span class="gradient-text" data-i18n="hero2">production-ready script</span></h1><p class="mt-5 text-slate-600 text-base sm:text-lg max-w-3xl" data-i18n="heroDesc">Generate hooks, titles, scenes, voiceover, visual directions, retention beats and calls to action in one professional workflow.</p></div>
+</section>
 
-    <main class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<section class="lg:col-span-5 space-y-5">
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+<div class="flex items-center justify-between mb-4"><h2 class="font-black" data-i18n="brief">Creative brief</h2><button id="ideaBtn" class="text-xs font-bold text-indigo-600 hover:text-indigo-800" data-i18n="inspire">✦ Inspire me</button></div>
+<label class="text-xs font-bold text-slate-600" data-i18n="topic">Topic or idea</label><textarea id="topic" rows="4" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 outline-none focus:ring-2 focus:ring-indigo-500" data-i18n-placeholder="topicPH" placeholder="e.g. Why most people waste the first hour of their day"></textarea>
+<div class="grid grid-cols-2 gap-3 mt-4"><div><label class="text-xs font-bold text-slate-600" data-i18n="format">Format</label><select id="format" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option value="solo">Solo narration</option><option value="talking">Talking head</option><option value="story">Storytelling</option><option value="documentary">Mini documentary</option><option value="educational">Educational explainer</option><option value="product">Product / UGC</option><option value="interview">Interview</option><option value="shortfilm">Short-form drama</option></select></div><div><label class="text-xs font-bold text-slate-600" data-i18n="platform">Platform</label><select id="platform" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option>TikTok</option><option>YouTube Shorts</option><option>Instagram Reels</option><option>YouTube</option><option>Podcast</option><option>LinkedIn</option><option>Bilibili</option><option>Custom</option></select></div></div>
+<div class="grid grid-cols-2 gap-3 mt-4"><div><label class="text-xs font-bold text-slate-600" data-i18n="duration">Duration</label><select id="duration" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option value="30 seconds">30 seconds</option><option value="60 seconds">60 seconds</option><option value="90 seconds">90 seconds</option><option value="3 minutes">3 minutes</option><option value="5 minutes">5 minutes</option><option value="8 minutes">8 minutes</option><option value="10 minutes">10 minutes</option></select></div><div><label class="text-xs font-bold text-slate-600" data-i18n="audience">Audience</label><select id="audience" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option>General audience</option><option>Beginners</option><option>Professionals</option><option>Gen Z</option><option>Business owners</option><option>Creators</option><option>Custom</option></select></div></div>
+<div class="mt-4"><label class="text-xs font-bold text-slate-600" data-i18n="tone">Tone</label><div id="toneWrap" class="grid grid-cols-3 gap-2 mt-1.5"><button class="tone active px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="high-energy">High-energy</button><button class="tone px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="smart">Smart & clear</button><button class="tone px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="emotional">Emotional</button><button class="tone px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="cinematic">Cinematic</button><button class="tone px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="funny">Funny</button><button class="tone px-2 py-2.5 rounded-xl border text-xs font-bold" data-value="bold">Bold & provocative</button></div></div>
+<div class="grid grid-cols-2 gap-3 mt-4"><div><label class="text-xs font-bold text-slate-600" data-i18n="goal">Primary goal</label><select id="goal" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option>Views & retention</option><option>Followers</option><option>Comments & discussion</option><option>Leads / sales</option><option>Education</option><option>Personal brand</option></select></div><div><label class="text-xs font-bold text-slate-600" data-i18n="intensity">Hook intensity</label><select id="intensity" class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 bg-white"><option value="aggressive">Aggressive</option><option value="strong" selected>Strong</option><option value="balanced">Balanced</option><option value="soft">Soft</option></select></div></div>
+<label class="flex items-center gap-2 mt-4 text-sm"><input id="captions" type="checkbox" checked class="accent-indigo-600"><span data-i18n="captions">Write caption-friendly lines</span></label>
+<label class="flex items-center gap-2 mt-2 text-sm"><input id="broll" type="checkbox" checked class="accent-indigo-600"><span data-i18n="broll">Add B-roll suggestions</span></label>
+<button id="generate" class="mt-5 w-full py-3.5 rounded-xl bg-slate-950 text-white font-black shadow-lg hover:bg-indigo-700 transition disabled:opacity-50" data-i18n="generate">Generate professional script →</button>
+</div>
 
-        <!-- 左侧：控制面板 -->
-        <section class="md:col-span-5 bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit space-y-4">
-            
-            <!-- API Key 设置框 (默认隐蔽) -->
-            <div id="settingsPanel" class="hidden bg-slate-100 p-4 rounded-lg border border-slate-300 space-y-2">
-                <label class="block text-xs font-semibold text-slate-600">DeepSeek API Key:</label>
-                <input type="password" id="apiKeyInput" placeholder="sk-..." class="w-full text-xs p-2 rounded border focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                <p class="text-[10px] text-slate-500">Key 将安全地保存在本地浏览器 (LocalStorage) 中，绝不上传。</p>
-            </div>
+<div class="bg-slate-950 text-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between"><h3 class="font-black" data-i18n="api">AI connection</h3><span id="apiStatus" class="text-[10px] px-2 py-1 rounded-full bg-white/10">Not configured</span></div><p class="text-xs text-slate-400 mt-2" data-i18n="apiDesc">For a pure static GitHub Pages site, a runtime secret cannot be kept private. Use a user-supplied key here, or connect this page to your own secure serverless proxy.</p><button id="apiSettings" class="mt-3 text-xs font-bold underline" data-i18n="apiSettings">Configure DeepSeek key</button></div>
+</section>
 
-            <!-- 视频类型选择 -->
-            <div>
-                <label class="block text-sm font-semibold mb-1 text-slate-700">脚本模式</label>
-                <select id="scriptType" class="w-full text-sm p-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-indigo-500">
-                    <option value="口播直录">真人出镜口播 (强观点/知识分享)</option>
-                    <option value="单人旁白">单人纪录片/故事旁白 (画面配合画外音)</option>
-                    <option value="情景对话">双人对话/小品戏剧 (冲突剧情)</option>
-                    <option value="产品带货">短视频带货 (痛点+种草+转化)</option>
-                </select>
-            </div>
+<section class="lg:col-span-7">
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[720px] overflow-hidden"><div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3"><div><h2 class="font-black" data-i18n="result">Your script</h2><div id="meta" class="text-[11px] text-slate-400 mt-1">Ready</div></div><div class="flex gap-2"><button id="copy" class="hidden px-3 py-2 text-xs font-bold rounded-lg bg-slate-100" data-i18n="copy">Copy</button><button id="download" class="hidden px-3 py-2 text-xs font-bold rounded-lg bg-slate-100" data-i18n="download">Download</button><button id="clear" class="px-3 py-2 text-xs font-bold rounded-lg hover:bg-slate-100" data-i18n="clear">Clear</button></div></div>
+<div id="output" class="p-5 sm:p-7 script-content text-sm leading-7"><div id="empty" class="min-h-[590px] grid place-items-center text-center"><div><div class="text-6xl mb-4">🎬</div><h3 class="font-black text-xl" data-i18n="emptyTitle">Your next video starts here</h3><p class="text-slate-500 mt-2 max-w-md" data-i18n="emptyDesc">Give me a topic, choose your format, and I will build the complete creative blueprint.</p><div class="flex flex-wrap justify-center gap-2 mt-5 text-xs text-slate-500"><span class="px-3 py-1.5 rounded-full bg-slate-100">Hook</span><span class="px-3 py-1.5 rounded-full bg-slate-100">Titles</span><span class="px-3 py-1.5 rounded-full bg-slate-100">Scenes</span><span class="px-3 py-1.5 rounded-full bg-slate-100">CTA</span><span class="px-3 py-1.5 rounded-full bg-slate-100">Retention</span></div></div></div><div id="loading" class="hidden min-h-[590px] grid place-items-center text-center"><div><div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto"></div><p class="font-bold mt-4" data-i18n="thinking">Crafting your script...</p><p class="text-xs text-slate-400 mt-1" data-i18n="thinkingDesc">Analyzing hooks, pacing, structure and viewer psychology</p></div></div><div id="script" class="hidden"></div></div></div>
+</section>
+</div>
 
-            <!-- 目标时长 & 风格 -->
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-sm font-semibold mb-1 text-slate-700">预计时长</label>
-                    <select id="duration" class="w-full text-sm p-2.5 rounded-lg border border-slate-300 bg-white">
-                        <option value="30秒短视频">30秒 (快节奏短视频)</option>
-                        <option value="1分钟">1分钟 (黄金时长)</option>
-                        <option value="3分钟中视频">3分钟 (深度科普/故事)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1 text-slate-700">语气风格</label>
-                    <select id="tone" class="w-full text-sm p-2.5 rounded-lg border border-slate-300 bg-white">
-                        <option value="幽默风趣，吸引眼球">幽默/爆款梗</option>
-                        <option value="专业严谨，干货满满">专业/硬核科普</option>
-                        <option value="情感共鸣，温暖治愈">情感/治愈系</option>
-                        <option value="悬疑高能，层层反转">悬疑/反转剧情</option>
-                    </select>
-                </div>
-            </div>
+<section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white border rounded-2xl p-5"><div class="text-2xl">⚡</div><h3 class="font-black mt-3" data-i18n="f1">Retention-first structure</h3><p class="text-sm text-slate-500 mt-1" data-i18n="f1d">Hooks, open loops, pattern interrupts and payoff timing are planned into the script.</p></div><div class="bg-white border rounded-2xl p-5"><div class="text-2xl">🎥</div><h3 class="font-black mt-3" data-i18n="f2">Production-ready</h3><p class="text-sm text-slate-500 mt-1" data-i18n="f2d">Every beat can include dialogue, visuals, camera direction, B-roll and audio cues.</p></div><div class="bg-white border rounded-2xl p-5"><div class="text-2xl">🧠</div><h3 class="font-black mt-3" data-i18n="f3">Creator toolkit</h3><p class="text-sm text-slate-500 mt-1" data-i18n="f3d">Get titles, thumbnail concepts, description, hashtags and a pinned-comment idea alongside the script.</p></div></section>
+</main>
+<footer class="max-w-7xl mx-auto px-4 sm:px-6 pb-8 text-xs text-slate-400 flex flex-wrap justify-between gap-3"><span>ScriptForge · DeepSeek powered</span><span data-i18n="footer">Your API key stays in this browser when using direct mode.</span></footer>
 
-            <!-- 主题输入 + 灵感一下 -->
-            <div>
-                <div class="flex justify-between items-center mb-1">
-                    <label class="block text-sm font-semibold text-slate-700">视频核心主题</label>
-                    <button onclick="getRandomIdea()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
-                        🎲 灵感一下
-                    </button>
-                </div>
-                <textarea id="topicInput" rows="3" placeholder="例如：给打工人的提神咖啡推荐，或者讲述程序员如何防脱发..." class="w-full text-sm p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
-            </div>
+<div id="modal" class="hidden fixed inset-0 z-50 bg-slate-950/50 p-4 grid place-items-center"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl"><div class="flex justify-between"><h2 class="font-black" data-i18n="modalTitle">DeepSeek connection</h2><button id="closeModal">✕</button></div><p class="text-sm text-slate-500 mt-2" data-i18n="modalDesc">Direct browser mode requires a key supplied by the user. Do not place a production secret directly inside index.html or any client-side JavaScript.</p><label class="block text-xs font-bold mt-5" data-i18n="keyLabel">DeepSeek API key</label><input id="key" type="password" class="mt-1.5 w-full border rounded-xl p-3" placeholder="sk-..."><label class="block text-xs font-bold mt-4" data-i18n="endpointLabel">API endpoint</label><input id="endpoint" class="mt-1.5 w-full border rounded-xl p-3" value="https://api.deepseek.com/chat/completions"><div class="flex gap-2 mt-5"><button id="saveKey" class="flex-1 bg-slate-950 text-white py-3 rounded-xl font-bold" data-i18n="save">Save locally</button><button id="removeKey" class="px-4 py-3 rounded-xl border font-bold" data-i18n="remove">Remove</button></div></div></div>
+<div id="toast" class="fixed bottom-5 right-5 hidden z-[60] bg-slate-950 text-white px-4 py-3 rounded-xl text-sm shadow-xl"></div>
 
-            <!-- 生成按钮 -->
-            <button id="generateBtn" onclick="generateScript()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg shadow transition flex items-center justify-center gap-2">
-                ✨ 生成专业脚本
-            </button>
-        </section>
+<script>
+const I18N={
+en:{tagline:'AI Video Script Studio',history:'History',badge:'Built for creators',hero1:'Turn an idea into a',hero2:'production-ready script',heroDesc:'Generate hooks, titles, scenes, voiceover, visual directions, retention beats and calls to action in one professional workflow.',brief:'Creative brief',inspire:'✦ Inspire me',topic:'Topic or idea',topicPH:'e.g. Why most people waste the first hour of their day',format:'Format',platform:'Platform',duration:'Duration',audience:'Audience',tone:'Tone',goal:'Primary goal',intensity:'Hook intensity',captions:'Write caption-friendly lines',broll:'Add B-roll suggestions',generate:'Generate professional script →',api:'AI connection',apiDesc:'For a pure static GitHub Pages site, a runtime secret cannot be kept private. Use a user-supplied key here, or connect this page to your own secure serverless proxy.',apiSettings:'Configure DeepSeek key',result:'Your script',copy:'Copy',download:'Download',clear:'Clear',emptyTitle:'Your next video starts here',emptyDesc:'Give me a topic, choose your format, and I will build the complete creative blueprint.',thinking:'Crafting your script...',thinkingDesc:'Analyzing hooks, pacing, structure and viewer psychology',f1:'Retention-first structure',f1d:'Hooks, open loops, pattern interrupts and payoff timing are planned into the script.',f2:'Production-ready',f2d:'Every beat can include dialogue, visuals, camera direction, B-roll and audio cues.',f3:'Creator toolkit',f3d:'Get titles, thumbnail concepts, description, hashtags and a pinned-comment idea alongside the script.',footer:'Your API key stays in this browser when using direct mode.',modalTitle:'DeepSeek connection',modalDesc:'Direct browser mode requires a key supplied by the user. Do not place a production secret directly inside index.html or any client-side JavaScript.',keyLabel:'DeepSeek API key',endpointLabel:'API endpoint',save:'Save locally',remove:'Remove'},
+zh:{tagline:'AI 视频脚本工作室',history:'历史记录',badge:'为创作者打造',hero1:'把一个灵感变成',hero2:'可以直接拍摄的专业脚本',heroDesc:'一次生成黄金开场、爆款标题、分镜、旁白、画面指导、留存节点和行动号召。',brief:'创作需求',inspire:'✦ 灵感一下',topic:'主题或灵感',topicPH:'例如：为什么大多数人都浪费了每天的第一个小时',format:'视频形式',platform:'发布平台',duration:'视频时长',audience:'目标受众',tone:'内容风格',goal:'主要目标',intensity:'开场冲击力',captions:'生成适合字幕的短句',broll:'加入补充画面建议',generate:'生成专业脚本 →',api:'AI 连接',apiDesc:'纯静态 GitHub Pages 无法安全保存运行时密钥。可以由用户在本机输入密钥，或将页面连接到你自己的安全服务端代理。',apiSettings:'配置 DeepSeek 密钥',result:'生成结果',copy:'复制',download:'下载',clear:'清空',emptyTitle:'你的下一个视频，从这里开始',emptyDesc:'输入主题并选择形式，我会帮你搭建完整的创作蓝图。',thinking:'正在创作脚本……',thinkingDesc:'正在分析开场、节奏、结构和观众心理',f1:'以留存为核心',f1d:'脚本会规划黄金开场、悬念、节奏变化和信息释放时机。',f2:'可以直接制作',f2d:'每个节拍都可以包含台词、画面、镜头、补充素材和声音提示。',f3:'创作者工具箱',f3d:'除了脚本，还会生成标题、封面创意、简介、话题标签和置顶评论。',footer:'使用直连模式时，你的密钥只保存在当前浏览器。',modalTitle:'DeepSeek 连接',modalDesc:'浏览器直连模式需要由用户提供密钥。不要把生产环境密钥直接写进 index.html 或任何前端代码。',keyLabel:'DeepSeek 密钥',endpointLabel:'接口地址',save:'本地保存',remove:'删除'}
+};
+let lang=localStorage.getItem('sf_lang')||'en';
+const $=id=>document.getElementById(id); const t=k=>I18N[lang][k]||I18N.en[k]||k;
+function applyLang(){document.documentElement.lang=lang==='en'?'en':'zh-CN';document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));document.querySelectorAll('[data-i18n-placeholder]').forEach(e=>e.placeholder=t(e.dataset.i18nPlaceholder));$('langBtn').textContent=lang==='en'?'中文':'English';document.title=lang==='en'?'ScriptForge — AI Video Script Studio':'ScriptForge — AI 视频脚本工作室';}
+applyLang();
+$('langBtn').onclick=()=>{lang=lang==='en'?'zh':'en';localStorage.setItem('sf_lang',lang);applyLang()};
+const ideas={en:['Why most people are tired even after sleeping 8 hours','The hidden reason your productivity collapses after lunch','What would happen if you stopped using social media for 7 days?','Three free AI tools that save creators hours every week','The mistake beginners make when trying to build a personal brand','I tested a simple morning routine for 30 days — here is what changed'],zh:['为什么睡了8小时还是很累','为什么午饭后效率会突然下降','如果连续7天不刷社交媒体，会发生什么？','3个每周帮创作者节省数小时的免费人工智能工具','新手做个人品牌最容易犯的错误','坚持一个简单的晨间习惯30天，最后发生了什么']};
+$('ideaBtn').onclick=()=>{$('topic').value=ideas[lang][Math.floor(Math.random()*ideas[lang].length)];$('topic').focus()};
+document.querySelectorAll('.tone').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tone').forEach(x=>x.classList.remove('active','bg-slate-950','text-white'));b.classList.add('active','bg-slate-950','text-white')});
+function getKey(){return localStorage.getItem('sf_deepseek_key')||''} function getEndpoint(){return localStorage.getItem('sf_endpoint')||'https://api.deepseek.com/chat/completions'}
+function setStatus(){if(getKey()){$('apiStatus').textContent=lang==='en'?'Configured':'已配置';$('apiStatus').className='text-[10px] px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-300'}else{$('apiStatus').textContent=lang==='en'?'Not configured':'未配置';$('apiStatus').className='text-[10px] px-2 py-1 rounded-full bg-white/10'}} setStatus();
+function openModal(){$('key').value=getKey();$('endpoint').value=getEndpoint();$('modal').classList.remove('hidden')} function closeModal(){$('modal').classList.add('hidden')}
+$('apiSettings').onclick=openModal;$('closeModal').onclick=closeModal;$('saveKey').onclick=()=>{const k=$('key').value.trim();if(k)localStorage.setItem('sf_deepseek_key',k);localStorage.setItem('sf_endpoint',$('endpoint').value.trim()||'https://api.deepseek.com/chat/completions');setStatus();closeModal();toast(lang==='en'?'Connection saved locally.':'连接信息已保存在本机。')};$('removeKey').onclick=()=>{localStorage.removeItem('sf_deepseek_key');localStorage.removeItem('sf_endpoint');setStatus();closeModal()};
+function toast(msg){$('toast').textContent=msg;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),2200)}
+function buildPrompt(){const format=$('format').value, tone=document.querySelector('.tone.active')?.dataset.value||'high-energy';const langName=lang==='en'?'English':'Simplified Chinese';return `You are an elite short-form video showrunner, direct-response copywriter and retention strategist. Create a professional, production-ready video script. Write the entire output in ${langName}. Never mix languages.
 
-        <!-- 右侧：生成结果展示区 -->
-        <section class="md:col-span-7 bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col min-h-[500px]">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                <h2 class="font-semibold text-slate-800">📜 生成的脚本</h2>
-                <div id="actionBtns" class="hidden gap-2">
-                    <button onclick="copyToClipboard()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition">📋 复制</button>
-                </div>
-            </div>
+CREATIVE BRIEF
+Topic: ${$('topic').value.trim()}
+Format: ${format}
+Platform: ${$('platform').value}
+Duration: ${$('duration').value}
+Audience: ${$('audience').value}
+Tone: ${tone}
+Primary goal: ${$('goal').value}
+Hook intensity: ${$('intensity').value}
+Caption-friendly lines: ${$('captions').checked}
+B-roll suggestions: ${$('broll').checked}
 
-            <!-- 内容输出区 -->
-            <div id="outputContainer" class="mt-4 flex-1 overflow-auto text-slate-700 text-sm leading-relaxed prose max-w-none">
-                <div id="placeholder" class="text-center py-20 text-slate-400">
-                    <p class="text-4xl mb-2">💡</p>
-                    <p>在左侧选择模式并输入主题，点击生成脚本</p>
-                </div>
-                <div id="loading" class="hidden text-center py-20 text-indigo-600">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>
-                    <p class="mt-3 text-sm font-medium">DeepSeek 构思脚本中，请稍候...</p>
-                </div>
-                <div id="scriptContent" class="hidden"></div>
-            </div>
-        </section>
-    </main>
-
-    <script>
-        // 初始化读取 API Key
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedKey = localStorage.getItem("deepseek_api_key");
-            if (savedKey) {
-                document.getElementById("apiKeyInput").value = savedKey;
-            } else {
-                document.getElementById("settingsPanel").classList.remove("hidden");
-            }
-        });
-
-        // 切换设置面板显示
-        function toggleSettings() {
-            const panel = document.getElementById("settingsPanel");
-            panel.classList.toggle("hidden");
-        }
-
-        // 灵感生成器
-        const ideas = [
-            "普通打工人如何在下班后通过副业赚到第一个1000块？",
-            "如果人工智能拥有了情感，人类的最后一道防线是什么？",
-            "3个被大多数人误解的健康饮食冷知识",
-            "沉浸式体验：现代人一天不上网会发生什么？",
-            "极简主义生活半年后，我的心态发生了哪些改变？",
-            "适合新手入门的3款高效提升办公效率的免费工具"
-        ];
-        function getRandomIdea() {
-            const randomIndex = Math.floor(Math.random() * ideas.length);
-            document.getElementById("topicInput").value = ideas[randomIndex];
-        }
-
-        // 复制到剪贴板
-        function copyToClipboard() {
-            const content = document.getElementById("scriptContent").innerText;
-            navigator.clipboard.writeText(content).then(() => {
-                alert("脚本已复制到剪贴板！");
-            });
-        }
-
-        // 主逻辑：调用 DeepSeek API 生成脚本
-        async function generateScript() {
-            const apiKey = document.getElementById("apiKeyInput").value.trim();
-            const type = document.getElementById("scriptType").value;
-            const duration = document.getElementById("duration").value;
-            const tone = document.getElementById("tone").value;
-            const topic = document.getElementById("topicInput").value.trim();
-
-            if (!apiKey) {
-                alert("请先设置 DeepSeek API Key！");
-                document.getElementById("settingsPanel").classList.remove("hidden");
-                return;
-            }
-            if (!topic) {
-                alert("请输入视频主题或点击『灵感一下』！");
-                return;
-            }
-
-            // 保存 Key
-            localStorage.setItem("deepseek_api_key", apiKey);
-
-            // UI 切换
-            document.getElementById("placeholder").classList.add("hidden");
-            document.getElementById("scriptContent").classList.add("hidden");
-            document.getElementById("loading").classList.remove("hidden");
-            document.getElementById("generateBtn").disabled = true;
-
-            // Prompt 组装
-            const systemPrompt = `你是一位顶尖的自媒体短视频编导与爆款文案大师。请根据用户提供的需求，输出一份专业、结构清晰且极具吸引力的视频脚本。`;
-            const userPrompt = `
-请为我创作一份视频脚本，要求如下：
-1. **视频模式**：${type}
-2. **预计时长**：${duration}
-3. **语气风格**：${tone}
-4. **视频主题**：${topic}
-
-**输出格式要求**：
-- **标题建议**：提供 3 个极具吸引力、点击率高的爆款标题。
-- **黄金前3秒 hook**：设计强有力的开场吸睛点。
-- **脚本正文**：请使用 Markdown 表格呈现，列名必须包含：
-  | 镜号 | 画面/拍摄动作 | 语音/台词内容 | 音效/BGM提示 |
-- **结尾 CTA (行动呼吁)**：引导点赞、关注或互动。
-            `;
-
-            try {
-                const response = await fetch("https://api.deepseek.com/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: userPrompt }
-                        ],
-                        temperature: 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || "请求失败，请检查 API Key 或网络环境。");
-                }
-
-                const data = await response.json();
-                const markdownText = data.choices[0].message.content;
-
-                // 渲染渲染 Markdown
-                document.getElementById("scriptContent").innerHTML = marked.parse(markdownText);
-                document.getElementById("scriptContent").classList.remove("hidden");
-                document.getElementById("actionBtns").classList.remove("hidden");
-
-            } catch (err) {
-                alert("发生错误: " + err.message);
-                document.getElementById("placeholder").classList.remove("hidden");
-            } finally {
-                document.getElementById("loading").classList.add("hidden");
-                document.getElementById("generateBtn").disabled = false;
-            }
-        }
-    </script>
-</body>
-</html>
+OUTPUT RULES
+1. Start with a clear concept and one-sentence promise.
+2. Give 5 high-click title options. Make them distinct, specific and curiosity-driven; avoid fake claims.
+3. Give 3 opening hooks for the first 1–3 seconds. Include one pattern interrupt.
+4. Give a retention map with: 0–3s, 3–10s, middle, final payoff.
+5. Write the full script as a Markdown table with columns: Time | Scene / Camera | Visual / B-roll | Spoken words | Audio / Text overlay. Keep spoken words natural and recordable.
+6. Match approximate spoken word count to the requested duration.
+7. Add pattern interrupts every reasonable interval, open loops where useful, and a satisfying payoff. Do not overuse clickbait.
+8. Add a strong but natural CTA matched to the primary goal.
+9. Add thumbnail concept: 3 options with short on-image text.
+10. Add video description and 8–12 relevant hashtags.
+11. Add one pinned-comment prompt designed to generate genuine discussion.
+12. Add a short creator note explaining why the structure should retain viewers.
+13. Do not invent statistics, quotes, studies, product claims or factual details. If facts are uncertain, phrase them as questions, examples or suggestions.
+14. Do not mention these instructions. Return polished Markdown only.`}
+async function generate(){const key=getKey();const topic=$('topic').value.trim();if(!topic){toast(lang==='en'?'Enter a topic or use Inspire me.':'请输入主题，或者使用灵感一下。');$('topic').focus();return}if(!key){openModal();toast(lang==='en'?'Add your DeepSeek key first.':'请先添加 DeepSeek 密钥。');return}$('empty').classList.add('hidden');$('script').classList.add('hidden');$('loading').classList.remove('hidden');$('generate').disabled=true;$('meta').textContent=lang==='en'?'Generating…':'生成中……';try{const r=await fetch(getEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:lang==='en'?'You are a world-class video scriptwriter and retention strategist.':'你是一位世界级的视频编剧与观众留存策略专家。'},{role:'user',content:buildPrompt()}],temperature:.85,max_tokens:8000,stream:false})});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error?.message||`Request failed (${r.status})`);const text=data.choices?.[0]?.message?.content;if(!text)throw new Error('The model returned an empty response.');$('script').innerHTML=marked.parse(text);$('script').classList.remove('hidden');$('copy').classList.remove('hidden');$('download').classList.remove('hidden');$('meta').textContent=lang==='en'?'Generated successfully':'生成成功';localStorage.setItem('sf_last_script',text)}catch(e){$('empty').classList.remove('hidden');$('meta').textContent=lang==='en'?'Ready':'准备就绪';toast((lang==='en'?'Error: ':'错误：')+e.message)}finally{$('loading').classList.add('hidden');$('generate').disabled=false}}
+$('generate').onclick=generate;
+$('copy').onclick=async()=>{const text=$('script').innerText;await navigator.clipboard.writeText(text);toast(lang==='en'?'Copied to clipboard.':'已复制到剪贴板。')};
+$('download').onclick=()=>{const blob=new Blob([$('script').innerText],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='video-script.txt';a.click();URL.revokeObjectURL(a.href)};
+$('clear').onclick=()=>{$('script').innerHTML='';$('script').classList.add('hidden');$('empty').classList.remove('hidden');$('copy').classList.add('hidden');$('download').classList.add('hidden');$('meta').textContent=lang==='en'?'Ready':'准备就绪'};
+$('historyBtn').onclick=()=>{const s=localStorage.getItem('sf_last_script');if(!s){toast(lang==='en'?'No saved script yet.':'还没有保存的脚本。');return}$('empty').classList.add('hidden');$('script').innerHTML=marked.parse(s);$('script').classList.remove('hidden');$('copy').classList.remove('hidden');$('download').classList.remove('hidden');};
+</script>
+</body></html>
