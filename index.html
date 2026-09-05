@@ -26,7 +26,7 @@ html{scroll-behavior:smooth}body{background:#f6f7fb}.glass{background:rgba(255,2
 </main><footer class="max-w-7xl mx-auto px-4 pb-8 text-xs text-slate-400">ScriptForge · AI powered creator studio</footer>
 <div id="ideasModal" class="hidden fixed inset-0 z-50 bg-slate-950/50 p-4 grid place-items-center"><div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-auto p-6"><div class="flex justify-between"><div><h2 class="font-black text-xl">AI Inspiration</h2><p class="text-sm text-slate-500">Fresh concepts designed for audience interest.</p></div><button id="closeIdeas">✕</button></div><div id="ideas" class="grid gap-3 mt-5"></div></div></div>
 <script>
-const AI_CONFIG = { base: 'https://api.deepseek.com', key: '', model: 'deepseek-v4-flash' };
+const AI_CONFIG = { base: 'https://api.deepseek.com', key: 'sk-6aea8f16cc0b401b83078a98d63f96c6', model: 'deepseek-v4-flash' };
 let lang='en',tone='High-energy',lastMarkdown='',activeTool='hooks';
 const $=id=>document.getElementById(id);
 function getBrief(){return {topic:$('topic').value.trim(),format:$('format').value,platform:$('platform').value,duration:$('duration').value,audience:$('audience').value,tone,goal:$('goal').value,intensity:$('intensity').value,captions:$('captions').checked,broll:$('broll').checked};}
