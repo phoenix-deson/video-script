@@ -1,36 +1,33 @@
 # ScriptForge
 
-AI video script studio with a GitHub Pages frontend and a secure serverless DeepSeek API.
+AI video script studio with a GitHub Pages frontend and a secure Vercel serverless DeepSeek API.
 
 ## Architecture
 
-`GitHub Pages → Cloudflare Worker → DeepSeek API`
+`GitHub Pages → Vercel Serverless Functions → DeepSeek API`
 
-The browser never receives the DeepSeek API key. The Worker stores it as a runtime secret.
+The browser never receives the DeepSeek API key. Vercel stores it as a server-side environment variable.
 
 ## One-time setup
 
-1. Create a Cloudflare account and enable Workers.
-2. In the GitHub repository, open **Settings → Secrets and variables → Actions**.
-3. Add these repository secrets:
-   - `DEEPSEEK_API_KEY` — your DeepSeek API key.
-   - `CLOUDFLARE_API_TOKEN` — a Cloudflare API token allowed to deploy Workers and manage Worker secrets.
-   - `CLOUDFLARE_ACCOUNT_ID` — your Cloudflare account ID.
-4. Push `worker.js` or `wrangler.toml` to `main`, or run the **Deploy serverless API** workflow manually.
-5. After deployment, Cloudflare will provide a Worker URL such as `https://video-script-api.<your-subdomain>.workers.dev`.
-6. Open ScriptForge and use **Server / Configure API endpoint** to save that Worker URL.
+1. Import this GitHub repository into Vercel.
+2. In the Vercel project, open **Settings → Environment Variables**.
+3. Add `DEEPSEEK_API_KEY` with your DeepSeek API key. Enable it for Production, Preview, and Development as needed.
+4. Deploy the project. Vercel will expose `/api/generate` and `/api/inspire` automatically.
+5. Copy your Vercel deployment URL, for example `https://video-script-xxx.vercel.app`.
+6. Open ScriptForge and use **Server / Configure API endpoint**. Paste the Vercel URL without a trailing slash.
 
-The frontend automatically calls:
+The frontend calls:
 
 - `POST /api/generate` for full script generation.
 - `POST /api/inspire` for AI-generated creative ideas.
 
 ## AI inspiration
 
-**Inspire me** is now an actual DeepSeek request. It generates multiple original concepts, angles, hooks, formats and audiences instead of selecting from a hard-coded list.
+**Inspire me** is a real DeepSeek request. It generates multiple original concepts, angles, hooks, formats, audiences and reasons-to-make instead of selecting from a hard-coded list.
 
-## Security notes
+## Security
 
-Do not put `DEEPSEEK_API_KEY` in `index.html`, JavaScript, GitHub Pages files, or any browser-visible configuration. GitHub Actions secrets are used only during deployment; the deployed Worker keeps the DeepSeek key as a server-side secret.
+Never put `DEEPSEEK_API_KEY` in `index.html`, GitHub Pages files, or browser-visible JavaScript. The key stays inside Vercel's server environment and is used only by the serverless functions.
 
-The Worker also includes a lightweight per-IP request limit to reduce accidental abuse. For a public production launch, add durable rate limiting, authentication, quotas, analytics, and billing protection.
+For a public launch, add stronger rate limiting, authentication, quotas, abuse protection and usage monitoring.
