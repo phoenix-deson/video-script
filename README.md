@@ -1,41 +1,49 @@
 # ScriptForge
 
-AI video script studio with a GitHub Pages frontend and a Vercel serverless DeepSeek API.
+AI video script studio that runs directly in the browser.
 
 ## Architecture
 
-`GitHub Pages → Vercel Serverless Functions → DeepSeek API`
+`Browser → DeepSeek API`
 
-The browser never receives the DeepSeek API key. The key is stored only in Vercel Environment Variables.
+There is no Vercel, Cloudflare Worker, GitHub Actions backend, or server-side API in this version. Your DeepSeek API key is entered through the **AI API** settings panel and stored locally in your browser only.
 
-## Deploy the API to Vercel
+## How to use
 
-1. Sign in to Vercel and import this GitHub repository.
-2. Deploy the project. Vercel automatically detects `api/generate.js` and `api/inspire.js` as serverless functions.
-3. Open the Vercel project: **Settings → Environment Variables**.
-4. Add:
-   - Name: `DEEPSEEK_API_KEY`
-   - Value: your DeepSeek API key
-   - Environment: Production (and Preview if you want preview deployments to work)
-5. Redeploy the project after adding or changing the variable.
-6. Copy the Vercel deployment URL.
-7. Open the GitHub Pages version of ScriptForge, click **Server**, paste the Vercel URL, and save it.
+1. Download or clone this repository.
+2. Open `index.html` in your browser.
+3. Click **AI API**.
+4. Enter your API base URL, API key, and model.
+5. Click **Save locally**.
+6. Use **Generate professional script** or **Inspire me**.
 
-The frontend calls:
+The default settings are:
 
-- `POST /api/generate` — professional script generation.
-- `POST /api/inspire` — AI-generated creative ideas.
+- API base URL: `https://api.deepseek.com`
+- Model: `deepseek-chat`
 
-## AI inspiration
+You can also use another OpenAI-compatible API by changing the base URL and model.
 
-**Inspire me / 灵感一下** is a real DeepSeek request. It generates eight fresh concepts with titles, angles, hooks, formats, audiences and rationale instead of selecting from a fixed list.
+## API key privacy
 
-## Security
+The API key is not included in the repository and there is no placeholder key committed to GitHub. The page stores the key in browser `localStorage` only when **Remember locally in this browser** is enabled. If that option is disabled, the key is kept only for the current browser session.
 
-Never put `DEEPSEEK_API_KEY` in `index.html`, browser JavaScript, GitHub Pages files, or localStorage. Only the Vercel serverless functions should access the secret.
+The key is sent directly from your browser to the configured AI API. It is not sent through this project's server because this project has no server component.
 
-The demo API currently allows cross-origin requests so a GitHub Pages frontend can call it. For a public production launch, add durable rate limiting, authentication, quotas and abuse protection.
+For a public GitHub Pages deployment, remember that browser-based API calls expose the key to the browser runtime and network requests. This local-only version is intended for personal use or for downloading and running yourself.
 
-## GitHub Pages
+## Features
 
-Keep `index.html` on GitHub Pages. The frontend does not need to be hosted on Vercel; it only needs the Vercel deployment URL configured through the **Server** dialog.
+- Professional video script generation
+- AI-generated creative inspiration
+- Retention-first hooks and structure
+- Production tables with scenes, visuals, spoken words and audio/text cues
+- B-roll suggestions
+- Titles, thumbnails, descriptions, hashtags and pinned comments
+- English and Simplified Chinese interface/output
+- Local script history
+- Markdown copy and download
+
+## Important
+
+Never commit your real API key into `index.html`, JavaScript files, GitHub repository secrets that are intended to be exposed to the frontend, screenshots, or any other repository file.
