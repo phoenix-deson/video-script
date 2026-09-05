@@ -1,0 +1,42 @@
+name: restore-scriptforge-ui
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore polished UI and add mode switch
+        shell: bash
+        run: |
+          git show eb924b507cb68424155a04ef8471a751b8810341:index.html > index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('.idea{cursor:pointer;transition:.15s}', '.idea{cursor:pointer;transition:.15s}.mode-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-top:14px}.mode-switch{position:relative;display:inline-flex;width:46px;height:26px;flex:none}.mode-switch input{opacity:0;width:0;height:0}.mode-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s;cursor:pointer}.mode-slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 4px rgba(15,23,42,.18)}.mode-switch input:checked+.mode-slider{background:#4f46e5}.mode-switch input:checked+.mode-slider:before{transform:translateX(20px)}')
+          marker='<label class="flex gap-2 mt-2 text-sm"><input id="broll" type="checkbox" checked><span id="brollLabel"></span></label>'
+          insert=marker+'<div class="mode-card"><div class="flex items-center justify-between gap-3"><div><div id="modeLabel" class="text-sm font-black"></div><div id="modeDesc" class="text-[11px] text-slate-500 mt-1"></div></div><label class="mode-switch"><input id="detailMode" type="checkbox"><span class="mode-slider"></span></label></div></div>'
+          s=s.replace(marker,insert,1)
+          s=s.replace("brollLabel:'Add B-roll suggestions',generate:", "brollLabel:'Add B-roll suggestions',modeLabel:'Full production mode',modeDesc:'Off: concise spoken script only. On: add production and creator details.',generate:")
+          s=s.replace("brollLabel:'加入 B-roll 建议',generate:", "brollLabel:'加入 B-roll 建议',modeLabel:'完整制作模式',modeDesc:'关闭：只生成最有用的口播/对话。打开：增加完整制作信息。',generate:")
+          s=s.replace("['generate','generate'],['connection'", "['generate','generate'],['modeLabel','modeLabel'],['modeDesc','modeDesc'],['connection'")
+          s=s.replace("const AI_CONFIG={base:'https://api.deepseek.com',key:'',model:'deepseek-v4-flash',maxTokens:6500,toolMaxTokens:2200,inspirationMaxTokens:900,maxTopicChars:2000};", "const AI_CONFIG={base:'https://api.deepseek.com',key:'',model:'deepseek-v4-flash',maxTokens:6500,toolMaxTokens:2200,inspirationMaxTokens:900,maxTopicChars:2000};const BUDGETS={'30 seconds':320,'60 seconds':480,'90 seconds':620,'3 minutes':1050,'5 minutes':1600,'8 minutes':2400,'10 minutes':3000,'15 minutes':4200,'20 minutes':5400};")
+          pattern=r"async function generate\(\)\{.*?\}\nfunction save\("
+          replacement="""async function generate(){if(!$('topic').value.trim())return alert(T().noTopic);$('generate').disabled=true;$('empty').classList.add('hidden');$('output').classList.add('hidden');$('loading').classList.remove('hidden');$('status').textContent=T().working;try{const duration=$('duration').value,full=$('detailMode').checked,budget=BUDGETS[duration]||650,max=full?Math.min(5000,Math.max(700,budget*2)):budget;const common=brief()+`\\nMode: ${full?'Full production':'Concise spoken script'}`;const system=full?'You are an elite video writer, director, editor and retention strategist. Return ONLY useful, production-ready Markdown. Be concise: remove filler, repeated explanations and generic AI commentary. Keep every required section, but make each section proportional to the selected video duration. Never restate the brief. Never pad a short video into a long document.':'You are an elite video script writer. Return ONLY the spoken narration/dialogue in clean Markdown with compact timestamps. Do not add production commentary, shot lists, B-roll, camera directions, editing notes, retention analysis, titles, thumbnails, SEO, hashtags, upload checklists or explanations. Never pad the script. The spoken content must finish within the selected duration.';const user=full?`Create a complete but compact production package for this brief:\\n${common}\\n\\nRequired sections in this order: # Hooks — 3 short hooks + strongest choice; # Titles — 8 concise titles; # Promise & Open Loop; # Full Script — a scene-by-scene Markdown table covering the ENTIRE selected duration with timestamps, voiceover, on-screen text, framing, camera movement, visual/B-roll and edit/audio notes; # Pattern Interrupts — 3; # Retention Map — key beats, likely drop-offs and concrete fixes; # Payoff & CTA; # Thumbnails — 2 concepts; # Description; # SEO Keywords; # Hashtags; # Pinned Comment; # Upload Checklist; # Short-form Cutdowns — 2. Keep all sections actionable. For 30 seconds, keep the entire package compact and never turn it into multiple pages of filler.\\n\\n${common}`:`Write the final spoken script for this brief:\\n${common}\\n\\nStrict duration budget: maximum ${max} output tokens. For 30 seconds, target no more than 75 English words or 150 Chinese characters and 6–10 short timestamped lines. For other durations, use only the natural spoken length for that duration. Do not add anything the viewer does not hear.`;const r=await ask(system,user,max);show(r);save(brief(),r)}catch(e){show('## '+T().error+'\\n\\n'+e.message)}finally{$('generate').disabled=false;$('status').textContent=T().ready}}\\nfunction save("""
+          ns,n=re.subn(pattern,replacement,s,flags=re.S)
+          if n!=1: raise SystemExit(f'generate replacement count={n}')
+          p.write_text(ns)
+          PY
+          rm -f .github/workflows/restore-scriptforge-ui.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/restore-scriptforge-ui.yml
+          git commit -m "Restore polished ScriptForge UI with concise/full mode"
+          git push
