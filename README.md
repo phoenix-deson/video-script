@@ -2,6 +2,8 @@
 
 AI video script studio that runs directly in the browser.
 
+UI restoration trigger.
+
 ## Architecture
 
 `Browser → DeepSeek API`
