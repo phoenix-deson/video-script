@@ -1,33 +1,41 @@
 # ScriptForge
 
-AI video script studio with a GitHub Pages frontend and a secure Vercel serverless DeepSeek API.
+AI video script studio with a GitHub Pages frontend and a Vercel serverless DeepSeek API.
 
 ## Architecture
 
 `GitHub Pages → Vercel Serverless Functions → DeepSeek API`
 
-The browser never receives the DeepSeek API key. Vercel stores it as a server-side environment variable.
+The browser never receives the DeepSeek API key. The key is stored only in Vercel Environment Variables.
 
-## One-time setup
+## Deploy the API to Vercel
 
-1. Import this GitHub repository into Vercel.
-2. In the Vercel project, open **Settings → Environment Variables**.
-3. Add `DEEPSEEK_API_KEY` with your DeepSeek API key. Enable it for Production, Preview, and Development as needed.
-4. Deploy the project. Vercel will expose `/api/generate` and `/api/inspire` automatically.
-5. Copy your Vercel deployment URL, for example `https://video-script-xxx.vercel.app`.
-6. Open ScriptForge and use **Server / Configure API endpoint**. Paste the Vercel URL without a trailing slash.
+1. Sign in to Vercel and import this GitHub repository.
+2. Deploy the project. Vercel automatically detects `api/generate.js` and `api/inspire.js` as serverless functions.
+3. Open the Vercel project: **Settings → Environment Variables**.
+4. Add:
+   - Name: `DEEPSEEK_API_KEY`
+   - Value: your DeepSeek API key
+   - Environment: Production (and Preview if you want preview deployments to work)
+5. Redeploy the project after adding or changing the variable.
+6. Copy the Vercel deployment URL.
+7. Open the GitHub Pages version of ScriptForge, click **Server**, paste the Vercel URL, and save it.
 
 The frontend calls:
 
-- `POST /api/generate` for full script generation.
-- `POST /api/inspire` for AI-generated creative ideas.
+- `POST /api/generate` — professional script generation.
+- `POST /api/inspire` — AI-generated creative ideas.
 
 ## AI inspiration
 
-**Inspire me** is a real DeepSeek request. It generates multiple original concepts, angles, hooks, formats, audiences and reasons-to-make instead of selecting from a hard-coded list.
+**Inspire me / 灵感一下** is a real DeepSeek request. It generates eight fresh concepts with titles, angles, hooks, formats, audiences and rationale instead of selecting from a fixed list.
 
 ## Security
 
-Never put `DEEPSEEK_API_KEY` in `index.html`, GitHub Pages files, or browser-visible JavaScript. The key stays inside Vercel's server environment and is used only by the serverless functions.
+Never put `DEEPSEEK_API_KEY` in `index.html`, browser JavaScript, GitHub Pages files, or localStorage. Only the Vercel serverless functions should access the secret.
 
-For a public launch, add stronger rate limiting, authentication, quotas, abuse protection and usage monitoring.
+The demo API currently allows cross-origin requests so a GitHub Pages frontend can call it. For a public production launch, add durable rate limiting, authentication, quotas and abuse protection.
+
+## GitHub Pages
+
+Keep `index.html` on GitHub Pages. The frontend does not need to be hosted on Vercel; it only needs the Vercel deployment URL configured through the **Server** dialog.
